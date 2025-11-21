@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #1a1a2e;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,26 +22,30 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: #f8f9fa;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             max-width: 900px;
             width: 100%;
             padding: 40px;
+            border: 1px solid #2c3e50;
         }
 
         h1 {
             text-align: center;
-            color: #667eea;
+            color: #2c3e50;
             margin-bottom: 10px;
-            font-size: 2.5em;
+            font-size: 2.2em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
             text-align: center;
-            color: #666;
+            color: #555;
             margin-bottom: 30px;
-            font-size: 1.1em;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .controls {
@@ -59,21 +63,23 @@
 
         label {
             font-weight: 600;
-            color: #333;
+            color: #2c3e50;
             font-size: 0.95em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         select, input[type="range"] {
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
             font-size: 1em;
             transition: border-color 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #2c3e50;
         }
 
         input[type="range"] {
@@ -82,9 +88,10 @@
 
         .speed-value {
             text-align: center;
-            color: #667eea;
-            font-weight: 600;
+            color: #2c3e50;
+            font-weight: 500;
             font-size: 0.9em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .button-group {
@@ -95,89 +102,90 @@
 
         button {
             flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
+            padding: 12px 20px;
+            border: 1px solid #2c3e50;
+            border-radius: 2px;
+            font-size: 0.95em;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2c3e50;
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #34495e;
         }
 
         .btn-secondary {
-            background: #f5f5f5;
-            color: #666;
+            background: white;
+            color: #2c3e50;
         }
 
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: #ecf0f1;
         }
 
         .btn-success {
-            background: #4caf50;
+            background: #27ae60;
             color: white;
+            border-color: #27ae60;
         }
 
         .btn-success:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            background: #229954;
+            border-color: #229954;
         }
 
         .question-container {
-            background: #f9f9f9;
-            border-radius: 12px;
+            background: white;
+            border-radius: 2px;
             padding: 30px;
             min-height: 300px;
             position: relative;
+            border: 1px solid #ddd;
         }
 
         .question-text {
-            font-size: 1.15em;
+            font-size: 1.1em;
             line-height: 1.8;
             color: #333;
             margin-bottom: 25px;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
 
         .answer-input-section {
             margin-top: 20px;
             padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            border: 2px solid #667eea;
+            background: #f8f9fa;
+            border-radius: 2px;
+            border: 1px solid #2c3e50;
         }
 
         .answer-input-section label {
             display: block;
             margin-bottom: 10px;
-            color: #667eea;
+            color: #2c3e50;
             font-size: 1em;
         }
 
         .answer-input-section input[type="text"] {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
             font-size: 1em;
             transition: border-color 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .answer-input-section input[type="text"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #2c3e50;
         }
 
         .answer-input-buttons {
@@ -193,47 +201,53 @@
         }
 
         .answer-section {
-            border-top: 2px solid #667eea;
+            border-top: 1px solid #2c3e50;
             padding-top: 20px;
             margin-top: 20px;
         }
 
         .answer-label {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.1em;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1em;
             margin-bottom: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .answer-text {
-            font-size: 1.1em;
+            font-size: 1em;
             line-height: 1.7;
             color: #444;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
 
         .placeholder {
             text-align: center;
-            color: #999;
-            font-size: 1.2em;
+            color: #666;
+            font-size: 1.1em;
             padding: 60px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .stats {
             text-align: center;
             margin-top: 20px;
-            padding: 15px;
-            background: #f0f0f0;
-            border-radius: 8px;
+            padding: 12px;
+            background: #ecf0f1;
+            border-radius: 2px;
             font-size: 0.9em;
-            color: #666;
+            color: #555;
+            border: 1px solid #ddd;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .hint {
             text-align: center;
-            color: #999;
+            color: #666;
             font-size: 0.85em;
             margin-top: 10px;
             font-style: italic;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .hidden {
@@ -244,7 +258,7 @@
             display: inline-block;
             width: 2px;
             height: 1.2em;
-            background-color: #667eea;
+            background-color: #2c3e50;
             animation: blink 1s step-end infinite;
             vertical-align: text-bottom;
         }
@@ -277,12 +291,13 @@
             background-color: white;
             margin: 15% auto;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 2px;
             width: 90%;
             max-width: 500px;
             text-align: center;
             animation: slideIn 0.3s;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2c3e50;
         }
 
         @keyframes slideIn {
@@ -348,8 +363,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>📚 History Bee Question Generator</h1>
-        <p class="subtitle">Practice with streaming questions from official History Bee competitions</p>
+        <h1>National History Bee Practice System</h1>
+        <p class="subtitle">Official Competition Questions (2014-2025)</p>
 
         <div class="controls">
             <div class="control-group">
@@ -383,7 +398,7 @@
         </div>
 
         <div class="hint hidden" id="spacebarHint">
-            💡 Press <strong>SPACE</strong> to pause and answer
+            Press <strong>SPACE</strong> to pause and answer
         </div>
 
         <div class="stats">
@@ -476,7 +491,6 @@
 
         // Stream text character by character
         function streamText(text, targetElement, callback) {
-            const speed = parseInt(document.getElementById('speed').value);
             let displayText = '';
             currentCharIndex = 0;
 
@@ -510,7 +524,18 @@
                 targetElement.innerHTML = displayText + '<span class="cursor"></span>';
             }
 
-            streamingInterval = setInterval(addNextChar, speed);
+            // Use dynamic speed - read current slider value each interval
+            streamingInterval = setInterval(() => {
+                const currentSpeed = parseInt(document.getElementById('speed').value);
+                clearInterval(streamingInterval);
+                addNextChar();
+                streamingInterval = setInterval(() => {
+                    const speed = parseInt(document.getElementById('speed').value);
+                    clearInterval(streamingInterval);
+                    addNextChar();
+                    streamingInterval = setInterval(addNextChar, speed);
+                }, currentSpeed);
+            }, parseInt(document.getElementById('speed').value));
         }
 
         // Display question
@@ -631,7 +656,7 @@
             const modalMessage = document.getElementById('modalMessage');
             const modalButtons = document.getElementById('modalButtons');
 
-            modalTitle.innerHTML = '<span class="correct">🎉 Correct!</span>';
+            modalTitle.innerHTML = '<span class="correct">Correct!</span>';
             modalMessage.textContent = 'Great job! You got it right!';
             modalButtons.innerHTML = `
                 <button class="btn-primary" onclick="nextQuestionFromModal()">Next Question</button>
@@ -647,7 +672,7 @@
             const modalMessage = document.getElementById('modalMessage');
             const modalButtons = document.getElementById('modalButtons');
 
-            modalTitle.innerHTML = '<span class="incorrect">❌ Not Quite</span>';
+            modalTitle.innerHTML = '<span class="incorrect">Incorrect</span>';
             modalMessage.innerHTML = `
                 Would you like to try again or see the answer?
             `;
@@ -671,7 +696,6 @@
             // Continue streaming from where we left off
             const targetElement = document.getElementById('questionText');
             const text = currentQuestion.question;
-            const speed = parseInt(document.getElementById('speed').value);
             let displayText = targetElement.innerHTML;
 
             function addNextChar() {
@@ -705,7 +729,18 @@
                 targetElement.innerHTML = displayText + '<span class="cursor"></span>';
             }
 
-            streamingInterval = setInterval(addNextChar, speed);
+            // Use dynamic speed
+            streamingInterval = setInterval(() => {
+                const currentSpeed = parseInt(document.getElementById('speed').value);
+                clearInterval(streamingInterval);
+                addNextChar();
+                streamingInterval = setInterval(() => {
+                    const speed = parseInt(document.getElementById('speed').value);
+                    clearInterval(streamingInterval);
+                    addNextChar();
+                    streamingInterval = setInterval(addNextChar, speed);
+                }, currentSpeed);
+            }, parseInt(document.getElementById('speed').value));
         }
 
         // Reveal the answer

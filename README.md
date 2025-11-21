@@ -5,20 +5,22 @@ An interactive web application for practicing National History Bee questions wit
 ## Features
 
 - **12,000+ Questions**: Extracted from official History Bee PDFs (2014-2025)
-- **Category Selection**: Choose between Preliminary (9,652 questions) and Finals (2,410 questions)
+- **5 Difficulty Levels**: Preliminary (9,652), Quarterfinals (196), Semifinals (365), Finals (1,764), Championships (85)
+- **Interactive Answer Checking**: Press spacebar to pause and submit your answer
 - **Streaming Display**: Questions appear character-by-character, simulating an LLM response
 - **Adjustable Speed**: Control reading speed from Very Fast to Very Slow
 - **Format Preservation**: Maintains original formatting (bold, italic, underline) from source PDFs
-- **Pause/Resume**: Control the streaming flow at any time
+- **Smart Feedback**: Get immediate feedback on correct/incorrect answers
 - **Clean Interface**: Modern, responsive design that works on all devices
 
 ## Usage
 
-1. Visit the [live site](#) (update with your GitHub Pages URL)
-2. Select your question category (Preliminary or Finals)
+1. Visit the [live site](https://mglass222.github.io/National-History-Bee/)
+2. Select your difficulty level (Preliminary through National Championships)
 3. Adjust the reading speed to your preference
 4. Click "Next Question" to start
-5. Try to answer before clicking "Show Answer"
+5. Press **SPACE** while question is streaming to pause and answer
+6. Or wait for the full question and click "Show Answer"
 
 ## Technical Details
 
@@ -31,7 +33,12 @@ Questions were extracted from PDF files using PyMuPDF (fitz), which preserves:
 
 The extraction script (`extract_questions.py`):
 1. Reads all PDF files in the directory
-2. Categorizes questions based on filename (files containing "finals" → Finals, others → Preliminary)
+2. Categorizes questions by difficulty based on filename keywords:
+   - "championship" → National Championships
+   - "semifinal" → Semifinals
+   - "quarterfinal" → Quarterfinals
+   - "finals" → Finals
+   - Everything else → Preliminary
 3. Removes headers, page numbers, and metadata
 4. Extracts question-answer pairs with HTML formatting
 5. Saves to `questions.json` for fast loading
@@ -48,8 +55,8 @@ Built with vanilla HTML/CSS/JavaScript for maximum compatibility:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/nat-hist-bee.git
-   cd nat-hist-bee
+   git clone https://github.com/mglass222/National-History-Bee.git
+   cd National-History-Bee
    ```
 
 2. Serve the files (Python 3):
@@ -84,7 +91,7 @@ This site is configured for GitHub Pages:
 1. Push to the `main` branch
 2. Enable GitHub Pages in repository settings
 3. Select `main` branch and `/ (root)` as the source
-4. Your site will be available at `https://yourusername.github.io/nat-hist-bee/`
+4. Site is live at: https://mglass222.github.io/National-History-Bee/
 
 ## File Structure
 
@@ -108,11 +115,11 @@ This project is for educational purposes. Question content is © International A
 ## Contributing
 
 Issues and pull requests welcome! Suggestions for improvements:
-- Add difficulty filtering
 - Track which questions have been answered
 - Add a practice mode with scoring
 - Export practice session results
-- Add keyboard shortcuts
+- Add statistics tracking (accuracy, speed, etc.)
+- Add question bookmarking
 
 ## Credits
 

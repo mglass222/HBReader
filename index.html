@@ -204,6 +204,7 @@
             border-top: 1px solid #2c3e50;
             padding-top: 20px;
             margin-top: 20px;
+            min-height: 100px;
         }
 
         .answer-label {
@@ -551,9 +552,11 @@
             const container = document.querySelector('.question-container');
             container.innerHTML = `
                 <div class="question-text" id="questionText"></div>
-                <div class="answer-section hidden" id="answerSection">
+                <div class="answer-section" id="answerSection">
                     <div class="answer-label">ANSWER:</div>
-                    <div class="answer-text" id="answerText"></div>
+                    <div class="answer-text" id="answerText">
+                        <span style="color: #999; font-style: italic;">Answer will appear here</span>
+                    </div>
                 </div>
             `;
 
@@ -766,8 +769,6 @@
 
         // Show answer
         function showAnswer() {
-            const answerSection = document.getElementById('answerSection');
-            answerSection.classList.remove('hidden');
             document.getElementById('showAnswer').classList.add('hidden');
             document.getElementById('pauseButton').classList.add('hidden');
             document.getElementById('spacebarHint').classList.add('hidden');

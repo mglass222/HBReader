@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>History Bee Question Generator</title>
+    <title>National History Bee Practice</title>
     <style>
         * {
             margin: 0;
@@ -12,122 +12,155 @@
         }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background: #1a1a2e;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .site-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .header-stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .container {
-            background: #f8f9fa;
+        /* Settings Panel */
+        .settings-panel {
+            background: white;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            max-width: 900px;
-            width: 100%;
-            padding: 40px;
-            border: 1px solid #2c3e50;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 2.2em;
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-size: 0.85em;
             font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #555;
-            margin-bottom: 30px;
-            font-size: 1em;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            font-weight: 600;
-            color: #2c3e50;
+        .setting-group select,
+        .setting-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
             font-size: 0.95em;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            font-family: inherit;
         }
 
-        select, input[type="range"] {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        select:focus {
+        .setting-group select:focus,
+        .setting-group input:focus {
             outline: none;
-            border-color: #2c3e50;
+            border-color: #4a90e2;
         }
 
-        input[type="range"] {
-            cursor: pointer;
+        .speed-display {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 4px;
         }
 
-        .speed-value {
+        /* Play Area */
+        .play-area {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        /* Score Display */
+        .score-display {
             text-align: center;
-            color: #2c3e50;
-            font-weight: 500;
-            font-size: 0.9em;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #555;
         }
 
-        .button-group {
+        /* Controls */
+        .controls {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
         }
 
         button {
-            flex: 1;
-            padding: 12px 20px;
-            border: 1px solid #2c3e50;
-            border-radius: 2px;
+            padding: 10px 24px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background: white;
+            color: #333;
             font-size: 0.95em;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: #f8f9fa;
+            border-color: #999;
         }
 
         .btn-primary {
-            background: #2c3e50;
+            background: #4a90e2;
             color: white;
+            border-color: #4a90e2;
         }
 
         .btn-primary:hover {
-            background: #34495e;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #2c3e50;
-        }
-
-        .btn-secondary:hover {
-            background: #ecf0f1;
+            background: #357abd;
+            border-color: #357abd;
         }
 
         .btn-success {
@@ -141,136 +174,121 @@
             border-color: #229954;
         }
 
-        .question-container {
-            background: white;
-            border-radius: 2px;
-            padding: 30px;
-            min-height: 300px;
-            position: relative;
-            border: 1px solid #ddd;
+        /* Question Display */
+        .question-display {
+            margin-bottom: 25px;
         }
 
         .question-text {
-            font-size: 1.1em;
+            font-size: 1.15em;
             line-height: 1.8;
             color: #333;
-            margin-bottom: 25px;
-            font-family: 'Georgia', 'Times New Roman', serif;
-        }
-
-        .answer-input-section {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 2px;
-            border: 1px solid #2c3e50;
-        }
-
-        .answer-input-section label {
-            display: block;
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 1em;
-        }
-
-        .answer-input-section input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .answer-input-section input[type="text"]:focus {
-            outline: none;
-            border-color: #2c3e50;
-        }
-
-        .answer-input-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .answer-input-buttons button {
-            flex: 1;
-            padding: 10px;
-            font-size: 0.9em;
-        }
-
-        .answer-section {
-            border-top: 1px solid #2c3e50;
-            padding-top: 20px;
-            margin-top: 20px;
-            min-height: 100px;
-        }
-
-        .answer-label {
-            color: #2c3e50;
-            font-weight: 600;
-            font-size: 1em;
-            margin-bottom: 10px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .answer-text {
-            font-size: 1em;
-            line-height: 1.7;
-            color: #444;
-            font-family: 'Georgia', 'Times New Roman', serif;
-        }
-
-        .placeholder {
-            text-align: center;
-            color: #666;
-            font-size: 1.1em;
-            padding: 60px 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .stats {
-            text-align: center;
-            margin-top: 20px;
-            padding: 12px;
-            background: #ecf0f1;
-            border-radius: 2px;
-            font-size: 0.9em;
-            color: #555;
-            border: 1px solid #ddd;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .hint {
-            text-align: center;
-            color: #666;
-            font-size: 0.85em;
-            margin-top: 10px;
-            font-style: italic;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .hidden {
-            display: none;
+            margin-bottom: 20px;
+            min-height: 150px;
         }
 
         .cursor {
             display: inline-block;
             width: 2px;
             height: 1.2em;
-            background-color: #2c3e50;
+            background-color: #4a90e2;
             animation: blink 1s step-end infinite;
             vertical-align: text-bottom;
         }
 
         @keyframes blink {
-            50% {
-                opacity: 0;
-            }
+            50% { opacity: 0; }
         }
 
-        /* Modal styles */
+        /* Answer Section */
+        .answer-section {
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+            min-height: 120px;
+        }
+
+        .answer-label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .answer-text {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        /* Answer Input */
+        .answer-input-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .answer-input-section label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .answer-input-section input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .answer-input-section input[type="text"]:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+
+        .answer-input-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .answer-input-buttons button {
+            flex: 1;
+        }
+
+        /* Placeholder */
+        .placeholder {
+            text-align: center;
+            color: #999;
+            font-size: 1.1em;
+            padding: 60px 20px;
+        }
+
+        /* Hint */
+        .hint {
+            text-align: center;
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        .hint strong {
+            color: #4a90e2;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -280,7 +298,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.2s;
         }
 
         @keyframes fadeIn {
@@ -292,118 +310,133 @@
             background-color: white;
             margin: 15% auto;
             padding: 30px;
-            border-radius: 2px;
+            border-radius: 4px;
             width: 90%;
             max-width: 500px;
             text-align: center;
-            animation: slideIn 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            border: 1px solid #2c3e50;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .modal-content h2 {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: #333;
+            font-size: 1.5em;
         }
 
         .modal-content p {
             margin-bottom: 25px;
             color: #666;
-            font-size: 1.1em;
             line-height: 1.6;
         }
 
         .modal-buttons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
         }
 
-        .modal-buttons button {
-            padding: 12px 30px;
-            font-size: 1em;
-        }
-
         .correct {
-            color: #4caf50;
+            color: #27ae60;
         }
 
         .incorrect {
-            color: #f44336;
+            color: #e74c3c;
         }
 
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .controls {
+            .settings-row {
                 grid-template-columns: 1fr;
             }
 
-            .button-group {
+            .controls {
                 flex-direction: column;
+            }
+
+            button {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="site-title">National History Bee Practice</div>
+            <div class="header-stats" id="headerStats">Loading questions...</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
     <div class="container">
-        <h1>National History Bee Practice System</h1>
-        <p class="subtitle">Official Competition Questions (2014-2025)</p>
+        <!-- Settings Panel -->
+        <div class="settings-panel">
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="category">Difficulty Level</label>
+                    <select id="category">
+                        <option value="preliminary">Preliminary (9,652)</option>
+                        <option value="quarterfinal">Quarterfinals (196)</option>
+                        <option value="semifinal">Semifinals (365)</option>
+                        <option value="finals">Finals (1,764)</option>
+                        <option value="championship">National Championships (85)</option>
+                    </select>
+                </div>
 
-        <div class="controls">
-            <div class="control-group">
-                <label for="category">Difficulty Level:</label>
-                <select id="category">
-                    <option value="preliminary">Preliminary (9,652 questions)</option>
-                    <option value="quarterfinal">Quarterfinals (196 questions)</option>
-                    <option value="semifinal">Semifinals (365 questions)</option>
-                    <option value="finals">Finals (1,764 questions)</option>
-                    <option value="championship">National Championships (85 questions)</option>
-                </select>
-            </div>
+                <div class="setting-group">
+                    <label for="speed">Reading Speed</label>
+                    <input type="range" id="speed" min="10" max="200" value="50" step="10">
+                    <div class="speed-display">
+                        <span id="speedLabel">Medium</span> (<span id="speedValue">50</span> ms/char)
+                    </div>
+                </div>
 
-            <div class="control-group">
-                <label for="speed">Reading Speed:</label>
-                <input type="range" id="speed" min="10" max="200" value="50" step="10">
-                <div class="speed-value">Medium (<span id="speedValue">50</span> ms/char)</div>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <button class="btn-primary" id="nextQuestion">Next Question</button>
-            <button class="btn-secondary hidden" id="pauseButton">Pause</button>
-            <button class="btn-success hidden" id="showAnswer">Show Answer</button>
-        </div>
-
-        <div class="question-container">
-            <div class="placeholder">
-                Click "Next Question" to start practicing!
+                <div class="setting-group">
+                    <label>Statistics</label>
+                    <div class="speed-display" id="stats">0 questions practiced</div>
+                </div>
             </div>
         </div>
 
-        <div class="hint hidden" id="spacebarHint">
-            Press <strong>SPACE</strong> to pause and answer
-        </div>
+        <!-- Play Area -->
+        <div class="play-area">
+            <!-- Score Display -->
+            <div class="score-display">
+                Press "Next Question" to begin
+            </div>
 
-        <div class="stats">
-            <span id="stats">Loading questions...</span>
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn-primary" id="nextQuestion">Next Question</button>
+                <button class="hidden" id="pauseButton">Pause</button>
+                <button class="btn-success hidden" id="showAnswer">Show Answer</button>
+            </div>
+
+            <!-- Question Display -->
+            <div class="question-display">
+                <div class="question-text" id="questionText">
+                    <div class="placeholder">
+                        Select your difficulty level and click "Next Question" to start practicing.
+                    </div>
+                </div>
+
+                <div class="hint hidden" id="spacebarHint">
+                    Press <strong>SPACE</strong> to pause and submit your answer
+                </div>
+
+                <!-- Answer Section -->
+                <div class="answer-section">
+                    <div class="answer-label">Answer</div>
+                    <div class="answer-text" id="answerText">
+                        <span style="color: #999; font-style: italic;">Answer will appear here</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -428,8 +461,9 @@
         let streamingInterval = null;
         let isPaused = false;
         let currentCharIndex = 0;
-        let currentSection = 'question'; // 'question' or 'answer'
+        let currentSection = 'question';
         let answerInputShown = false;
+        let questionsPracticed = 0;
 
         // Load questions from JSON
         async function loadQuestions() {
@@ -439,22 +473,15 @@
                 updateStats();
             } catch (error) {
                 console.error('Error loading questions:', error);
-                document.getElementById('stats').textContent = 'Error loading questions. Please refresh the page.';
+                document.getElementById('headerStats').textContent = 'Error loading questions';
             }
         }
 
         function updateStats() {
             const category = document.getElementById('category').value;
             const count = questions[category]?.length || 0;
-            const categoryNames = {
-                'preliminary': 'preliminary',
-                'quarterfinal': 'quarterfinal',
-                'semifinal': 'semifinal',
-                'finals': 'finals',
-                'championship': 'championship'
-            };
-            document.getElementById('stats').textContent =
-                `${count.toLocaleString()} ${categoryNames[category]} questions available`;
+            document.getElementById('headerStats').textContent = `${count.toLocaleString()} questions available`;
+            document.getElementById('stats').textContent = `${questionsPracticed} questions practiced`;
         }
 
         function getSpeedLabel(speed) {
@@ -470,8 +497,7 @@
             const speed = e.target.value;
             const label = getSpeedLabel(parseInt(speed));
             document.getElementById('speedValue').textContent = speed;
-            document.querySelector('.speed-value').innerHTML =
-                `${label} (<span id="speedValue">${speed}</span> ms/char)`;
+            document.getElementById('speedLabel').textContent = label;
         });
 
         // Update stats when category changes
@@ -549,16 +575,17 @@
                 return;
             }
 
-            const container = document.querySelector('.question-container');
-            container.innerHTML = `
-                <div class="question-text" id="questionText"></div>
-                <div class="answer-section" id="answerSection">
-                    <div class="answer-label">ANSWER:</div>
-                    <div class="answer-text" id="answerText">
-                        <span style="color: #999; font-style: italic;">Answer will appear here</span>
-                    </div>
-                </div>
-            `;
+            questionsPracticed++;
+            updateStats();
+
+            const questionText = document.getElementById('questionText');
+            questionText.innerHTML = '';
+
+            // Reset answer
+            document.getElementById('answerText').innerHTML = '<span style="color: #999; font-style: italic;">Answer will appear here</span>';
+
+            // Update score display
+            document.getElementById('score-display') && (document.querySelector('.score-display').textContent = `Question ${questionsPracticed}`);
 
             document.getElementById('pauseButton').classList.remove('hidden');
             document.getElementById('showAnswer').classList.add('hidden');
@@ -570,7 +597,7 @@
             // Stream the question text
             streamText(
                 currentQuestion.question,
-                document.getElementById('questionText'),
+                questionText,
                 () => {
                     // When question is done, show the "Show Answer" button
                     document.getElementById('showAnswer').classList.remove('hidden');
@@ -590,20 +617,20 @@
             const questionText = document.getElementById('questionText');
             questionText.innerHTML = questionText.innerHTML.replace('<span class="cursor"></span>', '');
 
-            const container = document.querySelector('.question-container');
+            const questionDisplay = document.querySelector('.question-display');
             const inputSection = document.createElement('div');
             inputSection.className = 'answer-input-section';
             inputSection.id = 'answerInputSection';
             inputSection.innerHTML = `
-                <label>Your Answer:</label>
+                <label>Your Answer</label>
                 <input type="text" id="userAnswer" placeholder="Type your answer here..." autofocus>
                 <div class="answer-input-buttons">
                     <button class="btn-primary" onclick="checkAnswer()">Submit Answer</button>
-                    <button class="btn-secondary" onclick="resumeQuestion()">Resume Question</button>
+                    <button onclick="resumeQuestion()">Resume Question</button>
                 </div>
             `;
 
-            container.appendChild(inputSection);
+            questionDisplay.insertBefore(inputSection, document.querySelector('.answer-section'));
             document.getElementById('userAnswer').focus();
 
             // Allow Enter key to submit
@@ -616,11 +643,8 @@
 
         // Normalize answer for comparison
         function normalizeAnswer(answer) {
-            // Remove HTML tags
             let normalized = answer.replace(/<[^>]*>/g, '');
-            // Extract main answer (before "accept" or parentheses)
             normalized = normalized.split(/\(|accept/i)[0];
-            // Remove common words and punctuation
             normalized = normalized.toLowerCase()
                 .replace(/\b(the|a|an|of|or)\b/g, '')
                 .replace(/[^\w\s]/g, '')
@@ -641,7 +665,6 @@
             const normalizedUser = normalizeAnswer(userAnswer);
             const normalizedCorrect = normalizeAnswer(correctAnswer);
 
-            // Check if user answer is contained in correct answer or vice versa
             const isCorrect = normalizedCorrect.includes(normalizedUser) ||
                             normalizedUser.includes(normalizedCorrect) ||
                             normalizedUser === normalizedCorrect;
@@ -677,9 +700,7 @@
             const modalButtons = document.getElementById('modalButtons');
 
             modalTitle.innerHTML = '<span class="incorrect">Incorrect</span>';
-            modalMessage.innerHTML = `
-                Would you like to try again or see the answer?
-            `;
+            modalMessage.innerHTML = 'Would you like to try again or see the answer?';
             modalButtons.innerHTML = `
                 <button class="btn-primary" onclick="closeModal()">Try Again</button>
                 <button class="btn-success" onclick="revealAnswer()">Show Answer</button>
@@ -697,7 +718,6 @@
             answerInputShown = false;
             isPaused = false;
 
-            // Continue streaming from where we left off
             const targetElement = document.getElementById('questionText');
             const text = currentQuestion.question;
             let displayText = targetElement.innerHTML;
@@ -706,12 +726,11 @@
             function addNextChar() {
                 if (isPaused) return;
 
-                // Check if enough time has passed based on current speed setting
                 const currentSpeed = parseInt(document.getElementById('speed').value);
                 const now = Date.now();
 
                 if (now - lastCharTime < currentSpeed) {
-                    return; // Not enough time has passed yet
+                    return;
                 }
 
                 lastCharTime = now;
@@ -726,7 +745,6 @@
 
                 const char = text[currentCharIndex];
 
-                // Handle HTML tags
                 if (char === '<') {
                     let tagEnd = text.indexOf('>', currentCharIndex);
                     if (tagEnd !== -1) {
@@ -744,7 +762,6 @@
                 targetElement.innerHTML = displayText + '<span class="cursor"></span>';
             }
 
-            // Check every 10ms, but only add character when enough time has passed
             streamingInterval = setInterval(addNextChar, 10);
         }
 
@@ -756,14 +773,11 @@
                 inputSection.remove();
             }
 
-            // Stop any streaming
             clearInterval(streamingInterval);
 
-            // Show the complete question first
             const questionText = document.getElementById('questionText');
             questionText.innerHTML = currentQuestion.question;
 
-            // Show the answer immediately
             showAnswer();
         }
 
@@ -775,7 +789,6 @@
             currentSection = 'answer';
             isPaused = false;
 
-            // Display the answer immediately (no streaming)
             document.getElementById('answerText').innerHTML = currentQuestion.answer;
         }
 
@@ -798,20 +811,17 @@
 
             if (isPaused) {
                 button.textContent = 'Resume';
-                button.classList.remove('btn-secondary');
                 button.classList.add('btn-primary');
                 clearInterval(streamingInterval);
             } else {
                 button.textContent = 'Pause';
                 button.classList.remove('btn-primary');
-                button.classList.add('btn-secondary');
                 resumeQuestion();
             }
         }
 
         // Keyboard event for spacebar
         document.addEventListener('keydown', (e) => {
-            // Only respond to spacebar if a question is active and not in an input field
             if (e.code === 'Space' && currentQuestion && !answerInputShown &&
                 e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();

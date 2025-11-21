@@ -753,11 +753,14 @@
                 inputSection.remove();
             }
 
+            // Stop any streaming
+            clearInterval(streamingInterval);
+
             // Show the complete question first
             const questionText = document.getElementById('questionText');
             questionText.innerHTML = currentQuestion.question;
 
-            // Show and stream the answer
+            // Show the answer immediately
             showAnswer();
         }
 
@@ -771,14 +774,8 @@
             currentSection = 'answer';
             isPaused = false;
 
-            // Stream the answer text
-            streamText(
-                currentQuestion.answer,
-                document.getElementById('answerText'),
-                () => {
-                    // When answer is done, enable next question
-                }
-            );
+            // Display the answer immediately (no streaming)
+            document.getElementById('answerText').innerHTML = currentQuestion.answer;
         }
 
         // Close modal

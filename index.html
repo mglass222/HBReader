@@ -78,11 +78,6 @@
             color: var(--text-primary);
         }
 
-        .header-stats {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-        }
-
         /* Main Layout */
         .main-layout {
             max-width: 1400px;
@@ -499,7 +494,6 @@
     <div class="header">
         <div class="header-content">
             <div class="site-title"><span style="color: var(--primary-blue);">HB</span>Reader</div>
-            <div class="header-stats" id="headerStats">Loading questions...</div>
         </div>
     </div>
 
@@ -654,14 +648,10 @@
                 updateStats();
             } catch (error) {
                 console.error('Error loading questions:', error);
-                document.getElementById('headerStats').textContent = 'Error loading questions';
             }
         }
 
         function updateStats() {
-            const category = document.getElementById('category').value;
-            const count = questions[category]?.length || 0;
-            document.getElementById('headerStats').textContent = `${count.toLocaleString()} questions available`;
             document.getElementById('stats').textContent = `${questionsPracticed} questions practiced`;
         }
 

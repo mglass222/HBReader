@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HBReader</title>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyADQMMGw1DXiUiNPBqnMcJh6iNdSrOZpTE",
+            authDomain: "hbreader-928fa.firebaseapp.com",
+            projectId: "hbreader-928fa",
+            storageBucket: "hbreader-928fa.firebasestorage.app",
+            messagingSenderId: "517240144248",
+            appId: "1:517240144248:web:657ef8126811aa58ad888d",
+            measurementId: "G-0QDCTRN7CL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.firebaseAuth = getAuth(app);
+        window.firebaseDb = getFirestore(app);
+        window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged };
+        window.firebaseDbFunctions = { doc, setDoc, getDoc, collection, query, orderBy, getDocs };
+    </script>
+
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -633,6 +657,202 @@
                 right: 5vw;
             }
         }
+
+        /* User Authentication Styles */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            background: var(--error-red);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+
+        .btn-login {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-blue-hover);
+        }
+
+        /* Auth Modal */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .auth-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-modal-content {
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-modal-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .auth-close {
+            font-size: 1.5em;
+            color: var(--text-secondary);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-close:hover {
+            color: var(--text-primary);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .auth-tab.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form-group {
+            margin-bottom: 15px;
+        }
+
+        .auth-form-group label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .auth-form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1em;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .auth-form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .auth-error {
+            color: var(--error-red);
+            font-size: 0.85em;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .auth-submit:hover {
+            background: var(--primary-blue-hover);
+        }
+
+        .auth-submit:disabled {
+            background: var(--text-tertiary);
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -640,6 +860,9 @@
     <div class="header">
         <div class="header-content">
             <div class="site-title"><span style="color: var(--primary-blue);">HB</span>Reader</div>
+            <div id="userAuth">
+                <button class="btn-login" onclick="showAuthModal()">Login / Sign Up</button>
+            </div>
         </div>
     </div>
 
@@ -768,6 +991,53 @@
         BUZZ
     </button>
 
+    <!-- Authentication Modal -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2 class="auth-modal-title">Welcome to HBReader</h2>
+                <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="auth-form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div id="loginError" class="auth-error"></div>
+                <button type="submit" class="auth-submit">Login</button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
+                <div class="auth-form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="auth-form-group">
+                    <label for="signupPassword">Password (min 6 characters)</label>
+                    <input type="password" id="signupPassword" required minlength="6">
+                </div>
+                <div class="auth-form-group">
+                    <label for="signupPasswordConfirm">Confirm Password</label>
+                    <input type="password" id="signupPasswordConfirm" required minlength="6">
+                </div>
+                <div id="signupError" class="auth-error"></div>
+                <button type="submit" class="auth-submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         let questions = {
             preliminary: [],
@@ -783,6 +1053,139 @@
         let answerInputShown = false;
         let questionsPracticed = 0;
         let questionHistory = []; // Track history of practiced questions
+        let currentUser = null; // Current authenticated user
+
+        // Firebase Authentication Functions
+        function showAuthModal() {
+            document.getElementById('authModal').classList.add('show');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('show');
+            // Clear forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+            document.getElementById('loginError').classList.remove('show');
+            document.getElementById('signupError').classList.remove('show');
+        }
+
+        function switchAuthTab(tab) {
+            const loginTab = document.querySelector('.auth-tab:first-child');
+            const signupTab = document.querySelector('.auth-tab:last-child');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.classList.add('active');
+                signupForm.classList.remove('active');
+            } else {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupForm.classList.add('active');
+                loginForm.classList.remove('active');
+            }
+
+            // Clear errors
+            document.getElementById('loginError').classList.remove('show');
+            document.getElementById('signupError').classList.remove('show');
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                const { signInWithEmailAndPassword } = window.firebaseAuthFunctions;
+                await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                closeAuthModal();
+            } catch (error) {
+                errorDiv.textContent = getAuthErrorMessage(error.code);
+                errorDiv.classList.add('show');
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+            const errorDiv = document.getElementById('signupError');
+
+            if (password !== passwordConfirm) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const { createUserWithEmailAndPassword } = window.firebaseAuthFunctions;
+                await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                closeAuthModal();
+            } catch (error) {
+                errorDiv.textContent = getAuthErrorMessage(error.code);
+                errorDiv.classList.add('show');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const { signOut } = window.firebaseAuthFunctions;
+                await signOut(window.firebaseAuth);
+                // Clear local history
+                questionHistory = [];
+                updateHistoryDisplay();
+                questionsPracticed = 0;
+                updateStats();
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Error signing out. Please try again.');
+            }
+        }
+
+        function getAuthErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/email-already-in-use': 'This email is already registered',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/weak-password': 'Password should be at least 6 characters',
+                'auth/too-many-requests': 'Too many attempts. Please try again later',
+                'auth/invalid-credential': 'Invalid email or password'
+            };
+            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+        }
+
+        function updateUserUI(user) {
+            const userAuthDiv = document.getElementById('userAuth');
+            if (user) {
+                currentUser = user;
+                userAuthDiv.innerHTML = `
+                    <div class="user-profile">
+                        <span class="user-email">${user.email}</span>
+                        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+                    </div>
+                `;
+                // Load user's history from Firestore
+                loadUserHistory();
+            } else {
+                currentUser = null;
+                userAuthDiv.innerHTML = `
+                    <button class="btn-login" onclick="showAuthModal()">Login / Sign Up</button>
+                `;
+            }
+        }
+
+        // Initialize Firebase Auth listener
+        window.addEventListener('load', () => {
+            const { onAuthStateChanged } = window.firebaseAuthFunctions;
+            onAuthStateChanged(window.firebaseAuth, (user) => {
+                updateUserUI(user);
+            });
+        });
 
         // Theme Management
         function initTheme() {
@@ -1358,7 +1761,7 @@
         }
 
         // Question History Functions
-        function addToHistory(question, status) {
+        async function addToHistory(question, status) {
             // status: 'correct', 'incorrect', or 'skipped'
             const historyEntry = {
                 id: question.id,
@@ -1370,6 +1773,54 @@
 
             questionHistory.push(historyEntry);
             updateHistoryDisplay();
+
+            // Save to Firestore if user is logged in
+            if (currentUser) {
+                await saveHistoryItem(historyEntry);
+            }
+        }
+
+        async function saveHistoryItem(historyEntry) {
+            try {
+                const { doc, setDoc } = window.firebaseDbFunctions;
+                const historyDocRef = doc(
+                    window.firebaseDb,
+                    'users',
+                    currentUser.uid,
+                    'history',
+                    historyEntry.id + '_' + historyEntry.timestamp
+                );
+                await setDoc(historyDocRef, historyEntry);
+            } catch (error) {
+                console.error('Error saving history:', error);
+            }
+        }
+
+        async function loadUserHistory() {
+            if (!currentUser) return;
+
+            try {
+                const { collection, getDocs, query, orderBy } = window.firebaseDbFunctions;
+                const historyCollectionRef = collection(
+                    window.firebaseDb,
+                    'users',
+                    currentUser.uid,
+                    'history'
+                );
+                const q = query(historyCollectionRef, orderBy('timestamp', 'asc'));
+                const querySnapshot = await getDocs(q);
+
+                questionHistory = [];
+                querySnapshot.forEach((doc) => {
+                    questionHistory.push(doc.data());
+                });
+
+                updateHistoryDisplay();
+                questionsPracticed = questionHistory.length;
+                updateStats();
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
         }
 
         function updateHistoryDisplay() {

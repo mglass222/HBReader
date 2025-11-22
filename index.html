@@ -1807,8 +1807,8 @@
                 await currentUser.reload();
 
                 if (currentUser.emailVerified) {
-                    // Email is verified - hide banner and show success
-                    document.getElementById('verificationBanner').classList.remove('show');
+                    // Email is verified - update UI to show logged-in state
+                    updateUserUI(currentUser);
                     alert('Email verified successfully!');
                 } else {
                     // Email is NOT verified - log user out

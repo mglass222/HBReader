@@ -8,7 +8,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -24,7 +24,7 @@
         const app = initializeApp(firebaseConfig);
         window.firebaseAuth = getAuth(app);
         window.firebaseDb = getFirestore(app);
-        window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification };
+        window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, GoogleAuthProvider, signInWithPopup };
         window.firebaseDbFunctions = { doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc };
     </script>
 
@@ -43,7 +43,7 @@
             --success-green: #27ae60;
             --success-green-hover: #229954;
             --error-red: #e74c3c;
-            --header-bg: #ffffff;
+            --header-bg: #d3d3d3;
             --panel-bg: #ffffff;
         }
 
@@ -61,7 +61,7 @@
             --success-green: #2ecc71;
             --success-green-hover: #27ae60;
             --error-red: #ff6b6b;
-            --header-bg: #1f1f1f;
+            --header-bg: #ffffff;
             --panel-bg: #1f1f1f;
         }
 
@@ -115,23 +115,32 @@
 
         /* Play Area (Left Side) */
         .play-area {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            background: transparent;
+            border: none;
             padding: 30px;
+            padding-bottom: 10px;
             min-height: 600px;
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: border-color 0.3s;
         }
 
         /* Settings Panel (Right Side) */
         .settings-panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            background: transparent;
+            border: none;
             padding: 20px;
+            padding-left: 40px;
             position: sticky;
             top: 20px;
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: all 0.3s;
+        }
+
+        .settings-panel.collapsed {
+            display: none;
+        }
+
+        /* Adjust layout when settings panel is collapsed */
+        .main-layout:has(.settings-panel.collapsed) {
+            grid-template-columns: 1fr;
         }
 
         .settings-title {
@@ -243,8 +252,7 @@
         .score-display {
             text-align: center;
             padding: 15px;
-            background: var(--bg-tertiary);
-            border-radius: 3px;
+            background: transparent;
             margin-bottom: 20px;
             font-size: 1.1em;
             color: var(--text-secondary);
@@ -258,6 +266,34 @@
             margin-bottom: 25px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 10px 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: var(--border-color);
         }
 
         button {
@@ -304,6 +340,22 @@
             margin-bottom: 25px;
         }
 
+        .difficulty-indicator {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .difficulty-label {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .difficulty-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
         .question-text {
             font-size: 1.15em;
             line-height: 1.8;
@@ -327,8 +379,9 @@
 
         /* Answer Section */
         .answer-section {
-            border-top: 2px solid var(--border-color);
+            border-top: none;
             padding-top: 20px;
+            margin-top: 20px;
             min-height: 120px;
         }
 
@@ -518,16 +571,20 @@
         /* Question History Section */
         .history-section {
             max-width: 1400px;
-            margin: 20px auto;
+            margin: 10px auto;
             padding: 0 20px 40px 20px;
+            border-top: none;
+            padding-top: 0;
         }
 
         .history-container {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            background: transparent;
+            border: none;
+            border-top: 1px solid var(--border-color);
             padding: 20px;
-            transition: background-color 0.3s, border-color 0.3s;
+            padding-top: 20px;
+            transition: border-color 0.3s;
+            max-width: calc(1400px - 40px - 320px - 20px);
         }
 
         .history-title {
@@ -536,7 +593,7 @@
             color: var(--text-primary);
             margin-bottom: 15px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: none;
         }
 
         .history-items {
@@ -853,6 +910,67 @@
         .auth-submit:disabled {
             background: var(--text-tertiary);
             cursor: not-allowed;
+        }
+
+        /* Social Login Styles */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-divider span {
+            padding: 0 10px;
+        }
+
+        .social-login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .social-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: white;
+            color: var(--text-primary);
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .social-login-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-tertiary);
+        }
+
+        .social-login-btn svg {
+            flex-shrink: 0;
+        }
+
+        .google-btn {
+            color: #202124;
+        }
+
+        .google-btn:hover {
+            background: #f8f9fa;
         }
 
         /* Email Verification Banner */
@@ -1339,23 +1457,16 @@
     <div class="main-layout">
         <!-- Play Area (Left Side) -->
         <div class="play-area">
-            <!-- Score Display -->
-            <div class="score-display">
-                Press "Next Question" to begin
-            </div>
-
-            <!-- Controls -->
-            <div class="controls">
-                <button class="btn-primary" id="nextQuestion">Next Question</button>
-                <button class="hidden" id="pauseButton">Pause</button>
-                <button class="btn-success hidden" id="showAnswer">Show Answer</button>
-            </div>
-
             <!-- Question Display -->
             <div class="question-display">
+                <div class="difficulty-indicator" id="difficultyIndicator">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <span class="difficulty-value" id="difficultyValue"></span>
+                </div>
+
                 <div class="question-text" id="questionText">
                     <div class="placeholder">
-                        Select your difficulty level and click "Next Question" to start practicing.
+                        Click "Start" to begin practicing.
                     </div>
                 </div>
 
@@ -1371,6 +1482,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Settings Panel (Right Side) -->
@@ -1426,6 +1538,14 @@
                 <div class="stats-info" id="stats">0 questions practiced</div>
             </div>
         </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="action-btn" id="startButton" onclick="handleStart()">Start</button>
+        <button class="action-btn hidden" id="nextButton" onclick="handleNext()">Next</button>
+        <button class="action-btn hidden" id="pauseButton" onclick="handlePauseResume()">Pause</button>
+        <button class="action-btn" id="settingsButton" onclick="toggleSettings()">Settings</button>
     </div>
 
     <!-- Question History Section -->
@@ -1600,6 +1720,23 @@
                 <div id="signupError" class="auth-error"></div>
                 <button type="submit" class="auth-submit">Sign Up</button>
             </form>
+
+            <!-- Social Login Section -->
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <div class="social-login-buttons">
+                <button type="button" class="social-login-btn google-btn" onclick="handleGoogleLogin()">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+                        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                        <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
+                        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/>
+                    </svg>
+                    Google
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1700,6 +1837,24 @@
             }
         }
 
+        async function handleGoogleLogin() {
+            try {
+                const { GoogleAuthProvider, signInWithPopup } = window.firebaseAuthFunctions;
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(window.firebaseAuth, provider);
+                closeAuthModal();
+            } catch (error) {
+                console.error('Google login error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                // Show error in the current visible form
+                const activeForm = document.querySelector('.auth-form.active');
+                const errorDiv = activeForm.querySelector('.auth-error');
+                errorDiv.textContent = getAuthErrorMessage(error.code);
+                errorDiv.classList.add('show');
+            }
+        }
+
         async function handleLogout() {
             try {
                 const { signOut } = window.firebaseAuthFunctions;
@@ -1723,9 +1878,18 @@
                 'auth/wrong-password': 'Incorrect password',
                 'auth/weak-password': 'Password should be at least 6 characters',
                 'auth/too-many-requests': 'Too many attempts. Please try again later',
-                'auth/invalid-credential': 'Invalid email or password'
+                'auth/invalid-credential': 'Invalid email or password',
+                'auth/popup-closed-by-user': 'Sign-in cancelled',
+                'auth/popup-blocked': 'Popup was blocked. Please allow popups for this site',
+                'auth/cancelled-popup-request': 'Sign-in cancelled',
+                'auth/operation-not-allowed': 'This sign-in method is not enabled. Please contact support.',
+                'auth/unauthorized-domain': 'This domain is not authorized for OAuth operations',
+                'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method',
+                'auth/auth-domain-config-required': 'Configuration error. Please contact support.',
+                'auth/credential-already-in-use': 'This credential is already associated with a different account',
+                'auth/operation-not-supported-in-this-environment': 'This operation is not supported in this environment'
             };
-            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+            return errorMessages[errorCode] || `An error occurred (${errorCode || 'unknown'}). Please try again.`;
         }
 
         function updateUserUI(user) {
@@ -2076,6 +2240,16 @@
                 return;
             }
 
+            // Update difficulty indicator
+            const category = document.getElementById('category').value;
+            const difficultyNames = {
+                'preliminary': 'Preliminary',
+                'quarterfinals': 'Quarterfinals',
+                'semifinals': 'Semifinals',
+                'finals': 'Finals'
+            };
+            document.getElementById('difficultyValue').textContent = difficultyNames[category] || category;
+
             questionsPracticed++;
             updateStats();
 
@@ -2088,11 +2262,10 @@
             document.getElementById('answerText').innerHTML = '<span style="color: var(--text-tertiary); font-style: italic;">Answer will appear here</span>';
 
             // Update score display
-            document.getElementById('score-display') && (document.querySelector('.score-display').textContent = `Question ${questionsPracticed}`);
 
             // Reset all button states
-            document.getElementById('pauseButton').classList.remove('hidden');
-            document.getElementById('showAnswer').classList.add('hidden');
+            const pauseBtn = document.getElementById('pauseButton'); pauseBtn.classList.remove('hidden');
+            pauseBtn.textContent = 'Pause';
             document.getElementById('spacebarHint').classList.remove('hidden');
 
             // Reset state variables
@@ -2112,10 +2285,6 @@
                     // When question is done, automatically show answer input if user hasn't buzzed in
                     if (!answerInputShown) {
                         showAnswerInput();
-                    } else {
-                        // User already buzzed in, just show the "Show Answer" button
-                        document.getElementById('showAnswer').classList.remove('hidden');
-                        document.getElementById('pauseButton').classList.add('hidden');
                     }
                 }
             );
@@ -2133,6 +2302,9 @@
             // Remove all cursor elements
             removeCursor(questionText);
 
+            // Hide spacebar hint when answer box is shown
+            document.getElementById('spacebarHint').classList.add('hidden');
+
             // Update buzzer visibility
             updateBuzzerVisibility();
 
@@ -2145,7 +2317,6 @@
                 <input type="text" id="userAnswer" placeholder="Type your answer here..." autofocus>
                 <div class="answer-input-buttons">
                     <button class="btn-primary" onclick="checkAnswer()">Submit Answer</button>
-                    <button onclick="resumeQuestion()">Resume Question</button>
                 </div>
             `;
 
@@ -2204,7 +2375,6 @@
             questionText.innerHTML = currentQuestion.question;
 
             // Hide pause/show answer buttons
-            document.getElementById('showAnswer').classList.add('hidden');
             document.getElementById('pauseButton').classList.add('hidden');
             document.getElementById('spacebarHint').classList.add('hidden');
 
@@ -2303,7 +2473,6 @@
                     clearInterval(streamingInterval);
                     // Remove cursor when done - just set to displayText without cursor
                     targetElement.innerHTML = displayText;
-                    document.getElementById('showAnswer').classList.remove('hidden');
                     document.getElementById('pauseButton').classList.add('hidden');
                     updateBuzzerVisibility();
                     return;
@@ -2353,7 +2522,6 @@
             // Add to history as "skipped" (user revealed answer without attempting)
             addToHistory(currentQuestion, 'skipped');
 
-            document.getElementById('showAnswer').classList.add('hidden');
             document.getElementById('pauseButton').classList.add('hidden');
             document.getElementById('spacebarHint').classList.add('hidden');
             currentSection = 'answer';
@@ -2375,20 +2543,36 @@
             displayQuestion();
         }
 
-        // Pause/Resume streaming
-        function togglePause() {
+        // New Action Button Handlers
+        function handleStart() {
+            document.getElementById('startButton').classList.add('hidden');
+            document.getElementById('nextButton').classList.remove('hidden');
+            const pauseBtn = document.getElementById('pauseButton'); pauseBtn.classList.remove('hidden');
+            displayQuestion();
+        }
+
+        function handleNext() {
+            displayQuestion();
+        }
+
+        function handlePauseResume() {
+            if (!currentQuestion) return;
+
             isPaused = !isPaused;
             const button = document.getElementById('pauseButton');
 
             if (isPaused) {
                 button.textContent = 'Resume';
-                button.classList.add('btn-primary');
                 clearInterval(streamingInterval);
             } else {
                 button.textContent = 'Pause';
-                button.classList.remove('btn-primary');
                 resumeQuestion();
             }
+        }
+
+        function toggleSettings() {
+            const settingsPanel = document.querySelector('.settings-panel');
+            settingsPanel.classList.toggle('collapsed');
         }
 
         // Keyboard event for spacebar
@@ -2399,11 +2583,6 @@
                 showAnswerInput();
             }
         });
-
-        // Event listeners
-        document.getElementById('nextQuestion').addEventListener('click', displayQuestion);
-        document.getElementById('showAnswer').addEventListener('click', showAnswer);
-        document.getElementById('pauseButton').addEventListener('click', togglePause);
 
         // Close modal when clicking outside
         window.onclick = function(event) {

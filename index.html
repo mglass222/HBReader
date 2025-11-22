@@ -1329,6 +1329,7 @@
     <div id="verificationBanner" class="verification-banner">
         <strong>Email not verified.</strong> Please check your inbox and click the verification link.
         <button onclick="resendVerificationEmail()">Resend Email</button>
+        <button onclick="checkVerificationStatus()">Close</button>
     </div>
 
     <!-- Practice Page Container -->
@@ -1783,6 +1784,29 @@
                 } else {
                     alert('Error sending verification email. Please try again later.');
                 }
+            }
+        }
+
+        // Check verification status and handle accordingly
+        async function checkVerificationStatus() {
+            if (!currentUser) return;
+
+            try {
+                // Reload user to get fresh verification status from Firebase
+                await currentUser.reload();
+
+                if (currentUser.emailVerified) {
+                    // Email is verified - hide banner and show success
+                    document.getElementById('verificationBanner').classList.remove('show');
+                    alert('Email verified successfully!');
+                } else {
+                    // Email is NOT verified - log user out
+                    alert('Please verify your email to save progress');
+                    await handleLogout();
+                }
+            } catch (error) {
+                console.error('Error checking verification status:', error);
+                alert('Error checking verification status. Please try again.');
             }
         }
 

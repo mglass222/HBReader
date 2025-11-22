@@ -490,6 +490,115 @@
             display: block;
         }
 
+        /* Question History Section */
+        .history-section {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px 40px 20px;
+        }
+
+        .history-container {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .history-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-item {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        .history-item .status-icon {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .history-item .status-icon.correct {
+            color: var(--success-green);
+        }
+
+        .history-item .status-icon.incorrect {
+            color: var(--error-red);
+        }
+
+        .history-item .status-icon.skipped {
+            color: var(--text-tertiary);
+        }
+
+        /* Tooltip for history items */
+        .history-tooltip {
+            position: fixed;
+            background: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            max-width: 500px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            z-index: 1000;
+            display: none;
+            pointer-events: none;
+        }
+
+        .history-tooltip.show {
+            display: block;
+        }
+
+        .history-tooltip .tooltip-question {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-tooltip .tooltip-answer {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .history-tooltip .tooltip-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .main-layout {
@@ -516,6 +625,12 @@
                 flex-direction: column;
                 gap: 10px;
                 text-align: center;
+            }
+
+            .history-tooltip {
+                max-width: 90vw;
+                left: 5vw !important;
+                right: 5vw;
             }
         }
     </style>
@@ -621,6 +736,24 @@
         </div>
     </div>
 
+    <!-- Question History Section -->
+    <div class="history-section">
+        <div class="history-container">
+            <div class="history-title">Question History</div>
+            <div class="history-items" id="historyItems">
+                <span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip for history items -->
+    <div class="history-tooltip" id="historyTooltip">
+        <div class="tooltip-label">Question</div>
+        <div class="tooltip-question" id="tooltipQuestion"></div>
+        <div class="tooltip-label">Answer</div>
+        <div class="tooltip-answer" id="tooltipAnswer"></div>
+    </div>
+
     <!-- Modal for feedback -->
     <div id="feedbackModal" class="modal">
         <div class="modal-content">
@@ -649,6 +782,7 @@
         let currentSection = 'question';
         let answerInputShown = false;
         let questionsPracticed = 0;
+        let questionHistory = []; // Track history of practiced questions
 
         // Theme Management
         function initTheme() {
@@ -744,6 +878,17 @@
             try {
                 const response = await fetch('questions.json');
                 questions = await response.json();
+
+                // Assign unique IDs to all questions
+                const difficulties = ['preliminary', 'quarterfinals', 'semifinals', 'finals'];
+                difficulties.forEach(difficulty => {
+                    if (questions[difficulty] && Array.isArray(questions[difficulty])) {
+                        questions[difficulty].forEach((question, index) => {
+                            question.id = `${difficulty}_${index}`;
+                        });
+                    }
+                });
+
                 updateStats();
             } catch (error) {
                 console.error('Error loading questions:', error);
@@ -980,6 +1125,9 @@
                             normalizedUser.includes(normalizedCorrect) ||
                             normalizedUser === normalizedCorrect;
 
+            // Add to history
+            addToHistory(currentQuestion, isCorrect ? 'correct' : 'incorrect');
+
             // Remove the answer input section
             const inputSection = document.getElementById('answerInputSection');
             if (inputSection) {
@@ -1139,6 +1287,9 @@
 
         // Show answer
         function showAnswer() {
+            // Add to history as "skipped" (user revealed answer without attempting)
+            addToHistory(currentQuestion, 'skipped');
+
             document.getElementById('showAnswer').classList.add('hidden');
             document.getElementById('pauseButton').classList.add('hidden');
             document.getElementById('spacebarHint').classList.add('hidden');
@@ -1197,6 +1348,113 @@
             if (event.target === modal) {
                 closeModal();
             }
+        }
+
+        // Question History Functions
+        function addToHistory(question, status) {
+            // status: 'correct', 'incorrect', or 'skipped'
+            const historyEntry = {
+                id: question.id,
+                question: question.question,
+                answer: question.answer,
+                status: status,
+                timestamp: Date.now()
+            };
+
+            questionHistory.push(historyEntry);
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyItems = document.getElementById('historyItems');
+
+            if (questionHistory.length === 0) {
+                historyItems.innerHTML = '<span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>';
+                return;
+            }
+
+            historyItems.innerHTML = '';
+
+            questionHistory.forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.dataset.index = index;
+
+                let icon = '';
+                let iconClass = '';
+
+                if (entry.status === 'correct') {
+                    icon = '✓';
+                    iconClass = 'correct';
+                } else if (entry.status === 'incorrect') {
+                    icon = '✗';
+                    iconClass = 'incorrect';
+                } else {
+                    icon = '—';
+                    iconClass = 'skipped';
+                }
+
+                item.innerHTML = `
+                    <span class="status-icon ${iconClass}">${icon}</span>
+                    <span>Q${index + 1}</span>
+                `;
+
+                // Add hover events
+                item.addEventListener('mouseenter', (e) => showHistoryTooltip(e, entry));
+                item.addEventListener('mouseleave', hideHistoryTooltip);
+                item.addEventListener('mousemove', updateTooltipPosition);
+
+                historyItems.appendChild(item);
+            });
+        }
+
+        let currentTooltipEvent = null;
+
+        function showHistoryTooltip(event, entry) {
+            const tooltip = document.getElementById('historyTooltip');
+            const tooltipQuestion = document.getElementById('tooltipQuestion');
+            const tooltipAnswer = document.getElementById('tooltipAnswer');
+
+            // Remove HTML tags for display (but keep formatting for readability)
+            tooltipQuestion.innerHTML = entry.question;
+            tooltipAnswer.innerHTML = entry.answer;
+
+            tooltip.classList.add('show');
+            currentTooltipEvent = event;
+            updateTooltipPosition(event);
+        }
+
+        function hideHistoryTooltip() {
+            const tooltip = document.getElementById('historyTooltip');
+            tooltip.classList.remove('show');
+            currentTooltipEvent = null;
+        }
+
+        function updateTooltipPosition(event) {
+            const tooltip = document.getElementById('historyTooltip');
+            if (!tooltip.classList.contains('show')) return;
+
+            const x = event.clientX;
+            const y = event.clientY;
+            const offset = 15;
+
+            // Position tooltip near cursor, but keep it on screen
+            const tooltipRect = tooltip.getBoundingClientRect();
+            let left = x + offset;
+            let top = y + offset;
+
+            // Adjust if tooltip would go off right edge
+            if (left + tooltipRect.width > window.innerWidth) {
+                left = x - tooltipRect.width - offset;
+            }
+
+            // Adjust if tooltip would go off bottom edge
+            if (top + tooltipRect.height > window.innerHeight) {
+                top = y - tooltipRect.height - offset;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
         }
 
         // Initialize

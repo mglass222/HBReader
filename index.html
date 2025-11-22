@@ -880,11 +880,18 @@
                 questions = await response.json();
 
                 // Assign unique IDs to all questions
-                const difficulties = ['preliminary', 'quarterfinals', 'semifinals', 'finals'];
-                difficulties.forEach(difficulty => {
+                // Format: P123 (Preliminary), Q45 (Quarterfinals), S67 (Semifinals), F89 (Finals)
+                const difficultyPrefixes = {
+                    'preliminary': 'P',
+                    'quarterfinals': 'Q',
+                    'semifinals': 'S',
+                    'finals': 'F'
+                };
+
+                Object.keys(difficultyPrefixes).forEach(difficulty => {
                     if (questions[difficulty] && Array.isArray(questions[difficulty])) {
                         questions[difficulty].forEach((question, index) => {
-                            question.id = `${difficulty}_${index}`;
+                            question.id = `${difficultyPrefixes[difficulty]}${index}`;
                         });
                     }
                 });

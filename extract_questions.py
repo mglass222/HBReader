@@ -12,13 +12,11 @@ def get_difficulty_level(filename):
     """Determine difficulty level based on filename."""
     filename_lower = filename.lower()
 
-    if 'championship' in filename_lower:
-        return 'championship'
-    elif 'semifinal' in filename_lower:
-        return 'semifinal'
+    if 'semifinal' in filename_lower:
+        return 'semifinals'
     elif 'quarterfinal' in filename_lower:
-        return 'quarterfinal'
-    elif 'finals' in filename_lower:
+        return 'quarterfinals'
+    elif 'finals' in filename_lower or 'championship' in filename_lower:
         return 'finals'
     else:
         return 'preliminary'
@@ -149,10 +147,9 @@ def main():
     # Initialize question categories
     questions_by_difficulty = {
         'preliminary': [],
-        'quarterfinal': [],
-        'semifinal': [],
-        'finals': [],
-        'championship': []
+        'quarterfinals': [],
+        'semifinals': [],
+        'finals': []
     }
 
     print(f"Found {len(pdf_files)} PDF files\n")
@@ -185,10 +182,9 @@ def main():
         **questions_by_difficulty,
         'metadata': {
             'total_preliminary': len(questions_by_difficulty['preliminary']),
-            'total_quarterfinal': len(questions_by_difficulty['quarterfinal']),
-            'total_semifinal': len(questions_by_difficulty['semifinal']),
+            'total_quarterfinals': len(questions_by_difficulty['quarterfinals']),
+            'total_semifinals': len(questions_by_difficulty['semifinals']),
             'total_finals': len(questions_by_difficulty['finals']),
-            'total_championship': len(questions_by_difficulty['championship']),
             'total': total_questions
         }
     }
@@ -200,10 +196,9 @@ def main():
     print(f"\n{'='*50}")
     print(f"Questions by difficulty level:")
     print(f"  Preliminary:    {len(questions_by_difficulty['preliminary']):,}")
-    print(f"  Quarterfinal:   {len(questions_by_difficulty['quarterfinal']):,}")
-    print(f"  Semifinal:      {len(questions_by_difficulty['semifinal']):,}")
+    print(f"  Quarterfinals:  {len(questions_by_difficulty['quarterfinals']):,}")
+    print(f"  Semifinals:     {len(questions_by_difficulty['semifinals']):,}")
     print(f"  Finals:         {len(questions_by_difficulty['finals']):,}")
-    print(f"  Championship:   {len(questions_by_difficulty['championship']):,}")
     print(f"{'='*50}")
     print(f"Grand total: {total_questions:,}")
     print(f"{'='*50}")

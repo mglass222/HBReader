@@ -807,7 +807,9 @@
 
                 if (currentCharIndex >= text.length) {
                     clearInterval(streamingInterval);
+                    // Remove cursor when streaming completes
                     targetElement.innerHTML = displayText;
+                    updateBuzzerVisibility();
                     if (callback) callback();
                     return;
                 }
@@ -864,6 +866,9 @@
             isPaused = false;
             answerInputShown = false;
 
+            // Update buzzer visibility
+            updateBuzzerVisibility();
+
             // Stream the question text
             streamText(
                 currentQuestion.question,
@@ -885,7 +890,11 @@
             clearInterval(streamingInterval);
 
             const questionText = document.getElementById('questionText');
+            // Remove cursor completely
             questionText.innerHTML = questionText.innerHTML.replace('<span class="cursor"></span>', '');
+
+            // Update buzzer visibility
+            updateBuzzerVisibility();
 
             const questionDisplay = document.querySelector('.question-display');
             const inputSection = document.createElement('div');
@@ -939,11 +948,33 @@
                             normalizedUser.includes(normalizedCorrect) ||
                             normalizedUser === normalizedCorrect;
 
-            if (isCorrect) {
-                showCorrectModal();
-            } else {
-                showIncorrectModal(correctAnswer);
+            // Remove the answer input section
+            const inputSection = document.getElementById('answerInputSection');
+            if (inputSection) {
+                inputSection.remove();
             }
+
+            // Clear the streaming interval and remove cursor
+            clearInterval(streamingInterval);
+            const questionText = document.getElementById('questionText');
+            questionText.innerHTML = currentQuestion.question;
+
+            // Hide pause/show answer buttons
+            document.getElementById('showAnswer').classList.add('hidden');
+            document.getElementById('pauseButton').classList.add('hidden');
+            document.getElementById('spacebarHint').classList.add('hidden');
+
+            // Show the answer with feedback
+            const answerText = document.getElementById('answerText');
+            if (isCorrect) {
+                answerText.innerHTML = `<span class="correct" style="font-weight: 600; font-size: 1.1em;">Correct!</span><br><br>${correctAnswer}`;
+            } else {
+                answerText.innerHTML = `<span class="incorrect" style="font-weight: 600; font-size: 1.1em;">Incorrect</span><br><br>${correctAnswer}`;
+            }
+
+            currentSection = 'answer';
+            answerInputShown = false;
+            updateBuzzerVisibility();
         }
 
         // Show correct answer modal
@@ -988,6 +1019,9 @@
             answerInputShown = false;
             isPaused = false;
 
+            // Update buzzer visibility
+            updateBuzzerVisibility();
+
             const targetElement = document.getElementById('questionText');
             const text = currentQuestion.question;
             let displayText = targetElement.innerHTML;
@@ -1007,9 +1041,11 @@
 
                 if (currentCharIndex >= text.length) {
                     clearInterval(streamingInterval);
+                    // Remove cursor when done
                     targetElement.innerHTML = displayText;
                     document.getElementById('showAnswer').classList.remove('hidden');
                     document.getElementById('pauseButton').classList.add('hidden');
+                    updateBuzzerVisibility();
                     return;
                 }
 
@@ -1037,7 +1073,6 @@
 
         // Reveal the answer
         function revealAnswer() {
-            closeModal();
             const inputSection = document.getElementById('answerInputSection');
             if (inputSection) {
                 inputSection.remove();
@@ -1060,6 +1095,7 @@
             isPaused = false;
 
             document.getElementById('answerText').innerHTML = currentQuestion.answer;
+            updateBuzzerVisibility();
         }
 
         // Close modal

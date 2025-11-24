@@ -2353,7 +2353,7 @@
                 </div>
             `;
 
-            questionDisplay.insertBefore(inputSection, document.querySelector('.answer-section'));
+            questionDisplay.appendChild(inputSection);
             document.getElementById('userAnswer').focus();
 
             // Allow Enter key to submit

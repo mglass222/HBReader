@@ -272,11 +272,10 @@
         .action-buttons {
             display: flex;
             gap: 12px;
-            justify-content: flex-start;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 5px;
-            padding-bottom: 5px;
+            justify-content: flex-end;
+            width: 100%;
+            margin: 10px 0 0 0;
+            padding: 5px 0;
         }
 
         .action-btn {
@@ -568,11 +567,10 @@
 
         /* Question History Section */
         .history-section {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px 40px 20px;
+            width: 100%;
+            margin: 0;
+            padding: 0;
             border-top: none;
-            padding-top: 0;
         }
 
         .history-container {
@@ -582,7 +580,7 @@
             padding: 20px;
             padding-top: 5px;
             transition: border-color 0.3s;
-            max-width: calc(1400px - 40px - 320px - 20px);
+            width: 100%;
         }
 
         .history-title {
@@ -1495,6 +1493,24 @@
                 </div>
             </div>
 
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn" id="startButton" onclick="handleStart()">Start</button>
+                <button class="action-btn hidden" id="nextButton" onclick="handleNext()">Next</button>
+                <button class="action-btn hidden" id="pauseButton" onclick="handlePauseResume()">Pause</button>
+                <button class="action-btn" id="settingsButton" onclick="toggleSettings()">Settings</button>
+            </div>
+
+            <!-- Question History Section -->
+            <div class="history-section">
+                <div class="history-container">
+                    <div class="history-title">Question History</div>
+                    <div class="history-items" id="historyItems">
+                        <span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Settings Panel (Right Side) -->
@@ -1548,24 +1564,6 @@
             <div class="setting-group">
                 <div class="setting-header">Statistics</div>
                 <div class="stats-info" id="stats">0 questions practiced</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <button class="action-btn" id="startButton" onclick="handleStart()">Start</button>
-        <button class="action-btn hidden" id="nextButton" onclick="handleNext()">Next</button>
-        <button class="action-btn hidden" id="pauseButton" onclick="handlePauseResume()">Pause</button>
-        <button class="action-btn" id="settingsButton" onclick="toggleSettings()">Settings</button>
-    </div>
-
-    <!-- Question History Section -->
-    <div class="history-section">
-        <div class="history-container">
-            <div class="history-title">Question History</div>
-            <div class="history-items" id="historyItems">
-                <span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>
             </div>
         </div>
     </div>

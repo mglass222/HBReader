@@ -4,7 +4,7 @@ An interactive web application for practicing National History Bee questions wit
 
 ## Features
 
-- **12,000+ Questions**: Extracted from official History Bee PDFs (2014-2025)
+- **5000+ Questions**: Extracted from official History Bee PDFs (2014-2025)
 - **5 Difficulty Levels**: Preliminary (9,652), Quarterfinals (196), Semifinals (365), Finals (1,764), Championships (85)
 - **Interactive Answer Checking**: Press spacebar to pause and submit your answer
 - **Streaming Display**: Questions appear character-by-character, simulating an LLM response

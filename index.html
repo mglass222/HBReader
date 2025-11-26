@@ -45,6 +45,21 @@
             --error-red: #e74c3c;
             --header-bg: #d3d3d3;
             --panel-bg: #ffffff;
+            /* Tier Colors */
+            --tier-bronze: #CD7F32;
+            --tier-bronze-light: #D4954A;
+            --tier-silver: #C0C0C0;
+            --tier-silver-light: #D8D8D8;
+            --tier-gold: #FFD700;
+            --tier-gold-light: #FFE44D;
+            --tier-platinum: #E5E4E2;
+            --tier-platinum-light: #F0EFED;
+            --tier-diamond: #B9F2FF;
+            --tier-diamond-light: #D4F7FF;
+            --tier-master: #9966CC;
+            --tier-master-light: #B38DD9;
+            --tier-grandmaster: #FF4500;
+            --tier-grandmaster-light: #FF6A33;
         }
 
         [data-theme="dark"] {
@@ -1373,36 +1388,389 @@
             color: var(--text-secondary);
         }
 
-        .avatar-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
-            margin-top: 10px;
+        /* Tier Shield Styles */
+        .tier-shield {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .avatar-option {
+        .tier-shield.size-large {
+            width: 80px;
+            height: 96px;
+        }
+
+        .tier-shield.size-medium {
+            width: 48px;
+            height: 58px;
+        }
+
+        .tier-shield.size-small {
+            width: 32px;
+            height: 38px;
+        }
+
+        .tier-shield svg {
             width: 100%;
-            aspect-ratio: 1;
+            height: 100%;
+        }
+
+        /* Level Badge (combines shield + info) */
+        .level-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .level-badge.tier-bronze { border-color: var(--tier-bronze); }
+        .level-badge.tier-silver { border-color: var(--tier-silver); }
+        .level-badge.tier-gold { border-color: var(--tier-gold); }
+        .level-badge.tier-platinum { border-color: var(--tier-platinum); }
+        .level-badge.tier-diamond { border-color: var(--tier-diamond); }
+        .level-badge.tier-master { border-color: var(--tier-master); }
+        .level-badge.tier-grandmaster { border-color: var(--tier-grandmaster); }
+
+        .level-badge-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .level-badge-level {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .level-badge-title {
+            font-size: 0.85em;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .level-badge-title.tier-bronze { color: var(--tier-bronze); }
+        .level-badge-title.tier-silver { color: var(--tier-silver); }
+        .level-badge-title.tier-gold { color: var(--tier-gold); }
+        .level-badge-title.tier-platinum { color: #8a8a8a; }
+        .level-badge-title.tier-diamond { color: #5bc0de; }
+        .level-badge-title.tier-master { color: var(--tier-master); }
+        .level-badge-title.tier-grandmaster { color: var(--tier-grandmaster); }
+
+        .level-badge-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .progress-bar-container {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar-fill.tier-bronze { background: linear-gradient(90deg, var(--tier-bronze), var(--tier-bronze-light)); }
+        .progress-bar-fill.tier-silver { background: linear-gradient(90deg, var(--tier-silver), var(--tier-silver-light)); }
+        .progress-bar-fill.tier-gold { background: linear-gradient(90deg, var(--tier-gold), var(--tier-gold-light)); }
+        .progress-bar-fill.tier-platinum { background: linear-gradient(90deg, var(--tier-platinum), var(--tier-platinum-light)); }
+        .progress-bar-fill.tier-diamond { background: linear-gradient(90deg, var(--tier-diamond), var(--tier-diamond-light)); }
+        .progress-bar-fill.tier-master { background: linear-gradient(90deg, var(--tier-master), var(--tier-master-light)); }
+        .progress-bar-fill.tier-grandmaster { background: linear-gradient(90deg, var(--tier-grandmaster), var(--tier-grandmaster-light)); }
+
+        .progress-bar-text {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+        }
+
+        /* Compact Level Badge (for header/leaderboard) */
+        .level-badge-compact {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .level-badge-compact.tier-bronze { border-color: var(--tier-bronze); background: rgba(205, 127, 50, 0.1); }
+        .level-badge-compact.tier-silver { border-color: var(--tier-silver); background: rgba(192, 192, 192, 0.1); }
+        .level-badge-compact.tier-gold { border-color: var(--tier-gold); background: rgba(255, 215, 0, 0.1); }
+        .level-badge-compact.tier-platinum { border-color: var(--tier-platinum); background: rgba(229, 228, 226, 0.1); }
+        .level-badge-compact.tier-diamond { border-color: var(--tier-diamond); background: rgba(185, 242, 255, 0.1); }
+        .level-badge-compact.tier-master { border-color: var(--tier-master); background: rgba(153, 102, 204, 0.1); }
+        .level-badge-compact.tier-grandmaster { border-color: var(--tier-grandmaster); background: rgba(255, 69, 0, 0.1); }
+
+        .compact-level {
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .compact-level.tier-bronze { color: var(--tier-bronze); }
+        .compact-level.tier-silver { color: var(--tier-silver); }
+        .compact-level.tier-gold { color: var(--tier-gold); }
+        .compact-level.tier-platinum { color: #8a8a8a; }
+        .compact-level.tier-diamond { color: #5bc0de; }
+        .compact-level.tier-master { color: var(--tier-master); }
+        .compact-level.tier-grandmaster { color: var(--tier-grandmaster); }
+
+        .compact-title {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        /* Streak Display */
+        .streak-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255, 69, 0, 0.1);
+            border: 1px solid #ff4500;
+        }
+
+        .streak-fire {
+            font-size: 1em;
+        }
+
+        .streak-count {
+            font-weight: 700;
+            color: #ff4500;
+        }
+
+        .streak-multiplier {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        /* Daily Challenges */
+        .daily-challenges {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .challenges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .challenges-timer {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .challenge-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .challenge-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .challenge-item.completed {
+            border-color: var(--success-green);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .challenge-icon {
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8em;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 50%;
             background: var(--bg-tertiary);
+            font-size: 1em;
         }
 
-        .avatar-option:hover {
-            transform: scale(1.1);
-            border-color: var(--primary-blue);
+        .challenge-item.completed .challenge-icon {
+            background: var(--success-green);
+            color: white;
         }
 
-        .avatar-option.selected {
-            border-color: var(--primary-blue);
-            background: rgba(74, 144, 226, 0.1);
-            transform: scale(1.05);
+        .challenge-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .challenge-desc {
+            font-size: 0.9em;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .challenge-progress {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .challenge-progress-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .challenge-progress-bar .fill {
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .challenge-reward {
+            font-weight: 600;
+            color: var(--success-green);
+            font-size: 0.85em;
+            white-space: nowrap;
+        }
+
+        /* XP Display in Settings Panel */
+        .xp-display {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .xp-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .xp-info {
+            flex: 1;
+        }
+
+        .xp-level-title {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .xp-level {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .xp-rank-title {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .xp-progress-wrapper {
+            margin-top: 8px;
+        }
+
+        .xp-progress-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .xp-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .xp-progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Level Up Notification */
+        .level-up-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 32px 48px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .level-up-notification.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .level-up-notification .level-up-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .level-up-notification .new-level {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 16px 0;
+        }
+
+        .level-up-notification .new-title {
+            font-size: 1.2em;
+            margin-bottom: 16px;
+        }
+
+        .level-up-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .level-up-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .profile-stats {
@@ -2194,19 +2562,34 @@
             <!-- Account Settings -->
             <div class="setting-group" id="accountSettings" style="display: none;">
                 <div class="setting-header">Account</div>
+
+                <!-- XP Display -->
+                <div id="xpDisplayContainer" class="xp-display">
+                    <!-- Will be populated by JS -->
+                </div>
+
+                <!-- Streak Display -->
+                <div id="streakDisplayContainer" style="margin-bottom: 12px; text-align: center;">
+                    <!-- Will be populated by JS -->
+                </div>
+
                 <div class="stats-info" id="usernameDisplay" style="margin-bottom: 10px;">
-                    <span id="avatarDisplay" style="font-size: 1.5em; margin-right: 8px;">👤</span>
                     <span>Username: <strong id="usernameText">-</strong></span>
                 </div>
                 <button class="btn-secondary" onclick="navigateTo('profile')" style="width: 100%; margin-bottom: 10px;">Edit Profile</button>
                 <button class="btn-secondary" onclick="calculateRetroactivePoints()" style="width: 100%;">Calculate Retroactive Points</button>
+
+                <!-- Daily Challenges -->
+                <div id="dailyChallengesContainer" class="daily-challenges">
+                    <!-- Will be populated by JS -->
+                </div>
             </div>
 
             <!-- Statistics -->
             <div class="setting-group">
                 <div class="setting-header">Statistics</div>
                 <div class="stats-info" id="stats">0 questions practiced</div>
-                <div class="stats-info" id="pointsDisplay" style="margin-top: 10px; display: none;">Points: <strong id="pointsText">0</strong></div>
+                <div class="stats-info" id="pointsDisplay" style="margin-top: 10px; display: none;">XP: <strong id="pointsText">0</strong></div>
             </div>
         </div>
     </div>
@@ -2407,106 +2790,13 @@
                             <input type="text" id="profileSchool" class="profile-input" placeholder="Enter your school name (optional)" maxlength="100">
                         </div>
 
-                        <!-- Avatar Selection -->
+                        <!-- Rank Display -->
                         <div class="profile-section">
-                            <label class="profile-label">Choose Your Avatar</label>
-                            <div class="avatar-grid" id="avatarGrid">
-                                <!-- Academic & Science -->
-                                <div class="avatar-option" data-avatar="🎓" onclick="selectAvatar('🎓')">🎓</div>
-                                <div class="avatar-option" data-avatar="📚" onclick="selectAvatar('📚')">📚</div>
-                                <div class="avatar-option" data-avatar="📖" onclick="selectAvatar('📖')">📖</div>
-                                <div class="avatar-option" data-avatar="✏️" onclick="selectAvatar('✏️')">✏️</div>
-                                <div class="avatar-option" data-avatar="🖊️" onclick="selectAvatar('🖊️')">🖊️</div>
-                                <div class="avatar-option" data-avatar="📝" onclick="selectAvatar('📝')">📝</div>
-                                <div class="avatar-option" data-avatar="🔬" onclick="selectAvatar('🔬')">🔬</div>
-                                <div class="avatar-option" data-avatar="🧪" onclick="selectAvatar('🧪')">🧪</div>
-                                <div class="avatar-option" data-avatar="🔭" onclick="selectAvatar('🔭')">🔭</div>
-                                <div class="avatar-option" data-avatar="🧬" onclick="selectAvatar('🧬')">🧬</div>
-                                <div class="avatar-option" data-avatar="💡" onclick="selectAvatar('💡')">💡</div>
-
-                                <!-- Animals -->
-                                <div class="avatar-option" data-avatar="🦁" onclick="selectAvatar('🦁')">🦁</div>
-                                <div class="avatar-option" data-avatar="🐯" onclick="selectAvatar('🐯')">🐯</div>
-                                <div class="avatar-option" data-avatar="🦅" onclick="selectAvatar('🦅')">🦅</div>
-                                <div class="avatar-option" data-avatar="🦉" onclick="selectAvatar('🦉')">🦉</div>
-                                <div class="avatar-option" data-avatar="🐺" onclick="selectAvatar('🐺')">🐺</div>
-                                <div class="avatar-option" data-avatar="🦊" onclick="selectAvatar('🦊')">🦊</div>
-                                <div class="avatar-option" data-avatar="🐼" onclick="selectAvatar('🐼')">🐼</div>
-                                <div class="avatar-option" data-avatar="🐉" onclick="selectAvatar('🐉')">🐉</div>
-                                <div class="avatar-option" data-avatar="🦖" onclick="selectAvatar('🦖')">🦖</div>
-                                <div class="avatar-option" data-avatar="🐢" onclick="selectAvatar('🐢')">🐢</div>
-                                <div class="avatar-option" data-avatar="🦋" onclick="selectAvatar('🦋')">🦋</div>
-                                <div class="avatar-option" data-avatar="🐝" onclick="selectAvatar('🐝')">🐝</div>
-                                <div class="avatar-option" data-avatar="🦈" onclick="selectAvatar('🦈')">🦈</div>
-                                <div class="avatar-option" data-avatar="🦄" onclick="selectAvatar('🦄')">🦄</div>
-
-                                <!-- Sports -->
-                                <div class="avatar-option" data-avatar="⚽" onclick="selectAvatar('⚽')">⚽</div>
-                                <div class="avatar-option" data-avatar="🏀" onclick="selectAvatar('🏀')">🏀</div>
-                                <div class="avatar-option" data-avatar="🏈" onclick="selectAvatar('🏈')">🏈</div>
-                                <div class="avatar-option" data-avatar="⚾" onclick="selectAvatar('⚾')">⚾</div>
-                                <div class="avatar-option" data-avatar="🎾" onclick="selectAvatar('🎾')">🎾</div>
-                                <div class="avatar-option" data-avatar="🏐" onclick="selectAvatar('🏐')">🏐</div>
-                                <div class="avatar-option" data-avatar="🏓" onclick="selectAvatar('🏓')">🏓</div>
-                                <div class="avatar-option" data-avatar="🥊" onclick="selectAvatar('🥊')">🥊</div>
-                                <div class="avatar-option" data-avatar="⛳" onclick="selectAvatar('⛳')">⛳</div>
-                                <div class="avatar-option" data-avatar="🎯" onclick="selectAvatar('🎯')">🎯</div>
-
-                                <!-- Music & Arts -->
-                                <div class="avatar-option" data-avatar="🎨" onclick="selectAvatar('🎨')">🎨</div>
-                                <div class="avatar-option" data-avatar="🎭" onclick="selectAvatar('🎭')">🎭</div>
-                                <div class="avatar-option" data-avatar="🎬" onclick="selectAvatar('🎬')">🎬</div>
-                                <div class="avatar-option" data-avatar="🎤" onclick="selectAvatar('🎤')">🎤</div>
-                                <div class="avatar-option" data-avatar="🎧" onclick="selectAvatar('🎧')">🎧</div>
-                                <div class="avatar-option" data-avatar="🎸" onclick="selectAvatar('🎸')">🎸</div>
-                                <div class="avatar-option" data-avatar="🎹" onclick="selectAvatar('🎹')">🎹</div>
-                                <div class="avatar-option" data-avatar="🎺" onclick="selectAvatar('🎺')">🎺</div>
-                                <div class="avatar-option" data-avatar="🎷" onclick="selectAvatar('🎷')">🎷</div>
-                                <div class="avatar-option" data-avatar="🥁" onclick="selectAvatar('🥁')">🥁</div>
-                                <div class="avatar-option" data-avatar="🪕" onclick="selectAvatar('🪕')">🪕</div>
-                                <div class="avatar-option" data-avatar="🎻" onclick="selectAvatar('🎻')">🎻</div>
-
-                                <!-- Food -->
-                                <div class="avatar-option" data-avatar="🍕" onclick="selectAvatar('🍕')">🍕</div>
-                                <div class="avatar-option" data-avatar="🍔" onclick="selectAvatar('🍔')">🍔</div>
-                                <div class="avatar-option" data-avatar="🌮" onclick="selectAvatar('🌮')">🌮</div>
-                                <div class="avatar-option" data-avatar="🍣" onclick="selectAvatar('🍣')">🍣</div>
-                                <div class="avatar-option" data-avatar="🍩" onclick="selectAvatar('🍩')">🍩</div>
-                                <div class="avatar-option" data-avatar="🍪" onclick="selectAvatar('🍪')">🍪</div>
-                                <div class="avatar-option" data-avatar="🎂" onclick="selectAvatar('🎂')">🎂</div>
-
-                                <!-- Nature -->
-                                <div class="avatar-option" data-avatar="🌺" onclick="selectAvatar('🌺')">🌺</div>
-                                <div class="avatar-option" data-avatar="🌸" onclick="selectAvatar('🌸')">🌸</div>
-                                <div class="avatar-option" data-avatar="🌻" onclick="selectAvatar('🌻')">🌻</div>
-                                <div class="avatar-option" data-avatar="🌲" onclick="selectAvatar('🌲')">🌲</div>
-                                <div class="avatar-option" data-avatar="🍀" onclick="selectAvatar('🍀')">🍀</div>
-                                <div class="avatar-option" data-avatar="🌈" onclick="selectAvatar('🌈')">🌈</div>
-                                <div class="avatar-option" data-avatar="❄️" onclick="selectAvatar('❄️')">❄️</div>
-                                <div class="avatar-option" data-avatar="🌀" onclick="selectAvatar('🌀')">🌀</div>
-
-                                <!-- Technology & Gaming -->
-                                <div class="avatar-option" data-avatar="💻" onclick="selectAvatar('💻')">💻</div>
-                                <div class="avatar-option" data-avatar="🎮" onclick="selectAvatar('🎮')">🎮</div>
-                                <div class="avatar-option" data-avatar="🕹️" onclick="selectAvatar('🕹️')">🕹️</div>
-                                <div class="avatar-option" data-avatar="🤖" onclick="selectAvatar('🤖')">🤖</div>
-                                <div class="avatar-option" data-avatar="👽" onclick="selectAvatar('👽')">👽</div>
-                                <div class="avatar-option" data-avatar="🚀" onclick="selectAvatar('🚀')">🚀</div>
-
-                                <!-- Achievement & Special -->
-                                <div class="avatar-option" data-avatar="🎖️" onclick="selectAvatar('🎖️')">🎖️</div>
-                                <div class="avatar-option" data-avatar="👑" onclick="selectAvatar('👑')">👑</div>
-                                <div class="avatar-option" data-avatar="💎" onclick="selectAvatar('💎')">💎</div>
-                                <div class="avatar-option" data-avatar="⭐" onclick="selectAvatar('⭐')">⭐</div>
-                                <div class="avatar-option" data-avatar="🌟" onclick="selectAvatar('🌟')">🌟</div>
-                                <div class="avatar-option" data-avatar="✨" onclick="selectAvatar('✨')">✨</div>
-                                <div class="avatar-option" data-avatar="🔥" onclick="selectAvatar('🔥')">🔥</div>
-                                <div class="avatar-option" data-avatar="⚡" onclick="selectAvatar('⚡')">⚡</div>
-                                <div class="avatar-option" data-avatar="💥" onclick="selectAvatar('💥')">💥</div>
-                                <div class="avatar-option" data-avatar="⚔️" onclick="selectAvatar('⚔️')">⚔️</div>
-                                <div class="avatar-option" data-avatar="👻" onclick="selectAvatar('👻')">👻</div>
-                                <div class="avatar-option" data-avatar="🎪" onclick="selectAvatar('🎪')">🎪</div>
+                            <label class="profile-label">Your Rank</label>
+                            <div id="profileRankDisplay" style="margin-top: 10px;">
+                                <!-- Shield and rank info will be generated by JS -->
                             </div>
+                            <p class="profile-hint">Your rank is based on your total XP. Answer more questions to level up!</p>
                         </div>
 
                         <!-- Save Button -->
@@ -2520,11 +2810,21 @@
                             <div class="profile-stats">
                                 <div class="profile-stat-item">
                                     <div class="profile-stat-value" id="profilePoints">0</div>
-                                    <div class="profile-stat-label">Total Points</div>
+                                    <div class="profile-stat-label">Total XP</div>
                                 </div>
                                 <div class="profile-stat-item">
                                     <div class="profile-stat-value" id="profileQuestionsAnswered">0</div>
-                                    <div class="profile-stat-label">Questions Answered</div>
+                                    <div class="profile-stat-label">Questions Correct</div>
+                                </div>
+                            </div>
+                            <div class="profile-stats" style="margin-top: 15px;">
+                                <div class="profile-stat-item">
+                                    <div class="profile-stat-value" id="profileCurrentStreak">0</div>
+                                    <div class="profile-stat-label">Current Streak</div>
+                                </div>
+                                <div class="profile-stat-item">
+                                    <div class="profile-stat-value" id="profileBestStreak">0</div>
+                                    <div class="profile-stat-label">Best Streak</div>
                                 </div>
                             </div>
                         </div>
@@ -2864,7 +3164,7 @@
                     // Email verified - show full logged-in UI
                     userAuthDiv.innerHTML = `
                         <div class="user-profile">
-                            <span class="user-avatar" id="headerAvatar" style="display: none;"></span>
+                            <span id="headerLevelBadge" style="display: none;"></span>
                             <span class="user-display-name" id="headerDisplayName">${user.email}</span>
                             <button class="btn-logout" onclick="handleLogout()">Logout</button>
                         </div>
@@ -4693,6 +4993,633 @@
             return POINTS_VALUES[difficulty] || 0;
         }
 
+        // XP/Level/Rank System
+        const RANK_CONFIG = {
+            tiers: [
+                { name: 'Bronze', minLevel: 1, maxLevel: 10, color: '#CD7F32', colorLight: '#D4954A' },
+                { name: 'Silver', minLevel: 11, maxLevel: 20, color: '#C0C0C0', colorLight: '#D8D8D8' },
+                { name: 'Gold', minLevel: 21, maxLevel: 35, color: '#FFD700', colorLight: '#FFE44D' },
+                { name: 'Platinum', minLevel: 36, maxLevel: 50, color: '#E5E4E2', colorLight: '#F0EFED' },
+                { name: 'Diamond', minLevel: 51, maxLevel: 70, color: '#B9F2FF', colorLight: '#D4F7FF' },
+                { name: 'Master', minLevel: 71, maxLevel: 85, color: '#9966CC', colorLight: '#B38DD9' },
+                { name: 'Grandmaster', minLevel: 86, maxLevel: 100, color: '#FF4500', colorLight: '#FF6A33' }
+            ],
+            titles: {
+                1: 'Novice Chronicler', 2: 'Novice Chronicler', 3: 'Novice Chronicler',
+                4: 'Apprentice Scribe', 5: 'Apprentice Scribe', 6: 'Apprentice Scribe',
+                7: 'Junior Archivist', 8: 'Junior Archivist', 9: 'Junior Archivist', 10: 'Junior Archivist',
+                11: 'Historian Initiate', 12: 'Historian Initiate', 13: 'Historian Initiate',
+                14: 'Research Assistant', 15: 'Research Assistant', 16: 'Research Assistant',
+                17: 'Archive Keeper', 18: 'Archive Keeper', 19: 'Archive Keeper', 20: 'Archive Keeper',
+                21: 'History Scholar', 22: 'History Scholar', 23: 'History Scholar', 24: 'History Scholar',
+                25: 'Document Analyst', 26: 'Document Analyst', 27: 'Document Analyst', 28: 'Document Analyst',
+                29: 'Chronicle Expert', 30: 'Chronicle Expert', 31: 'Chronicle Expert', 32: 'Chronicle Expert',
+                33: 'Senior Historian', 34: 'Senior Historian', 35: 'Senior Historian',
+                36: 'Master Archivist', 37: 'Master Archivist', 38: 'Master Archivist', 39: 'Master Archivist', 40: 'Master Archivist',
+                41: 'Historical Advisor', 42: 'Historical Advisor', 43: 'Historical Advisor', 44: 'Historical Advisor', 45: 'Historical Advisor',
+                46: 'Chief Chronicler', 47: 'Chief Chronicler', 48: 'Chief Chronicler', 49: 'Chief Chronicler', 50: 'Chief Chronicler',
+                51: 'History Sage', 52: 'History Sage', 53: 'History Sage', 54: 'History Sage', 55: 'History Sage',
+                56: 'Archive Master', 57: 'Archive Master', 58: 'Archive Master', 59: 'Archive Master', 60: 'Archive Master',
+                61: 'Dean of History', 62: 'Dean of History', 63: 'Dean of History', 64: 'Dean of History', 65: 'Dean of History',
+                66: 'Historical Luminary', 67: 'Historical Luminary', 68: 'Historical Luminary', 69: 'Historical Luminary', 70: 'Historical Luminary',
+                71: 'Grand Historian', 72: 'Grand Historian', 73: 'Grand Historian', 74: 'Grand Historian', 75: 'Grand Historian',
+                76: 'Keeper of Records', 77: 'Keeper of Records', 78: 'Keeper of Records', 79: 'Keeper of Records', 80: 'Keeper of Records',
+                81: 'Historical Oracle', 82: 'Historical Oracle', 83: 'Historical Oracle', 84: 'Historical Oracle', 85: 'Historical Oracle',
+                86: 'Legendary Chronicler', 87: 'Legendary Chronicler', 88: 'Legendary Chronicler', 89: 'Legendary Chronicler', 90: 'Legendary Chronicler',
+                91: 'Immortal Historian', 92: 'Immortal Historian', 93: 'Immortal Historian', 94: 'Immortal Historian', 95: 'Immortal Historian',
+                96: 'History Eternal', 97: 'History Eternal', 98: 'History Eternal', 99: 'History Eternal', 100: 'History Eternal'
+            },
+            streakMultipliers: [
+                { minStreak: 20, multiplier: 2.0 },
+                { minStreak: 15, multiplier: 1.75 },
+                { minStreak: 10, multiplier: 1.5 },
+                { minStreak: 5, multiplier: 1.25 },
+                { minStreak: 3, multiplier: 1.1 }
+            ],
+            dailyLoginBonuses: [
+                { days: 100, bonus: 2000 },
+                { days: 60, bonus: 1000 },
+                { days: 30, bonus: 500 },
+                { days: 14, bonus: 300 },
+                { days: 7, bonus: 150 },
+                { days: 3, bonus: 50 }
+            ]
+        };
+
+        // XP threshold for each level (cumulative)
+        function getXPForLevel(level) {
+            if (level <= 0) return 0;
+            if (level <= 10) return level * 100;
+            if (level <= 20) return 1000 + (level - 10) * 200;
+            if (level <= 30) return 3000 + (level - 20) * 400;
+            if (level <= 40) return 7000 + (level - 30) * 600;
+            if (level <= 50) return 13000 + (level - 40) * 800;
+            if (level <= 60) return 21000 + (level - 50) * 1000;
+            if (level <= 70) return 31000 + (level - 60) * 1500;
+            if (level <= 80) return 46000 + (level - 70) * 2000;
+            if (level <= 90) return 66000 + (level - 80) * 3000;
+            return 96000 + (level - 90) * 5000;
+        }
+
+        function getLevelFromXP(xp) {
+            if (xp < 0) return 1;
+            for (let level = 1; level <= 100; level++) {
+                if (xp < getXPForLevel(level)) return Math.max(1, level - 1);
+            }
+            return 100;
+        }
+
+        function getTierForLevel(level) {
+            for (const tier of RANK_CONFIG.tiers) {
+                if (level >= tier.minLevel && level <= tier.maxLevel) {
+                    return tier;
+                }
+            }
+            return RANK_CONFIG.tiers[0];
+        }
+
+        function getRankTitle(level) {
+            return RANK_CONFIG.titles[level] || RANK_CONFIG.titles[100];
+        }
+
+        function calculateLevelProgress(xp) {
+            const level = getLevelFromXP(xp);
+            const currentLevelXP = getXPForLevel(level);
+            const nextLevelXP = getXPForLevel(level + 1);
+            const progress = xp - currentLevelXP;
+            const needed = nextLevelXP - currentLevelXP;
+            return {
+                level,
+                xp,
+                progress,
+                needed,
+                percentage: Math.min(100, (progress / needed) * 100),
+                tier: getTierForLevel(level),
+                title: getRankTitle(level)
+            };
+        }
+
+        function getStreakMultiplier(streak) {
+            for (const sm of RANK_CONFIG.streakMultipliers) {
+                if (streak >= sm.minStreak) return sm.multiplier;
+            }
+            return 1.0;
+        }
+
+        function calculateXPWithStreak(basePoints, streak) {
+            const multiplier = getStreakMultiplier(streak);
+            return Math.floor(basePoints * multiplier);
+        }
+
+        // SVG Shield Generator - creates tier-appropriate shields
+        function generateTierShield(level, size = 'medium') {
+            const tier = getTierForLevel(level);
+            const tierName = tier.name.toLowerCase();
+            const color = tier.color;
+            const colorLight = tier.colorLight;
+
+            // Size dimensions
+            const sizes = {
+                small: { width: 32, height: 38, fontSize: 10, strokeWidth: 1.5 },
+                medium: { width: 48, height: 58, fontSize: 14, strokeWidth: 2 },
+                large: { width: 80, height: 96, fontSize: 22, strokeWidth: 2.5 }
+            };
+            const s = sizes[size] || sizes.medium;
+
+            // Shield path (classic heraldic shape)
+            const shieldPath = `M ${s.width/2} ${s.height * 0.05}
+                L ${s.width * 0.95} ${s.height * 0.15}
+                L ${s.width * 0.95} ${s.height * 0.5}
+                Q ${s.width * 0.95} ${s.height * 0.75} ${s.width/2} ${s.height * 0.95}
+                Q ${s.width * 0.05} ${s.height * 0.75} ${s.width * 0.05} ${s.height * 0.5}
+                L ${s.width * 0.05} ${s.height * 0.15}
+                Z`;
+
+            // Tier-specific decorations
+            let decorations = '';
+
+            if (tierName === 'silver' || tierName === 'gold') {
+                // Scroll/laurel accent at top
+                decorations = `<path d="M ${s.width * 0.3} ${s.height * 0.2} Q ${s.width/2} ${s.height * 0.12} ${s.width * 0.7} ${s.height * 0.2}"
+                    fill="none" stroke="${colorLight}" stroke-width="${s.strokeWidth * 0.5}" opacity="0.6"/>`;
+            } else if (tierName === 'platinum' || tierName === 'diamond') {
+                // Star/gem accent
+                const cx = s.width / 2;
+                const cy = s.height * 0.25;
+                const r = s.width * 0.08;
+                decorations = `<polygon points="${cx},${cy-r} ${cx+r*0.3},${cy-r*0.3} ${cx+r},${cy} ${cx+r*0.3},${cy+r*0.3} ${cx},${cy+r} ${cx-r*0.3},${cy+r*0.3} ${cx-r},${cy} ${cx-r*0.3},${cy-r*0.3}"
+                    fill="${colorLight}" opacity="0.8"/>`;
+            } else if (tierName === 'master') {
+                // Crown accent
+                const cx = s.width / 2;
+                const cy = s.height * 0.22;
+                const cw = s.width * 0.3;
+                const ch = s.height * 0.08;
+                decorations = `<path d="M ${cx-cw/2} ${cy+ch/2} L ${cx-cw/2} ${cy-ch/2} L ${cx-cw/4} ${cy} L ${cx} ${cy-ch/2} L ${cx+cw/4} ${cy} L ${cx+cw/2} ${cy-ch/2} L ${cx+cw/2} ${cy+ch/2} Z"
+                    fill="${colorLight}" opacity="0.8"/>`;
+            } else if (tierName === 'grandmaster') {
+                // Flame/ornate accent
+                const cx = s.width / 2;
+                const cy = s.height * 0.2;
+                decorations = `<path d="M ${cx} ${cy-s.height*0.08} Q ${cx+s.width*0.1} ${cy-s.height*0.04} ${cx+s.width*0.08} ${cy+s.height*0.02} Q ${cx+s.width*0.04} ${cy} ${cx} ${cy+s.height*0.04} Q ${cx-s.width*0.04} ${cy} ${cx-s.width*0.08} ${cy+s.height*0.02} Q ${cx-s.width*0.1} ${cy-s.height*0.04} ${cx} ${cy-s.height*0.08}"
+                    fill="${colorLight}" opacity="0.9"/>`;
+            }
+
+            // Generate SVG
+            return `<div class="tier-shield size-${size}">
+                <svg viewBox="0 0 ${s.width} ${s.height}" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="shieldGrad-${tierName}-${size}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${colorLight};stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:${color};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${color};stop-opacity:0.8" />
+                        </linearGradient>
+                        <filter id="shieldShadow-${size}" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+                    <!-- Shield background -->
+                    <path d="${shieldPath}" fill="url(#shieldGrad-${tierName}-${size})" stroke="${color}" stroke-width="${s.strokeWidth}" filter="url(#shieldShadow-${size})"/>
+                    <!-- Inner highlight -->
+                    <path d="${shieldPath}" fill="none" stroke="${colorLight}" stroke-width="${s.strokeWidth * 0.5}" opacity="0.4" transform="scale(0.9) translate(${s.width * 0.055}, ${s.height * 0.055})"/>
+                    <!-- Tier decorations -->
+                    ${decorations}
+                    <!-- Level number -->
+                    <text x="${s.width/2}" y="${s.height * 0.58}" text-anchor="middle" dominant-baseline="middle"
+                        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                        font-size="${s.fontSize}" font-weight="700" fill="#ffffff"
+                        stroke="#000" stroke-width="${s.strokeWidth * 0.3}" paint-order="stroke">
+                        ${level}
+                    </text>
+                </svg>
+            </div>`;
+        }
+
+        // Render full level badge with shield, level info, and progress bar
+        function renderLevelBadge(xp, showProgress = true) {
+            const progress = calculateLevelProgress(xp);
+            const tierClass = progress.tier.name.toLowerCase();
+
+            let progressHtml = '';
+            if (showProgress) {
+                progressHtml = `
+                    <div class="level-badge-progress">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill tier-${tierClass}" style="width: ${progress.percentage}%"></div>
+                        </div>
+                        <span class="progress-bar-text">${progress.progress} / ${progress.needed} XP</span>
+                    </div>`;
+            }
+
+            return `<div class="level-badge tier-${tierClass}">
+                ${generateTierShield(progress.level, 'medium')}
+                <div class="level-badge-info">
+                    <span class="level-badge-level">Level ${progress.level}</span>
+                    <span class="level-badge-title tier-${tierClass}">${progress.title}</span>
+                    ${progressHtml}
+                </div>
+            </div>`;
+        }
+
+        // Render compact level badge for header/leaderboard
+        function renderCompactLevelBadge(xp) {
+            const progress = calculateLevelProgress(xp);
+            const tierClass = progress.tier.name.toLowerCase();
+
+            return `<div class="level-badge-compact tier-${tierClass}">
+                ${generateTierShield(progress.level, 'small')}
+                <span class="compact-level tier-${tierClass}">Lvl ${progress.level}</span>
+                <span class="compact-title">${progress.title}</span>
+            </div>`;
+        }
+
+        // Render streak display
+        function renderStreakDisplay(streak) {
+            if (streak < 3) return '';
+            const multiplier = getStreakMultiplier(streak);
+            return `<div class="streak-display">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-count">${streak}</span>
+                <span class="streak-multiplier">${multiplier}x</span>
+            </div>`;
+        }
+
+        // Show level up notification
+        function showLevelUpNotification(newLevel) {
+            const tier = getTierForLevel(newLevel);
+            const title = getRankTitle(newLevel);
+            const tierClass = tier.name.toLowerCase();
+
+            // Create overlay and notification if they don't exist
+            let overlay = document.getElementById('levelUpOverlay');
+            let notification = document.getElementById('levelUpNotification');
+
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'levelUpOverlay';
+                overlay.className = 'level-up-overlay';
+                overlay.onclick = closeLevelUpNotification;
+                document.body.appendChild(overlay);
+            }
+
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'levelUpNotification';
+                notification.className = 'level-up-notification';
+                document.body.appendChild(notification);
+            }
+
+            notification.innerHTML = `
+                <div class="level-up-title">Level Up!</div>
+                ${generateTierShield(newLevel, 'large')}
+                <div class="new-level" style="color: ${tier.color}">Level ${newLevel}</div>
+                <div class="new-title" style="color: ${tier.color}">${title}</div>
+                <button onclick="closeLevelUpNotification()" style="margin-top: 16px; padding: 10px 24px; background: ${tier.color}; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer;">Continue</button>
+            `;
+
+            // Show with animation
+            setTimeout(() => {
+                overlay.classList.add('show');
+                notification.classList.add('show');
+            }, 100);
+        }
+
+        function closeLevelUpNotification() {
+            const overlay = document.getElementById('levelUpOverlay');
+            const notification = document.getElementById('levelUpNotification');
+            if (overlay) overlay.classList.remove('show');
+            if (notification) notification.classList.remove('show');
+        }
+
+        // Daily Challenges Configuration
+        const DAILY_CHALLENGES = {
+            easy: [
+                { id: 'questions_5', description: 'Answer 5 questions correctly', target: 5, reward: 100, trackField: 'correctToday' },
+                { id: 'streak_5', description: 'Achieve a 5-question streak', target: 5, reward: 75, trackField: 'maxStreakToday' },
+                { id: 'difficulty_P', description: 'Answer 10 Preliminary questions', target: 10, reward: 150, trackField: 'correctP' }
+            ],
+            medium: [
+                { id: 'questions_15', description: 'Answer 15 questions correctly', target: 15, reward: 250, trackField: 'correctToday' },
+                { id: 'variety', description: 'Answer in 3 different difficulties', target: 3, reward: 150, trackField: 'difficultiesUsed' },
+                { id: 'streak_7', description: 'Achieve a 7-question streak', target: 7, reward: 150, trackField: 'maxStreakToday' }
+            ],
+            hard: [
+                { id: 'questions_30', description: 'Answer 30 questions correctly', target: 30, reward: 500, trackField: 'correctToday' },
+                { id: 'streak_10', description: 'Achieve a 10-question streak', target: 10, reward: 200, trackField: 'maxStreakToday' },
+                { id: 'difficulty_F', description: 'Answer 5 Finals questions', target: 5, reward: 200, trackField: 'correctF' }
+            ]
+        };
+
+        // Daily challenge state (in memory)
+        let dailyChallenges = null;
+        let dailyStats = {
+            correctToday: 0,
+            maxStreakToday: 0,
+            difficultiesUsed: new Set(),
+            correctP: 0,
+            correctQ: 0,
+            correctS: 0,
+            correctF: 0
+        };
+
+        function getTodayDateString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function generateDailyChallenges(dateString) {
+            // Create a deterministic seed from the date
+            const seed = dateString.split('-').reduce((acc, val) => acc * 100 + parseInt(val), 0);
+
+            const easyIndex = Math.floor(seededRandom(seed) * DAILY_CHALLENGES.easy.length);
+            const mediumIndex = Math.floor(seededRandom(seed + 1) * DAILY_CHALLENGES.medium.length);
+            const hardIndex = Math.floor(seededRandom(seed + 2) * DAILY_CHALLENGES.hard.length);
+
+            return {
+                date: dateString,
+                challenges: [
+                    { ...DAILY_CHALLENGES.easy[easyIndex], type: 'easy', progress: 0, completed: false, claimed: false },
+                    { ...DAILY_CHALLENGES.medium[mediumIndex], type: 'medium', progress: 0, completed: false, claimed: false },
+                    { ...DAILY_CHALLENGES.hard[hardIndex], type: 'hard', progress: 0, completed: false, claimed: false }
+                ],
+                totalEarned: 0
+            };
+        }
+
+        async function loadOrGenerateDailyChallenges() {
+            if (!currentUser || !currentUser.emailVerified) return null;
+
+            const today = getTodayDateString();
+
+            // Check if we already have today's challenges in memory
+            if (dailyChallenges && dailyChallenges.date === today) {
+                return dailyChallenges;
+            }
+
+            try {
+                const { doc, getDoc, setDoc } = window.firebaseDbFunctions;
+                const challengeDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'dailyChallenges', today);
+                const challengeDoc = await getDoc(challengeDocRef);
+
+                if (challengeDoc.exists()) {
+                    dailyChallenges = challengeDoc.data();
+                    // Restore daily stats
+                    if (dailyChallenges.dailyStats) {
+                        dailyStats = {
+                            ...dailyChallenges.dailyStats,
+                            difficultiesUsed: new Set(dailyChallenges.dailyStats.difficultiesUsed || [])
+                        };
+                    }
+                } else {
+                    // Generate new challenges for today
+                    dailyChallenges = generateDailyChallenges(today);
+                    dailyStats = {
+                        correctToday: 0,
+                        maxStreakToday: 0,
+                        difficultiesUsed: new Set(),
+                        correctP: 0,
+                        correctQ: 0,
+                        correctS: 0,
+                        correctF: 0
+                    };
+                    await setDoc(challengeDocRef, {
+                        ...dailyChallenges,
+                        dailyStats: { ...dailyStats, difficultiesUsed: [] }
+                    });
+                }
+
+                return dailyChallenges;
+            } catch (error) {
+                console.error('Error loading daily challenges:', error);
+                // Fallback to local generation
+                dailyChallenges = generateDailyChallenges(today);
+                return dailyChallenges;
+            }
+        }
+
+        async function updateDailyChallengeProgress(difficulty, isCorrect) {
+            if (!currentUser || !currentUser.emailVerified || !dailyChallenges) return;
+
+            const today = getTodayDateString();
+            if (dailyChallenges.date !== today) {
+                await loadOrGenerateDailyChallenges();
+            }
+
+            if (!isCorrect) return;
+
+            // Update daily stats
+            dailyStats.correctToday++;
+            dailyStats.maxStreakToday = Math.max(dailyStats.maxStreakToday, userProfile?.currentStreak || 0);
+            dailyStats.difficultiesUsed.add(difficulty);
+
+            // Track per-difficulty
+            if (difficulty === 'P') dailyStats.correctP++;
+            else if (difficulty === 'Q') dailyStats.correctQ++;
+            else if (difficulty === 'S') dailyStats.correctS++;
+            else if (difficulty === 'F') dailyStats.correctF++;
+
+            // Update challenge progress
+            let challengeCompleted = false;
+            for (const challenge of dailyChallenges.challenges) {
+                if (challenge.completed) continue;
+
+                let currentProgress = 0;
+                switch (challenge.trackField) {
+                    case 'correctToday':
+                        currentProgress = dailyStats.correctToday;
+                        break;
+                    case 'maxStreakToday':
+                        currentProgress = dailyStats.maxStreakToday;
+                        break;
+                    case 'difficultiesUsed':
+                        currentProgress = dailyStats.difficultiesUsed.size;
+                        break;
+                    case 'correctP':
+                        currentProgress = dailyStats.correctP;
+                        break;
+                    case 'correctF':
+                        currentProgress = dailyStats.correctF;
+                        break;
+                }
+
+                challenge.progress = Math.min(currentProgress, challenge.target);
+
+                if (challenge.progress >= challenge.target && !challenge.completed) {
+                    challenge.completed = true;
+                    challengeCompleted = true;
+                }
+            }
+
+            // Save to Firestore
+            try {
+                const { doc, setDoc } = window.firebaseDbFunctions;
+                const challengeDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'dailyChallenges', today);
+                await setDoc(challengeDocRef, {
+                    ...dailyChallenges,
+                    dailyStats: { ...dailyStats, difficultiesUsed: Array.from(dailyStats.difficultiesUsed) }
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving daily challenge progress:', error);
+            }
+
+            // Update UI
+            renderDailyChallengesUI();
+
+            return challengeCompleted;
+        }
+
+        async function claimChallengeReward(challengeIndex) {
+            if (!currentUser || !currentUser.emailVerified || !dailyChallenges || !userProfile) return;
+
+            const challenge = dailyChallenges.challenges[challengeIndex];
+            if (!challenge || !challenge.completed || challenge.claimed) return;
+
+            // Mark as claimed
+            challenge.claimed = true;
+            dailyChallenges.totalEarned += challenge.reward;
+
+            // Award XP
+            const previousLevel = getLevelFromXP(userProfile.totalPoints || 0);
+
+            try {
+                const { doc, setDoc, updateDoc, increment } = window.firebaseDbFunctions;
+
+                // Update user profile with reward XP
+                const profileDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'data');
+                await updateDoc(profileDocRef, {
+                    totalPoints: increment(challenge.reward)
+                });
+
+                // Update in memory
+                userProfile.totalPoints = (userProfile.totalPoints || 0) + challenge.reward;
+
+                // Save challenge state
+                const today = getTodayDateString();
+                const challengeDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'dailyChallenges', today);
+                await setDoc(challengeDocRef, dailyChallenges, { merge: true });
+
+                // Check for level up
+                const newLevel = getLevelFromXP(userProfile.totalPoints);
+                if (newLevel > previousLevel) {
+                    showLevelUpNotification(newLevel);
+                }
+
+                // Update UI
+                updateProfileUI();
+                renderDailyChallengesUI();
+
+            } catch (error) {
+                console.error('Error claiming challenge reward:', error);
+                challenge.claimed = false;
+                dailyChallenges.totalEarned -= challenge.reward;
+            }
+        }
+
+        function getTimeUntilReset() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const diff = tomorrow - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            return `${hours}h ${minutes}m`;
+        }
+
+        function renderDailyChallengesUI() {
+            const container = document.getElementById('dailyChallengesContainer');
+            if (!container || !dailyChallenges) return;
+
+            let html = `
+                <div class="challenges-header">
+                    <span>Daily Challenges</span>
+                    <span class="challenges-timer">Resets in ${getTimeUntilReset()}</span>
+                </div>
+            `;
+
+            for (let i = 0; i < dailyChallenges.challenges.length; i++) {
+                const challenge = dailyChallenges.challenges[i];
+                const isCompleted = challenge.completed;
+                const isClaimed = challenge.claimed;
+                const progressPct = Math.min(100, (challenge.progress / challenge.target) * 100);
+
+                const typeEmoji = challenge.type === 'easy' ? '🟢' : challenge.type === 'medium' ? '🟡' : '🔴';
+
+                html += `
+                    <div class="challenge-item ${isCompleted ? 'completed' : ''}">
+                        <div class="challenge-icon">${isClaimed ? '✓' : typeEmoji}</div>
+                        <div class="challenge-info">
+                            <div class="challenge-desc">${challenge.description}</div>
+                            ${!isCompleted ? `
+                                <div class="challenge-progress-bar">
+                                    <div class="fill" style="width: ${progressPct}%"></div>
+                                </div>
+                            ` : ''}
+                            <div class="challenge-progress">${isCompleted ? (isClaimed ? 'Claimed!' : 'Completed!') : `${challenge.progress}/${challenge.target}`}</div>
+                        </div>
+                        <div class="challenge-reward">
+                            ${isCompleted && !isClaimed ?
+                                `<button onclick="claimChallengeReward(${i})" style="background: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;">+${challenge.reward} XP</button>` :
+                                `+${challenge.reward} XP`
+                            }
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Update XP display in settings panel
+        function updateXPDisplay() {
+            const xpContainer = document.getElementById('xpDisplayContainer');
+            const streakContainer = document.getElementById('streakDisplayContainer');
+
+            if (!userProfile || !xpContainer) return;
+
+            const xp = userProfile.totalPoints || 0;
+            const progress = calculateLevelProgress(xp);
+            const tierClass = progress.tier.name.toLowerCase();
+
+            xpContainer.innerHTML = `
+                <div class="xp-header">
+                    ${generateTierShield(progress.level, 'medium')}
+                    <div class="xp-info">
+                        <div class="xp-level-title">
+                            <span class="xp-level">Level ${progress.level}</span>
+                            <span class="xp-rank-title tier-${tierClass}" style="color: ${progress.tier.color}">${progress.title}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="xp-progress-wrapper">
+                    <div class="xp-progress-bar">
+                        <div class="xp-progress-fill" style="width: ${progress.percentage}%; background: linear-gradient(90deg, ${progress.tier.color}, ${progress.tier.colorLight})"></div>
+                    </div>
+                    <div class="xp-progress-text">
+                        <span>${progress.progress} / ${progress.needed} XP</span>
+                        <span>Total: ${xp} XP</span>
+                    </div>
+                </div>
+            `;
+
+            // Update streak display
+            if (streakContainer) {
+                const currentStreak = userProfile.currentStreak || 0;
+                if (currentStreak >= 3) {
+                    streakContainer.innerHTML = renderStreakDisplay(currentStreak);
+                } else {
+                    streakContainer.innerHTML = `<span style="font-size: 0.85em; color: var(--text-secondary);">Get a 3+ streak for bonus XP!</span>`;
+                }
+            }
+        }
+
         function getLeaderboardPath(period) {
             const now = new Date();
             let periodKey;
@@ -4730,17 +5657,22 @@
                         username: null,
                         firstName: null,
                         lastName: null,
-                        avatar: null,
                         state: null,
                         school: null,
                         totalPoints: 0,
                         questionsAnswered: 0,
+                        currentStreak: 0,
+                        bestStreak: 0,
                         createdAt: Date.now()
                     };
                 }
 
                 // Update UI with profile info
                 updateProfileUI();
+
+                // Load daily challenges
+                await loadOrGenerateDailyChallenges();
+                renderDailyChallengesUI();
             } catch (error) {
                 console.error('Error loading profile:', error);
             }
@@ -4749,20 +5681,16 @@
         function updateProfileUI() {
             const accountSettings = document.getElementById('accountSettings');
             const usernameText = document.getElementById('usernameText');
-            const avatarDisplay = document.getElementById('avatarDisplay');
             const pointsDisplay = document.getElementById('pointsDisplay');
             const pointsText = document.getElementById('pointsText');
 
             // Header elements
-            const headerAvatar = document.getElementById('headerAvatar');
+            const headerLevelBadge = document.getElementById('headerLevelBadge');
             const headerDisplayName = document.getElementById('headerDisplayName');
 
             if (userProfile) {
                 accountSettings.style.display = 'block';
                 usernameText.textContent = userProfile.username || '-';
-                if (avatarDisplay) {
-                    avatarDisplay.textContent = userProfile.avatar || '👤';
-                }
                 pointsDisplay.style.display = 'block';
                 pointsText.textContent = userProfile.totalPoints || 0;
 
@@ -4771,18 +5699,24 @@
                     headerDisplayName.textContent = userProfile.username || (currentUser ? currentUser.email : '');
                 }
 
-                // Update header with avatar if set
-                if (headerAvatar) {
-                    if (userProfile.avatar) {
-                        headerAvatar.textContent = userProfile.avatar;
-                        headerAvatar.style.display = 'inline';
-                    } else {
-                        headerAvatar.style.display = 'none';
-                    }
+                // Update header with level badge
+                if (headerLevelBadge) {
+                    const xp = userProfile.totalPoints || 0;
+                    headerLevelBadge.innerHTML = renderCompactLevelBadge(xp);
+                    headerLevelBadge.style.display = 'inline-flex';
+                }
+
+                // Update XP display in settings panel if it exists
+                const xpDisplayContainer = document.getElementById('xpDisplayContainer');
+                if (xpDisplayContainer) {
+                    updateXPDisplay();
                 }
             } else {
                 accountSettings.style.display = 'none';
                 pointsDisplay.style.display = 'none';
+                if (headerLevelBadge) {
+                    headerLevelBadge.style.display = 'none';
+                }
             }
 
             // Check if we should show profile warning
@@ -4856,10 +5790,41 @@
         // Update Points and Leaderboards
         async function updatePointsAndLeaderboard(difficulty, isCorrect) {
             if (!currentUser || !currentUser.emailVerified || !userProfile) return;
-            if (!isCorrect) return; // Only award points for correct answers
 
-            const points = calculatePoints(difficulty);
-            if (points === 0) return;
+            // Track streak regardless of correct/incorrect
+            const previousStreak = userProfile.currentStreak || 0;
+            const previousLevel = getLevelFromXP(userProfile.totalPoints || 0);
+
+            if (isCorrect) {
+                // Increment streak
+                userProfile.currentStreak = (userProfile.currentStreak || 0) + 1;
+                userProfile.bestStreak = Math.max(userProfile.bestStreak || 0, userProfile.currentStreak);
+            } else {
+                // Reset streak on incorrect/skip
+                userProfile.currentStreak = 0;
+            }
+
+            if (!isCorrect) {
+                // Update streak in database even for incorrect answers
+                try {
+                    const { doc, updateDoc } = window.firebaseDbFunctions;
+                    const profileDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'data');
+                    await updateDoc(profileDocRef, {
+                        currentStreak: userProfile.currentStreak,
+                        bestStreak: userProfile.bestStreak
+                    });
+                } catch (error) {
+                    console.error('Error updating streak:', error);
+                }
+                updateProfileUI();
+                return;
+            }
+
+            // Calculate XP with streak multiplier
+            const basePoints = calculatePoints(difficulty);
+            if (basePoints === 0) return;
+
+            const xpEarned = calculateXPWithStreak(basePoints, userProfile.currentStreak);
 
             try {
                 const { doc, setDoc, updateDoc, increment } = window.firebaseDbFunctions;
@@ -4867,19 +5832,32 @@
                 // Update user profile
                 const profileDocRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'data');
                 await updateDoc(profileDocRef, {
-                    totalPoints: increment(points),
-                    questionsAnswered: increment(1)
+                    totalPoints: increment(xpEarned),
+                    questionsAnswered: increment(1),
+                    currentStreak: userProfile.currentStreak,
+                    bestStreak: userProfile.bestStreak
                 });
 
                 // Update userProfile in memory
-                userProfile.totalPoints = (userProfile.totalPoints || 0) + points;
+                userProfile.totalPoints = (userProfile.totalPoints || 0) + xpEarned;
                 userProfile.questionsAnswered = (userProfile.questionsAnswered || 0) + 1;
+
+                // Check for level up
+                const newLevel = getLevelFromXP(userProfile.totalPoints);
+                if (newLevel > previousLevel) {
+                    showLevelUpNotification(newLevel);
+                }
 
                 // Update UI
                 updateProfileUI();
 
+                // Update daily challenge progress
+                await updateDailyChallengeProgress(difficulty, true);
+
                 // Only update leaderboards if user has a username
                 if (userProfile.username) {
+                    const levelInfo = calculateLevelProgress(userProfile.totalPoints);
+
                     // Update all leaderboards
                     const periods = ['allTime', 'monthly', 'weekly', 'daily'];
                     for (const period of periods) {
@@ -4888,9 +5866,10 @@
 
                         await setDoc(leaderboardDocRef, {
                             username: userProfile.username,
-                            avatar: userProfile.avatar || '👤',
                             points: userProfile.totalPoints,
                             questionsAnswered: userProfile.questionsAnswered,
+                            level: levelInfo.level,
+                            tier: levelInfo.tier.name,
                             lastUpdated: Date.now()
                         }, { merge: true });
                     }
@@ -4952,22 +5931,29 @@
                     const rankClass = rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '';
                     const rowClass = isCurrentUser ? 'current-user' : '';
 
-                    // For all-time leaderboard, show medals for top 3 instead of their avatar
-                    let avatar = entry.avatar || '👤';
+                    // Show tier shield based on XP
+                    const xp = entry.points || 0;
+                    const levelInfo = calculateLevelProgress(xp);
+                    const shield = generateTierShield(levelInfo.level, 'small');
+
+                    // For all-time leaderboard top 3, add medal indicator
+                    let medalIcon = '';
                     if (period === 'allTime') {
-                        if (rank === 1) avatar = '🥇';
-                        else if (rank === 2) avatar = '🥈';
-                        else if (rank === 3) avatar = '🥉';
+                        if (rank === 1) medalIcon = '🥇 ';
+                        else if (rank === 2) medalIcon = '🥈 ';
+                        else if (rank === 3) medalIcon = '🥉 ';
                     }
 
                     tableHTML += `
                         <tr class="${rowClass}">
-                            <td><span class="leaderboard-rank ${rankClass}">${rank}</span></td>
+                            <td><span class="leaderboard-rank ${rankClass}">${medalIcon}${rank}</span></td>
                             <td class="leaderboard-username">
-                                <span style="font-size: 1.2em; margin-right: 5px;">${avatar}</span>
-                                ${entry.username}${isCurrentUser ? ' 🎯' : ''}
+                                <span style="display: inline-flex; align-items: center; gap: 8px;">
+                                    ${shield}
+                                    <span>${entry.username}${isCurrentUser ? ' 🎯' : ''}</span>
+                                </span>
                             </td>
-                            <td class="leaderboard-points">${entry.points}</td>
+                            <td class="leaderboard-points">${entry.points} XP</td>
                         </tr>
                     `;
                 });
@@ -5095,20 +6081,6 @@
         }
 
         // Profile Functions
-        let selectedAvatar = null;
-
-        function selectAvatar(avatar) {
-            selectedAvatar = avatar;
-            // Update visual selection
-            document.querySelectorAll('.avatar-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            const selectedOption = document.querySelector(`.avatar-option[data-avatar="${avatar}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
-            }
-        }
-
         async function loadProfile() {
             const profileLoginMessage = document.getElementById('profileLoginMessage');
             const profileFormContainer = document.getElementById('profileFormContainer');
@@ -5134,6 +6106,9 @@
                 const schoolInput = document.getElementById('profileSchool');
                 const pointsDisplay = document.getElementById('profilePoints');
                 const questionsDisplay = document.getElementById('profileQuestionsAnswered');
+                const currentStreakDisplay = document.getElementById('profileCurrentStreak');
+                const bestStreakDisplay = document.getElementById('profileBestStreak');
+                const rankDisplay = document.getElementById('profileRankDisplay');
 
                 if (usernameInput) usernameInput.value = userProfile.username || '';
                 if (firstNameInput) firstNameInput.value = userProfile.firstName || '';
@@ -5142,19 +6117,13 @@
                 if (schoolInput) schoolInput.value = userProfile.school || '';
                 if (pointsDisplay) pointsDisplay.textContent = userProfile.totalPoints || 0;
                 if (questionsDisplay) questionsDisplay.textContent = userProfile.questionsAnswered || 0;
+                if (currentStreakDisplay) currentStreakDisplay.textContent = userProfile.currentStreak || 0;
+                if (bestStreakDisplay) bestStreakDisplay.textContent = userProfile.bestStreak || 0;
 
-                // Clear any previously selected avatars
-                document.querySelectorAll('.avatar-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-
-                // Select avatar if exists
-                if (userProfile.avatar) {
-                    selectedAvatar = userProfile.avatar;
-                    const avatarOption = document.querySelector(`.avatar-option[data-avatar="${userProfile.avatar}"]`);
-                    if (avatarOption) {
-                        avatarOption.classList.add('selected');
-                    }
+                // Display rank with shield
+                if (rankDisplay) {
+                    const xp = userProfile.totalPoints || 0;
+                    rankDisplay.innerHTML = renderLevelBadge(xp, true);
                 }
             }
         }
@@ -5186,11 +6155,12 @@
                     username: username || null,
                     firstName: firstName || null,
                     lastName: lastName || null,
-                    avatar: selectedAvatar,
                     state: state || null,
                     school: school || null,
                     totalPoints: userProfile?.totalPoints || 0,
                     questionsAnswered: userProfile?.questionsAnswered || 0,
+                    currentStreak: userProfile?.currentStreak || 0,
+                    bestStreak: userProfile?.bestStreak || 0,
                     createdAt: userProfile?.createdAt || Date.now()
                 };
 

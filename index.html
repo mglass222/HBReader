@@ -5083,7 +5083,7 @@
             const level = getLevelFromXP(xp);
             const currentLevelXP = getXPForLevel(level);
             const nextLevelXP = getXPForLevel(level + 1);
-            const progress = xp - currentLevelXP;
+            const progress = Math.max(0, xp - currentLevelXP);
             const needed = nextLevelXP - currentLevelXP;
             return {
                 level,
@@ -5281,19 +5281,13 @@
         // Daily Challenges Configuration
         const DAILY_CHALLENGES = {
             easy: [
-                { id: 'questions_5', description: 'Answer 5 questions correctly', target: 5, reward: 100, trackField: 'correctToday' },
-                { id: 'streak_5', description: 'Achieve a 5-question streak', target: 5, reward: 75, trackField: 'maxStreakToday' },
-                { id: 'difficulty_P', description: 'Answer 10 Preliminary questions', target: 10, reward: 150, trackField: 'correctP' }
+                { id: 'questions_10', description: 'Answer 10 questions correctly', target: 10, reward: 100, trackField: 'correctToday' }
             ],
             medium: [
-                { id: 'questions_15', description: 'Answer 15 questions correctly', target: 15, reward: 250, trackField: 'correctToday' },
-                { id: 'variety', description: 'Answer in 3 different difficulties', target: 3, reward: 150, trackField: 'difficultiesUsed' },
-                { id: 'streak_7', description: 'Achieve a 7-question streak', target: 7, reward: 150, trackField: 'maxStreakToday' }
+                { id: 'questions_25', description: 'Answer 25 questions correctly', target: 25, reward: 250, trackField: 'correctToday' }
             ],
             hard: [
-                { id: 'questions_30', description: 'Answer 30 questions correctly', target: 30, reward: 500, trackField: 'correctToday' },
-                { id: 'streak_10', description: 'Achieve a 10-question streak', target: 10, reward: 200, trackField: 'maxStreakToday' },
-                { id: 'difficulty_F', description: 'Answer 5 Finals questions', target: 5, reward: 200, trackField: 'correctF' }
+                { id: 'questions_50', description: 'Answer 50 questions correctly', target: 50, reward: 500, trackField: 'correctToday' }
             ]
         };
 

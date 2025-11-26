@@ -889,6 +889,17 @@
             color: var(--text-secondary);
         }
 
+        .user-avatar {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .user-display-name {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         .btn-logout {
             padding: 6px 12px;
             font-size: 0.85em;
@@ -1349,8 +1360,8 @@
 
         .avatar-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
             margin-top: 10px;
         }
 
@@ -1360,9 +1371,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5em;
-            border: 3px solid var(--border-color);
-            border-radius: 12px;
+            font-size: 1.8em;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             background: var(--bg-tertiary);
@@ -1952,7 +1963,7 @@
     <div class="header">
         <div class="header-content">
             <div style="display: flex; align-items: center; gap: 30px;">
-                <div class="site-title"><span style="color: var(--primary-blue);">HB</span>Reader</div>
+                <div class="site-title" onclick="navigateTo('practice')" style="cursor: pointer;"><span style="color: var(--primary-blue);">HB</span>Reader</div>
                 <nav class="nav-tabs" id="navTabs">
                     <button class="nav-tab active" onclick="navigateTo('practice')">Practice</button>
                     <button class="nav-tab" onclick="navigateTo('dashboard')">Dashboard</button>
@@ -2290,8 +2301,97 @@
         <div class="dashboard-card">
             <div class="card-body">
                 <div id="profileContent">
+                    <!-- Not logged in message (hidden by default) -->
+                    <div id="profileLoginMessage" class="leaderboard-empty" style="display: none;">
+                        Please log in and verify your email to edit your profile
+                    </div>
+
                     <!-- Profile form will be here -->
-                    <div class="profile-form">
+                    <div class="profile-form" id="profileFormContainer">
+                        <!-- Username -->
+                        <div class="profile-section">
+                            <label class="profile-label" for="profileUsername">Username *</label>
+                            <input type="text" id="profileUsername" class="profile-input" placeholder="Enter username (3-20 characters)" maxlength="20">
+                            <div class="profile-hint">Alphanumeric and underscores only. Required to appear on leaderboard.</div>
+                        </div>
+
+                        <!-- First Name -->
+                        <div class="profile-section">
+                            <label class="profile-label" for="profileFirstName">First Name</label>
+                            <input type="text" id="profileFirstName" class="profile-input" placeholder="Enter first name (optional)" maxlength="50">
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="profile-section">
+                            <label class="profile-label" for="profileLastName">Last Name</label>
+                            <input type="text" id="profileLastName" class="profile-input" placeholder="Enter last name (optional)" maxlength="50">
+                        </div>
+
+                        <!-- State -->
+                        <div class="profile-section">
+                            <label class="profile-label" for="profileState">State/Location</label>
+                            <select id="profileState" class="profile-input">
+                                <option value="">Select a state (optional)</option>
+                                <option value="AL">Alabama</option>
+                                <option value="AK">Alaska</option>
+                                <option value="AZ">Arizona</option>
+                                <option value="AR">Arkansas</option>
+                                <option value="CA">California</option>
+                                <option value="CO">Colorado</option>
+                                <option value="CT">Connecticut</option>
+                                <option value="DE">Delaware</option>
+                                <option value="FL">Florida</option>
+                                <option value="GA">Georgia</option>
+                                <option value="HI">Hawaii</option>
+                                <option value="ID">Idaho</option>
+                                <option value="IL">Illinois</option>
+                                <option value="IN">Indiana</option>
+                                <option value="IA">Iowa</option>
+                                <option value="KS">Kansas</option>
+                                <option value="KY">Kentucky</option>
+                                <option value="LA">Louisiana</option>
+                                <option value="ME">Maine</option>
+                                <option value="MD">Maryland</option>
+                                <option value="MA">Massachusetts</option>
+                                <option value="MI">Michigan</option>
+                                <option value="MN">Minnesota</option>
+                                <option value="MS">Mississippi</option>
+                                <option value="MO">Missouri</option>
+                                <option value="MT">Montana</option>
+                                <option value="NE">Nebraska</option>
+                                <option value="NV">Nevada</option>
+                                <option value="NH">New Hampshire</option>
+                                <option value="NJ">New Jersey</option>
+                                <option value="NM">New Mexico</option>
+                                <option value="NY">New York</option>
+                                <option value="NC">North Carolina</option>
+                                <option value="ND">North Dakota</option>
+                                <option value="OH">Ohio</option>
+                                <option value="OK">Oklahoma</option>
+                                <option value="OR">Oregon</option>
+                                <option value="PA">Pennsylvania</option>
+                                <option value="RI">Rhode Island</option>
+                                <option value="SC">South Carolina</option>
+                                <option value="SD">South Dakota</option>
+                                <option value="TN">Tennessee</option>
+                                <option value="TX">Texas</option>
+                                <option value="UT">Utah</option>
+                                <option value="VT">Vermont</option>
+                                <option value="VA">Virginia</option>
+                                <option value="WA">Washington</option>
+                                <option value="WV">West Virginia</option>
+                                <option value="WI">Wisconsin</option>
+                                <option value="WY">Wyoming</option>
+                                <option value="OTHER">Other/International</option>
+                            </select>
+                        </div>
+
+                        <!-- School -->
+                        <div class="profile-section">
+                            <label class="profile-label" for="profileSchool">School</label>
+                            <input type="text" id="profileSchool" class="profile-input" placeholder="Enter your school name (optional)" maxlength="100">
+                        </div>
+
                         <!-- Avatar Selection -->
                         <div class="profile-section">
                             <label class="profile-label">Choose Your Avatar</label>
@@ -2359,78 +2459,6 @@
                                 <div class="avatar-option" data-avatar="🌲" onclick="selectAvatar('🌲')">🌲</div>
                                 <div class="avatar-option" data-avatar="🍀" onclick="selectAvatar('🍀')">🍀</div>
                             </div>
-                        </div>
-
-                        <!-- Username -->
-                        <div class="profile-section">
-                            <label class="profile-label" for="profileUsername">Username *</label>
-                            <input type="text" id="profileUsername" class="profile-input" placeholder="Enter username (3-20 characters)" maxlength="20">
-                            <div class="profile-hint">Alphanumeric and underscores only. Required to appear on leaderboard.</div>
-                        </div>
-
-                        <!-- State -->
-                        <div class="profile-section">
-                            <label class="profile-label" for="profileState">State/Location</label>
-                            <select id="profileState" class="profile-input">
-                                <option value="">Select a state (optional)</option>
-                                <option value="AL">Alabama</option>
-                                <option value="AK">Alaska</option>
-                                <option value="AZ">Arizona</option>
-                                <option value="AR">Arkansas</option>
-                                <option value="CA">California</option>
-                                <option value="CO">Colorado</option>
-                                <option value="CT">Connecticut</option>
-                                <option value="DE">Delaware</option>
-                                <option value="FL">Florida</option>
-                                <option value="GA">Georgia</option>
-                                <option value="HI">Hawaii</option>
-                                <option value="ID">Idaho</option>
-                                <option value="IL">Illinois</option>
-                                <option value="IN">Indiana</option>
-                                <option value="IA">Iowa</option>
-                                <option value="KS">Kansas</option>
-                                <option value="KY">Kentucky</option>
-                                <option value="LA">Louisiana</option>
-                                <option value="ME">Maine</option>
-                                <option value="MD">Maryland</option>
-                                <option value="MA">Massachusetts</option>
-                                <option value="MI">Michigan</option>
-                                <option value="MN">Minnesota</option>
-                                <option value="MS">Mississippi</option>
-                                <option value="MO">Missouri</option>
-                                <option value="MT">Montana</option>
-                                <option value="NE">Nebraska</option>
-                                <option value="NV">Nevada</option>
-                                <option value="NH">New Hampshire</option>
-                                <option value="NJ">New Jersey</option>
-                                <option value="NM">New Mexico</option>
-                                <option value="NY">New York</option>
-                                <option value="NC">North Carolina</option>
-                                <option value="ND">North Dakota</option>
-                                <option value="OH">Ohio</option>
-                                <option value="OK">Oklahoma</option>
-                                <option value="OR">Oregon</option>
-                                <option value="PA">Pennsylvania</option>
-                                <option value="RI">Rhode Island</option>
-                                <option value="SC">South Carolina</option>
-                                <option value="SD">South Dakota</option>
-                                <option value="TN">Tennessee</option>
-                                <option value="TX">Texas</option>
-                                <option value="UT">Utah</option>
-                                <option value="VT">Vermont</option>
-                                <option value="VA">Virginia</option>
-                                <option value="WA">Washington</option>
-                                <option value="WV">West Virginia</option>
-                                <option value="WI">Wisconsin</option>
-                                <option value="WY">Wyoming</option>
-                                <option value="OTHER">Other/International</option>
-                            </select>
-                        </div>
-
-                        <!-- School -->
-                        <div class="profile-section">
-                            <label class="profile-label" for="profileSchool">School</label>
-                            <input type="text" id="profileSchool" class="profile-input" placeholder="Enter your school name (optional)" maxlength="100">
                         </div>
 
                         <!-- Save Button -->
@@ -2757,7 +2785,8 @@
                     // Email verified - show full logged-in UI
                     userAuthDiv.innerHTML = `
                         <div class="user-profile">
-                            <span class="user-email">${user.email}</span>
+                            <span class="user-avatar" id="headerAvatar" style="display: none;"></span>
+                            <span class="user-display-name" id="headerDisplayName">${user.email}</span>
                             <button class="btn-logout" onclick="handleLogout()">Logout</button>
                         </div>
                     `;
@@ -2771,6 +2800,10 @@
                     // If on dashboard, refresh it to show the loaded data
                     if (window.location.hash === '#dashboard') {
                         refreshDashboard();
+                    }
+                    // If on profile, refresh it to show profile form
+                    if (window.location.hash === '#profile') {
+                        await loadProfile();
                     }
                 } else {
                     // Email NOT verified - don't show logged-in UI
@@ -3958,6 +3991,8 @@
                 navTabs[1].classList.remove('active');
                 navTabs[2].classList.remove('active');
                 navTabs[3].classList.remove('active');
+                // Check profile warning status when returning to practice tab
+                checkAndShowProfileWarning();
             }
         }
 
@@ -4614,6 +4649,8 @@
                     // Create empty default profile
                     userProfile = {
                         username: null,
+                        firstName: null,
+                        lastName: null,
                         avatar: null,
                         state: null,
                         school: null,
@@ -4637,6 +4674,10 @@
             const pointsDisplay = document.getElementById('pointsDisplay');
             const pointsText = document.getElementById('pointsText');
 
+            // Header elements
+            const headerAvatar = document.getElementById('headerAvatar');
+            const headerDisplayName = document.getElementById('headerDisplayName');
+
             if (userProfile) {
                 accountSettings.style.display = 'block';
                 usernameText.textContent = userProfile.username || '-';
@@ -4645,6 +4686,21 @@
                 }
                 pointsDisplay.style.display = 'block';
                 pointsText.textContent = userProfile.totalPoints || 0;
+
+                // Update header with username if set
+                if (headerDisplayName) {
+                    headerDisplayName.textContent = userProfile.username || (currentUser ? currentUser.email : '');
+                }
+
+                // Update header with avatar if set
+                if (headerAvatar) {
+                    if (userProfile.avatar) {
+                        headerAvatar.textContent = userProfile.avatar;
+                        headerAvatar.style.display = 'inline';
+                    } else {
+                        headerAvatar.style.display = 'none';
+                    }
+                }
             } else {
                 accountSettings.style.display = 'none';
                 pointsDisplay.style.display = 'none';
@@ -4684,6 +4740,8 @@
 
                 userProfile = {
                     username: username,
+                    firstName: null,
+                    lastName: null,
                     totalPoints: 0,
                     questionsAnswered: 0,
                     createdAt: Date.now()
@@ -4922,21 +4980,32 @@
             }
         }
 
-        function dismissProfileWarning() {
-            profileWarningDismissed = true;
+        function hideProfileWarning() {
             const banner = document.getElementById('profileWarningBanner');
             if (banner) {
                 banner.style.display = 'none';
             }
         }
 
+        function dismissProfileWarning() {
+            profileWarningDismissed = true;
+            hideProfileWarning();
+        }
+
         function checkAndShowProfileWarning() {
-            // Check after a short delay to ensure userProfile is loaded
-            setTimeout(() => {
-                if (currentUser && currentUser.emailVerified && (!userProfile || !userProfile.username)) {
+            // Check if we should show or hide the warning
+            if (currentUser && currentUser.emailVerified) {
+                if (userProfile && userProfile.username) {
+                    // User has username, hide the warning
+                    hideProfileWarning();
+                } else if (!profileWarningDismissed) {
+                    // User doesn't have username and hasn't dismissed, show warning
                     showProfileWarning();
                 }
-            }, 1000);
+            } else {
+                // Not logged in or not verified, hide warning
+                hideProfileWarning();
+            }
         }
 
         // Profile Functions
@@ -4955,19 +5024,43 @@
         }
 
         async function loadProfile() {
+            const profileLoginMessage = document.getElementById('profileLoginMessage');
+            const profileFormContainer = document.getElementById('profileFormContainer');
+
+            // Check if user is logged in and verified
             if (!currentUser || !currentUser.emailVerified) {
-                const profileContent = document.getElementById('profileContent');
-                profileContent.innerHTML = '<div class="leaderboard-empty">Please log in and verify your email to edit your profile</div>';
+                // Show login message, hide form
+                if (profileLoginMessage) profileLoginMessage.style.display = 'block';
+                if (profileFormContainer) profileFormContainer.style.display = 'none';
                 return;
             }
 
+            // User is logged in - hide message, show form
+            if (profileLoginMessage) profileLoginMessage.style.display = 'none';
+            if (profileFormContainer) profileFormContainer.style.display = 'block';
+
             // Load profile data and populate form
             if (userProfile) {
-                document.getElementById('profileUsername').value = userProfile.username || '';
-                document.getElementById('profileState').value = userProfile.state || '';
-                document.getElementById('profileSchool').value = userProfile.school || '';
-                document.getElementById('profilePoints').textContent = userProfile.totalPoints || 0;
-                document.getElementById('profileQuestionsAnswered').textContent = userProfile.questionsAnswered || 0;
+                const usernameInput = document.getElementById('profileUsername');
+                const firstNameInput = document.getElementById('profileFirstName');
+                const lastNameInput = document.getElementById('profileLastName');
+                const stateSelect = document.getElementById('profileState');
+                const schoolInput = document.getElementById('profileSchool');
+                const pointsDisplay = document.getElementById('profilePoints');
+                const questionsDisplay = document.getElementById('profileQuestionsAnswered');
+
+                if (usernameInput) usernameInput.value = userProfile.username || '';
+                if (firstNameInput) firstNameInput.value = userProfile.firstName || '';
+                if (lastNameInput) lastNameInput.value = userProfile.lastName || '';
+                if (stateSelect) stateSelect.value = userProfile.state || '';
+                if (schoolInput) schoolInput.value = userProfile.school || '';
+                if (pointsDisplay) pointsDisplay.textContent = userProfile.totalPoints || 0;
+                if (questionsDisplay) questionsDisplay.textContent = userProfile.questionsAnswered || 0;
+
+                // Clear any previously selected avatars
+                document.querySelectorAll('.avatar-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
 
                 // Select avatar if exists
                 if (userProfile.avatar) {
@@ -4987,6 +5080,8 @@
             }
 
             const username = document.getElementById('profileUsername').value.trim();
+            const firstName = document.getElementById('profileFirstName').value.trim();
+            const lastName = document.getElementById('profileLastName').value.trim();
             const state = document.getElementById('profileState').value;
             const school = document.getElementById('profileSchool').value.trim();
 
@@ -5003,6 +5098,8 @@
                 // Update userProfile object
                 userProfile = {
                     username: username || null,
+                    firstName: firstName || null,
+                    lastName: lastName || null,
                     avatar: selectedAvatar,
                     state: state || null,
                     school: school || null,

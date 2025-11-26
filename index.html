@@ -3544,7 +3544,8 @@
         }
 
         function updateStats() {
-            document.getElementById('stats').textContent = `${questionsPracticed} questions practiced`;
+            const statsEl = document.getElementById('stats');
+            if (statsEl) statsEl.textContent = `${questionsPracticed} questions practiced`;
         }
 
         function getSpeedLabel(speed) {

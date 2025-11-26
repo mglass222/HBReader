@@ -2480,13 +2480,6 @@
                 </div>
             </div>
 
-            <!-- XP Progress -->
-            <div class="setting-group" id="settingsXPSection" style="display: none;">
-                <div class="setting-header">Progress</div>
-                <div id="settingsXPDisplay" class="xp-display">
-                    <!-- XP bar will be populated by JS -->
-                </div>
-            </div>
         </div>
     </div>
 
@@ -5281,45 +5274,6 @@
             if (notification) notification.classList.remove('show');
         }
 
-        // Update XP bar in settings panel (Practice page)
-        function updateSettingsXPBar() {
-            const section = document.getElementById('settingsXPSection');
-            const container = document.getElementById('settingsXPDisplay');
-
-            if (!container) return;
-
-            if (!userProfile || !currentUser || !currentUser.emailVerified) {
-                if (section) section.style.display = 'none';
-                return;
-            }
-
-            if (section) section.style.display = 'block';
-
-            const xp = userProfile.totalPoints || 0;
-            const progress = calculateLevelProgress(xp);
-
-            container.innerHTML = `
-                <div class="xp-header">
-                    ${generateTierShield(progress.level, 'small')}
-                    <div class="xp-info">
-                        <div class="xp-level-title">
-                            <span class="xp-level">Level ${progress.level}</span>
-                            <span class="xp-rank-title" style="color: ${progress.tier.color}">${progress.title}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="xp-progress-wrapper">
-                    <div class="xp-progress-bar">
-                        <div class="xp-progress-fill" style="width: ${progress.percentage}%; background: linear-gradient(90deg, ${progress.tier.color}, ${progress.tier.colorLight})"></div>
-                    </div>
-                    <div class="xp-progress-text">
-                        <span>${progress.progress} / ${progress.needed} XP to next level</span>
-                        <span>Total: ${xp.toLocaleString()} XP</span>
-                    </div>
-                </div>
-            `;
-        }
-
         // Update XP display in settings panel
         function updateXPDisplay() {
             const xpContainer = document.getElementById('xpDisplayContainer');
@@ -5448,9 +5402,6 @@
                 if (xpDisplayContainer) {
                     updateXPDisplay();
                 }
-
-                // Update settings XP bar
-                updateSettingsXPBar();
             } else {
                 if (accountSettings) accountSettings.style.display = 'none';
                 if (pointsDisplay) pointsDisplay.style.display = 'none';

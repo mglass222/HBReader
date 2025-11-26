@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Database Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar - Question List */
+        .sidebar {
+            width: 400px;
+            background: #16213e;
+            border-right: 1px solid #0f3460;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-section {
+            padding: 15px;
+            background: #0f3460;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .search-section h2 {
+            margin-bottom: 10px;
+            color: #e94560;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .search-input:focus {
+            outline: 2px solid #e94560;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filter-row select {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 12px;
+        }
+
+        .stats {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .question-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .question-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #0f3460;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .question-item:hover {
+            background: #0f3460;
+        }
+
+        .question-item.selected {
+            background: #e94560;
+        }
+
+        .question-item .id {
+            font-weight: bold;
+            color: #e94560;
+            font-size: 12px;
+        }
+
+        .question-item.selected .id {
+            color: #fff;
+        }
+
+        .question-item .preview {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .question-item.selected .preview {
+            color: #eee;
+        }
+
+        .question-item .answer-preview {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .question-item.selected .answer-preview {
+            color: #ddd;
+        }
+
+        /* Main Editor */
+        .editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-header {
+            padding: 15px 20px;
+            background: #0f3460;
+            border-bottom: 1px solid #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header h1 {
+            color: #e94560;
+            font-size: 18px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+        }
+
+        .btn-secondary {
+            background: #16213e;
+            color: #eee;
+            border: 1px solid #0f3460;
+        }
+
+        .btn-secondary:hover {
+            background: #0f3460;
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e74c3c;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .editor-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .no-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e94560;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            background: #16213e;
+            color: #eee;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #e94560;
+            margin: 25px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item:hover {
+            border-color: #e94560;
+        }
+
+        .checkbox-item.checked {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+
+        .checkbox-item input {
+            display: none;
+        }
+
+        .checkbox-item span {
+            font-size: 13px;
+        }
+
+        .preview-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #16213e;
+            border-radius: 5px;
+            border: 1px solid #0f3460;
+        }
+
+        .preview-section h4 {
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .preview-content {
+            line-height: 1.6;
+        }
+
+        .preview-content strong {
+            color: #ff6b6b;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #c0392b;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modified-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #f39c12;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .html-hint {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-text {
+            color: #e94560;
+            font-size: 24px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">Loading questions...</div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="search-section">
+                <h2>Question Database Editor</h2>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search questions or answers...">
+                <div class="filter-row">
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="preliminary">Preliminary</option>
+                        <option value="quarterfinals">Quarterfinals</option>
+                        <option value="semifinals">Semifinals</option>
+                        <option value="finals">Finals</option>
+                    </select>
+                    <select id="regionFilter">
+                        <option value="">All Regions</option>
+                    </select>
+                </div>
+                <div class="filter-row">
+                    <select id="periodFilter">
+                        <option value="">All Time Periods</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="">All Answer Types</option>
+                    </select>
+                </div>
+                <div class="stats" id="stats">Loading...</div>
+            </div>
+            <div class="question-list" id="questionList"></div>
+        </div>
+
+        <!-- Editor -->
+        <div class="editor">
+            <div class="editor-header">
+                <h1>
+                    <span id="editorTitle">Select a question to edit</span>
+                    <span class="modified-indicator hidden" id="modifiedIndicator" title="Unsaved changes"></span>
+                </h1>
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="revertBtn" disabled>Revert Changes</button>
+                    <button class="btn btn-primary" id="saveBtn" disabled>Save Changes</button>
+                </div>
+            </div>
+            <div class="editor-content" id="editorContent">
+                <div class="no-selection" id="noSelection">
+                    Select a question from the list to edit
+                </div>
+                <div class="hidden" id="editForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Question ID</label>
+                            <input type="text" id="questionId" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="questionCategory">
+                                <option value="preliminary">Preliminary</option>
+                                <option value="quarterfinals">Quarterfinals</option>
+                                <option value="semifinals">Semifinals</option>
+                                <option value="finals">Finals</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="questionText" rows="5"></textarea>
+                        <div class="html-hint">HTML supported: &lt;strong&gt;, &lt;em&gt;, &lt;u&gt;</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Answer</label>
+                        <textarea id="answerText" rows="3"></textarea>
+                        <div class="html-hint">HTML supported: &lt;strong&gt;, &lt;em&gt;, &lt;u&gt;</div>
+                    </div>
+
+                    <div class="preview-section">
+                        <h4>Question Preview</h4>
+                        <div class="preview-content" id="questionPreview"></div>
+                    </div>
+
+                    <div class="preview-section">
+                        <h4>Answer Preview</h4>
+                        <div class="preview-content" id="answerPreview"></div>
+                    </div>
+
+                    <h3 class="section-title">Metadata</h3>
+
+                    <div class="form-group">
+                        <label>Regions</label>
+                        <div class="checkbox-group" id="regionsGroup"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Periods</label>
+                        <div class="checkbox-group" id="periodsGroup"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Answer Type</label>
+                        <select id="answerType">
+                            <option value="">Select...</option>
+                            <option value="People & Biography">People & Biography</option>
+                            <option value="Events & Incidents">Events & Incidents</option>
+                            <option value="Places & Geography">Places & Geography</option>
+                            <option value="Works & Documents">Works & Documents</option>
+                            <option value="Groups & Institutions">Groups & Institutions</option>
+                            <option value="Concepts & Ideas">Concepts & Ideas</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject Themes</label>
+                        <div class="checkbox-group" id="themesGroup"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        let questions = {};
+        let metadata = {};
+        let flatQuestions = [];
+        let filteredQuestions = [];
+        let selectedQuestion = null;
+        let originalData = null;
+        let hasChanges = false;
+
+        // Constants
+        const REGIONS = [
+            'United States',
+            'Europe',
+            'Asia',
+            'Latin America & Caribbean',
+            'Africa',
+            'Middle East & North Africa',
+            'Global/Multi-Regional'
+        ];
+
+        const TIME_PERIODS = [
+            'Ancient World (pre-500 CE)',
+            'Medieval Era (500-1450)',
+            'Early Modern (1450-1750)',
+            'Age of Revolutions (1750-1850)',
+            'Industrial & Imperial Age (1850-1914)',
+            'World Wars & Interwar (1914-1945)',
+            'Contemporary Era (1945-present)'
+        ];
+
+        const THEMES = [
+            'Political & Governmental',
+            'Military & Conflict',
+            'Social Movements & Culture',
+            'Economic & Trade',
+            'Religion & Philosophy',
+            'Science & Technology',
+            'Arts & Literature'
+        ];
+
+        // Elements
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const regionFilter = document.getElementById('regionFilter');
+        const periodFilter = document.getElementById('periodFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const questionList = document.getElementById('questionList');
+        const stats = document.getElementById('stats');
+        const editorTitle = document.getElementById('editorTitle');
+        const modifiedIndicator = document.getElementById('modifiedIndicator');
+        const saveBtn = document.getElementById('saveBtn');
+        const revertBtn = document.getElementById('revertBtn');
+        const noSelection = document.getElementById('noSelection');
+        const editForm = document.getElementById('editForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Initialize
+        async function init() {
+            try {
+                // Load data
+                const [questionsRes, metadataRes] = await Promise.all([
+                    fetch('questions.json'),
+                    fetch('question_metadata.json')
+                ]);
+
+                questions = await questionsRes.json();
+                const metadataData = await metadataRes.json();
+                metadata = metadataData.categories || {};
+
+                // Flatten questions for easy access
+                flattenQuestions();
+
+                // Populate filters
+                populateFilters();
+
+                // Build checkbox groups
+                buildCheckboxGroups();
+
+                // Initial render
+                filterQuestions();
+
+                // Event listeners
+                searchInput.addEventListener('input', debounce(filterQuestions, 300));
+                categoryFilter.addEventListener('change', filterQuestions);
+                regionFilter.addEventListener('change', filterQuestions);
+                periodFilter.addEventListener('change', filterQuestions);
+                typeFilter.addEventListener('change', filterQuestions);
+
+                saveBtn.addEventListener('click', saveChanges);
+                revertBtn.addEventListener('click', revertChanges);
+
+                // Form change listeners
+                document.getElementById('questionText').addEventListener('input', onFormChange);
+                document.getElementById('answerText').addEventListener('input', onFormChange);
+                document.getElementById('questionCategory').addEventListener('change', onFormChange);
+                document.getElementById('answerType').addEventListener('change', onFormChange);
+
+                // Preview updates
+                document.getElementById('questionText').addEventListener('input', updatePreviews);
+                document.getElementById('answerText').addEventListener('input', updatePreviews);
+
+                loadingOverlay.classList.add('hidden');
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                loadingOverlay.querySelector('.loading-text').textContent = 'Error loading data: ' + error.message;
+            }
+        }
+
+        function flattenQuestions() {
+            flatQuestions = [];
+            const categories = ['preliminary', 'quarterfinals', 'semifinals', 'finals'];
+
+            for (const category of categories) {
+                if (questions[category]) {
+                    for (const q of questions[category]) {
+                        flatQuestions.push({
+                            ...q,
+                            category,
+                            metadata: metadata[q.id] || {}
+                        });
+                    }
+                }
+            }
+        }
+
+        function populateFilters() {
+            // Regions
+            REGIONS.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r;
+                regionFilter.appendChild(opt);
+            });
+
+            // Time periods
+            TIME_PERIODS.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                periodFilter.appendChild(opt);
+            });
+
+            // Answer types
+            ['People & Biography', 'Events & Incidents', 'Places & Geography',
+             'Works & Documents', 'Groups & Institutions', 'Concepts & Ideas'].forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                typeFilter.appendChild(opt);
+            });
+        }
+
+        function buildCheckboxGroups() {
+            const regionsGroup = document.getElementById('regionsGroup');
+            const periodsGroup = document.getElementById('periodsGroup');
+            const themesGroup = document.getElementById('themesGroup');
+
+            REGIONS.forEach(r => {
+                regionsGroup.appendChild(createCheckbox('region', r));
+            });
+
+            TIME_PERIODS.forEach(p => {
+                periodsGroup.appendChild(createCheckbox('period', p));
+            });
+
+            THEMES.forEach(t => {
+                themesGroup.appendChild(createCheckbox('theme', t));
+            });
+        }
+
+        function createCheckbox(type, value) {
+            const label = document.createElement('label');
+            label.className = 'checkbox-item';
+            label.innerHTML = `
+                <input type="checkbox" data-type="${type}" value="${value}">
+                <span>${value}</span>
+            `;
+            label.querySelector('input').addEventListener('change', function() {
+                label.classList.toggle('checked', this.checked);
+                onFormChange();
+            });
+            return label;
+        }
+
+        function filterQuestions() {
+            const search = searchInput.value.toLowerCase();
+            const category = categoryFilter.value;
+            const region = regionFilter.value;
+            const period = periodFilter.value;
+            const type = typeFilter.value;
+
+            filteredQuestions = flatQuestions.filter(q => {
+                // Category filter
+                if (category && q.category !== category) return false;
+
+                // Metadata filters
+                const meta = q.metadata || {};
+                if (region && (!meta.regions || !meta.regions.includes(region))) return false;
+                if (period && (!meta.time_periods || !meta.time_periods.includes(period))) return false;
+                if (type && meta.answer_type !== type) return false;
+
+                // Search filter
+                if (search) {
+                    const qText = stripHtml(q.question || '').toLowerCase();
+                    const aText = stripHtml(q.answer || '').toLowerCase();
+                    const idText = (q.id || '').toLowerCase();
+                    if (!qText.includes(search) && !aText.includes(search) && !idText.includes(search)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            renderQuestionList();
+            updateStats();
+        }
+
+        function renderQuestionList() {
+            questionList.innerHTML = '';
+
+            for (const q of filteredQuestions) {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+                if (selectedQuestion && selectedQuestion.id === q.id) {
+                    item.classList.add('selected');
+                }
+
+                const preview = stripHtml(q.question || '').substring(0, 80);
+                const answerPreview = stripHtml(q.answer || '').substring(0, 50);
+
+                item.innerHTML = `
+                    <div class="id">${q.id} (${q.category})</div>
+                    <div class="preview">${preview}...</div>
+                    <div class="answer-preview">Answer: ${answerPreview}...</div>
+                `;
+
+                item.addEventListener('click', () => selectQuestion(q));
+                questionList.appendChild(item);
+            }
+        }
+
+        function selectQuestion(q) {
+            if (hasChanges) {
+                if (!confirm('You have unsaved changes. Discard them?')) {
+                    return;
+                }
+            }
+
+            selectedQuestion = q;
+            originalData = JSON.parse(JSON.stringify(q));
+            hasChanges = false;
+
+            // Update UI
+            noSelection.classList.add('hidden');
+            editForm.classList.remove('hidden');
+            modifiedIndicator.classList.add('hidden');
+            saveBtn.disabled = true;
+            revertBtn.disabled = true;
+
+            editorTitle.textContent = `Editing: ${q.id}`;
+
+            // Populate form
+            document.getElementById('questionId').value = q.id;
+            document.getElementById('questionCategory').value = q.category;
+            document.getElementById('questionText').value = q.question || '';
+            document.getElementById('answerText').value = q.answer || '';
+
+            // Metadata
+            const meta = q.metadata || {};
+            document.getElementById('answerType').value = meta.answer_type || '';
+
+            // Checkboxes
+            document.querySelectorAll('.checkbox-item').forEach(item => {
+                const input = item.querySelector('input');
+                const type = input.dataset.type;
+                const value = input.value;
+                let checked = false;
+
+                if (type === 'region') {
+                    checked = meta.regions && meta.regions.includes(value);
+                } else if (type === 'period') {
+                    checked = meta.time_periods && meta.time_periods.includes(value);
+                } else if (type === 'theme') {
+                    checked = meta.subject_themes && meta.subject_themes.includes(value);
+                }
+
+                input.checked = checked;
+                item.classList.toggle('checked', checked);
+            });
+
+            updatePreviews();
+            renderQuestionList();
+        }
+
+        function onFormChange() {
+            if (!selectedQuestion) return;
+
+            hasChanges = true;
+            modifiedIndicator.classList.remove('hidden');
+            saveBtn.disabled = false;
+            revertBtn.disabled = false;
+        }
+
+        function updatePreviews() {
+            const qText = document.getElementById('questionText').value;
+            const aText = document.getElementById('answerText').value;
+
+            document.getElementById('questionPreview').innerHTML = qText;
+            document.getElementById('answerPreview').innerHTML = aText;
+        }
+
+        function getFormData() {
+            const regions = [];
+            const periods = [];
+            const themes = [];
+
+            document.querySelectorAll('.checkbox-item input:checked').forEach(input => {
+                if (input.dataset.type === 'region') regions.push(input.value);
+                else if (input.dataset.type === 'period') periods.push(input.value);
+                else if (input.dataset.type === 'theme') themes.push(input.value);
+            });
+
+            return {
+                id: document.getElementById('questionId').value,
+                category: document.getElementById('questionCategory').value,
+                question: document.getElementById('questionText').value,
+                answer: document.getElementById('answerText').value,
+                metadata: {
+                    regions,
+                    time_periods: periods,
+                    answer_type: document.getElementById('answerType').value,
+                    subject_themes: themes
+                }
+            };
+        }
+
+        async function saveChanges() {
+            if (!selectedQuestion || !hasChanges) return;
+
+            const formData = getFormData();
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const response = await fetch('http://localhost:8765/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        original_id: selectedQuestion.id,
+                        original_category: selectedQuestion.category,
+                        ...formData
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                // Update local data
+                const oldCategory = selectedQuestion.category;
+                const newCategory = formData.category;
+
+                // Remove from old category if changed
+                if (oldCategory !== newCategory) {
+                    const oldIndex = questions[oldCategory].findIndex(q => q.id === selectedQuestion.id);
+                    if (oldIndex > -1) {
+                        questions[oldCategory].splice(oldIndex, 1);
+                    }
+                    // Add to new category
+                    questions[newCategory].push({
+                        id: formData.id,
+                        number: questions[newCategory].length + 1,
+                        question: formData.question,
+                        answer: formData.answer
+                    });
+                } else {
+                    // Update in place
+                    const q = questions[oldCategory].find(q => q.id === selectedQuestion.id);
+                    if (q) {
+                        q.question = formData.question;
+                        q.answer = formData.answer;
+                    }
+                }
+
+                // Update metadata
+                metadata[formData.id] = formData.metadata;
+
+                // Refresh
+                flattenQuestions();
+                filterQuestions();
+
+                // Update selected question
+                selectedQuestion = flatQuestions.find(q => q.id === formData.id);
+                originalData = JSON.parse(JSON.stringify(selectedQuestion));
+
+                hasChanges = false;
+                modifiedIndicator.classList.add('hidden');
+                saveBtn.disabled = true;
+                revertBtn.disabled = true;
+
+                showToast('Changes saved successfully!', 'success');
+            } catch (error) {
+                console.error('Save failed:', error);
+                showToast('Failed to save: ' + error.message, 'error');
+                saveBtn.disabled = false;
+            }
+
+            saveBtn.textContent = 'Save Changes';
+        }
+
+        function revertChanges() {
+            if (!selectedQuestion || !originalData) return;
+
+            selectQuestion(originalData);
+            hasChanges = false;
+            modifiedIndicator.classList.add('hidden');
+            saveBtn.disabled = true;
+            revertBtn.disabled = true;
+        }
+
+        function updateStats() {
+            stats.textContent = `Showing ${filteredQuestions.length} of ${flatQuestions.length} questions`;
+        }
+
+        function stripHtml(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>

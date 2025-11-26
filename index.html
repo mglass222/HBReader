@@ -2468,6 +2468,15 @@
                 </div>
             </div>
 
+            <!-- Answer Tolerance -->
+            <div class="setting-group">
+                <label for="answerTolerance">Answer Tolerance</label>
+                <input type="range" id="answerTolerance" min="50" max="100" value="80" step="5">
+                <div class="speed-display">
+                    <span id="toleranceValue">80</span>% (forgives minor typos)
+                </div>
+            </div>
+
             <!-- Question Filters -->
             <div class="setting-group">
                 <div class="setting-header">Question Filters</div>
@@ -3337,6 +3346,18 @@
             setFontSize(size);
         });
 
+        // Update answer tolerance display and save
+        document.getElementById('answerTolerance').addEventListener('input', (e) => {
+            const tolerance = parseInt(e.target.value);
+            document.getElementById('toleranceValue').textContent = tolerance;
+            localStorage.setItem('answerTolerance', tolerance);
+        });
+
+        // Load saved answer tolerance
+        const savedTolerance = localStorage.getItem('answerTolerance') || '80';
+        document.getElementById('answerTolerance').value = savedTolerance;
+        document.getElementById('toleranceValue').textContent = savedTolerance;
+
         // Device Detection (Mobile/Tablet vs Desktop)
         function detectDeviceType() {
             // Modern approach: Check userAgentData if available
@@ -3881,12 +3902,86 @@
             });
         }
 
+        // Levenshtein distance for fuzzy matching
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, // substitution
+                            matrix[i][j - 1] + 1,     // insertion
+                            matrix[i - 1][j] + 1      // deletion
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Calculate similarity between two strings (0 to 1)
+        function calculateSimilarity(a, b) {
+            if (a === b) return 1;
+            if (a.length === 0 || b.length === 0) return 0;
+            const distance = levenshteinDistance(a, b);
+            return 1 - (distance / Math.max(a.length, b.length));
+        }
+
+        // Extract all acceptable answers from the answer field
+        function extractAcceptableAnswers(answerField) {
+            const answers = [];
+
+            // Remove HTML tags for processing but keep structure
+            let text = answerField;
+
+            // Extract text from <strong> tags (primary answers)
+            const strongMatches = text.match(/<strong>([^<]+)<\/strong>/gi) || [];
+            strongMatches.forEach(match => {
+                const content = match.replace(/<\/?strong>/gi, '').trim();
+                if (content && content.length > 1) {
+                    answers.push(content);
+                }
+            });
+
+            // Extract "accept" alternatives from parentheses
+            const acceptMatches = text.match(/accept\s+([^;)]+)/gi) || [];
+            acceptMatches.forEach(match => {
+                let content = match.replace(/^accept\s+/i, '').trim();
+                // Remove any HTML tags
+                content = content.replace(/<[^>]*>/g, '').trim();
+                if (content && content.length > 1) {
+                    answers.push(content);
+                }
+            });
+
+            // Also add the full primary answer (text before parentheses, without HTML)
+            const primaryPart = text.split(/\(/)[0];
+            const primaryClean = primaryPart.replace(/<[^>]*>/g, '').trim();
+            if (primaryClean && primaryClean.length > 1) {
+                answers.push(primaryClean);
+            }
+
+            // Remove duplicates
+            return [...new Set(answers)];
+        }
+
         // Normalize answer for comparison
         function normalizeAnswer(answer) {
             let normalized = answer.replace(/<[^>]*>/g, '');
-            normalized = normalized.split(/\(|accept/i)[0];
             normalized = normalized.toLowerCase()
-                .replace(/\b(the|a|an|of|or)\b/g, '')
+                .replace(/\b(the|a|an|of|or|and|in|on|at|to)\b/g, '')
                 .replace(/[^\w\s]/g, '')
                 .trim()
                 .replace(/\s+/g, ' ');
@@ -3902,12 +3997,52 @@
             }
 
             const correctAnswer = currentQuestion.answer;
-            const normalizedUser = normalizeAnswer(userAnswer);
-            const normalizedCorrect = normalizeAnswer(correctAnswer);
+            const tolerance = parseInt(localStorage.getItem('answerTolerance') || '80') / 100;
 
-            const isCorrect = normalizedCorrect.includes(normalizedUser) ||
-                            normalizedUser.includes(normalizedCorrect) ||
-                            normalizedUser === normalizedCorrect;
+            // Extract all acceptable answers
+            const acceptableAnswers = extractAcceptableAnswers(correctAnswer);
+            const normalizedUser = normalizeAnswer(userAnswer);
+
+            // Check against each acceptable answer
+            let isCorrect = false;
+            for (const acceptable of acceptableAnswers) {
+                const normalizedAcceptable = normalizeAnswer(acceptable);
+
+                // Check exact match
+                if (normalizedUser === normalizedAcceptable) {
+                    isCorrect = true;
+                    break;
+                }
+
+                // Check substring containment
+                if (normalizedAcceptable.includes(normalizedUser) ||
+                    normalizedUser.includes(normalizedAcceptable)) {
+                    isCorrect = true;
+                    break;
+                }
+
+                // Check fuzzy similarity
+                const similarity = calculateSimilarity(normalizedUser, normalizedAcceptable);
+                if (similarity >= tolerance) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            // Also check against the old normalized full answer as fallback
+            if (!isCorrect) {
+                const normalizedCorrect = normalizeAnswer(correctAnswer);
+                if (normalizedCorrect.includes(normalizedUser) ||
+                    normalizedUser.includes(normalizedCorrect) ||
+                    normalizedUser === normalizedCorrect) {
+                    isCorrect = true;
+                }
+                // Fuzzy match on full answer
+                const similarity = calculateSimilarity(normalizedUser, normalizedCorrect);
+                if (similarity >= tolerance) {
+                    isCorrect = true;
+                }
+            }
 
             // Add to history
             addToHistory(currentQuestion, isCorrect ? 'correct' : 'incorrect');

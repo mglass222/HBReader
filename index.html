@@ -2307,7 +2307,7 @@
                 </div>
 
                 <div class="hint hidden" id="spacebarHint">
-                    Press <strong>SPACE</strong> to pause and submit your answer
+                    <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause &nbsp;|&nbsp; <strong>R</strong> resume &nbsp;|&nbsp; <strong>N</strong> next
                 </div>
 
                 <!-- Buzzer Button (Mobile/Tablet) -->
@@ -4125,6 +4125,35 @@
                 e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();
                 showAnswerInput();
+            }
+        });
+
+        // Keyboard hotkeys for streaming control (P=pause, R=resume, N=next)
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            // Only active when a question is displayed and answer input not shown
+            if (!currentQuestion || answerInputShown) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            if (key === 'p' && !isPaused) {
+                // Pause streaming
+                e.preventDefault();
+                handlePauseResume();
+            } else if (key === 'r' && isPaused) {
+                // Resume streaming
+                e.preventDefault();
+                handlePauseResume();
+            } else if (key === 'n') {
+                // Next question
+                e.preventDefault();
+                handleNext();
             }
         });
 

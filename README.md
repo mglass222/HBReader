@@ -91,7 +91,7 @@ This site is configured for GitHub Pages:
 1. Push to the `main` branch
 2. Enable GitHub Pages in repository settings
 3. Select `main` branch and `/ (root)` as the source
-4. Site is live at: https://mglass222.github.io/National-History-Bee/
+4. Site is live at: https://mglass222.github.io/HBReader/
 
 ## File Structure
 

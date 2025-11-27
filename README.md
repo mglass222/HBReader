@@ -1,55 +1,52 @@
-# History Bee Question Generator
+# HBReader
 
-An interactive web application for practicing National History Bee questions with a streaming text display (LLM-style).
+An interactive web application for practicing National History Bee questions with streaming text display.
 
 ## Features
 
-- **5000+ Questions**: Extracted from official History Bee PDFs (2014-2025)
-- **5 Difficulty Levels**: Preliminary (9,652), Quarterfinals (196), Semifinals (365), Finals (1,764), Championships (85)
-- **Interactive Answer Checking**: Press spacebar to pause and submit your answer
-- **Streaming Display**: Questions appear character-by-character, simulating an LLM response
+- **5,988 Questions**: Extracted from official History Bee PDFs (2014-2025)
+- **4 Difficulty Levels**: Preliminary (3,573), Quarterfinals (196), Semifinals (365), Finals (1,854)
+- **Question Filters**: Filter by region, time period, and answer type
+- **Smart Classification**: Questions categorized by geographic region, historical era, and topic
+- **User Accounts**: Track your progress with Firebase authentication
+- **Leaderboard**: Compare your performance with other users
+- **Streaming Display**: Questions appear character-by-character, simulating a buzzer-style experience
 - **Adjustable Speed**: Control reading speed from Very Fast to Very Slow
+- **Interactive Answer Checking**: Press spacebar to pause and submit your answer
 - **Format Preservation**: Maintains original formatting (bold, italic, underline) from source PDFs
-- **Smart Feedback**: Get immediate feedback on correct/incorrect answers
-- **Clean Interface**: Modern, responsive design that works on all devices
+- **Responsive Design**: Works on desktop, tablet, and mobile
 
 ## Usage
 
 1. Visit the [live site](https://mglass222.github.io/HBReader/)
-2. Select your difficulty level (Preliminary through National Championships)
-3. Adjust the reading speed to your preference
-4. Click "Next Question" to start
-5. Press **SPACE** while question is streaming to pause and answer
-6. Or wait for the full question and click "Show Answer"
+2. Create an account or sign in (optional, for progress tracking)
+3. Select your difficulty level
+4. Use filters to focus on specific regions, time periods, or question types
+5. Adjust the reading speed to your preference
+6. Click "Next Question" to start
+7. Press **SPACE** while question is streaming to pause and answer
+8. Or wait for the full question and click "Show Answer"
 
-## Technical Details
+## Question Categories
 
-### Extraction Process
+### Regions
+- United States
+- Europe
+- Asia
+- Latin America & Caribbean
+- Americas (Pre-Columbian)
+- Africa
+- Middle East & North Africa
+- Global/Multi-Regional
 
-Questions were extracted from PDF files using PyMuPDF (fitz), which preserves:
-- **Bold text**: Typically used for answers and key terms
-- **Italic text**: Used for book/movie titles and foreign terms
-- **Underlined text**: Used for pronunciation guides
-
-The extraction script (`extract_questions.py`):
-1. Reads all PDF files in the directory
-2. Categorizes questions by difficulty based on filename keywords:
-   - "championship" → National Championships
-   - "semifinal" → Semifinals
-   - "quarterfinal" → Quarterfinals
-   - "finals" → Finals
-   - Everything else → Preliminary
-3. Removes headers, page numbers, and metadata
-4. Extracts question-answer pairs with HTML formatting
-5. Saves to `questions.json` for fast loading
-
-### Web Application
-
-Built with vanilla HTML/CSS/JavaScript for maximum compatibility:
-- **No dependencies**: Pure JavaScript, works offline
-- **Fast loading**: Questions pre-processed and stored in JSON
-- **Smooth streaming**: Configurable character-by-character display
-- **Responsive design**: Works on desktop, tablet, and mobile
+### Time Periods
+- Ancient World (pre-500 CE)
+- Medieval Era (500-1450)
+- Early Modern (1450-1750)
+- Age of Revolutions (1750-1850)
+- Industrial & Imperial Age (1850-1914)
+- World Wars & Interwar (1914-1945)
+- Contemporary Era (1945-present)
 
 ## Setup for Local Development
 
@@ -61,10 +58,21 @@ Built with vanilla HTML/CSS/JavaScript for maximum compatibility:
 
 2. Serve the files (Python 3):
    ```bash
-   python3 -m http.server 8000
+   python -m http.server 8000
    ```
 
 3. Open `http://localhost:8000` in your browser
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `extract_questions.py` | Extract questions from PDF files |
+| `classify_questions.py` | Classify questions by region, time period, and type |
+| `fix_classifications.py` | Fix any impossible classification combinations |
+| `check_duplicates.py` | Check for duplicate questions |
+| `remove_duplicates.py` | Remove duplicate questions |
+| `editor_server.py` | Server for the question editor UI |
 
 ## Regenerating Questions
 
@@ -72,37 +80,69 @@ If you have additional PDF files:
 
 1. Install dependencies:
    ```bash
-   pip3 install pymupdf
+   pip install pymupdf
    ```
 
 2. Place PDF files in the project directory
 
 3. Run the extraction script:
    ```bash
-   python3 extract_questions.py
+   python extract_questions.py
    ```
 
-4. The script will update `questions.json` automatically
+4. Classify the questions:
+   ```bash
+   python classify_questions.py
+   ```
 
-## GitHub Pages Deployment
-
-This site is configured for GitHub Pages:
-
-1. Push to the `main` branch
-2. Enable GitHub Pages in repository settings
-3. Select `main` branch and `/ (root)` as the source
-4. Site is live at: https://mglass222.github.io/HBReader/
+5. Fix any classification issues:
+   ```bash
+   python fix_classifications.py
+   ```
 
 ## File Structure
 
 ```
 .
 ├── index.html              # Main webpage
-├── questions.json          # Extracted questions (12,062 total)
+├── questions.json          # Extracted questions (5,988 total)
+├── question_metadata.json  # Question classifications
+├── question_editor.html    # Question editor interface
 ├── extract_questions.py    # PDF extraction script
-├── README.md              # This file
-└── *.pdf                  # Source PDF files (not included in repo)
+├── classify_questions.py   # Question classification script
+├── fix_classifications.py  # Classification fix script
+├── check_duplicates.py     # Duplicate checker
+├── remove_duplicates.py    # Duplicate remover
+├── editor_server.py        # Editor server
+├── firebase.json           # Firebase configuration
+├── firestore.rules         # Firestore security rules
+├── firestore.indexes.json  # Firestore indexes
+└── README.md               # This file
 ```
+
+## Technical Details
+
+### Question Extraction
+
+Questions are extracted from PDF files using PyMuPDF (fitz), which preserves:
+- **Bold text**: Typically used for answers and key terms
+- **Italic text**: Used for book/movie titles and foreign terms
+- **Underlined text**: Used for pronunciation guides
+
+### Classification System
+
+Questions are automatically classified using keyword pattern matching:
+- **Regions**: Detected based on geographic references (countries, cities, historical figures)
+- **Time Periods**: Detected based on dates, historical figures, and era-specific events
+- **Answer Types**: Categorized as people, events, documents, places, etc.
+
+The classification system includes safeguards against impossible combinations (e.g., "United States" + "Ancient World").
+
+### Web Application
+
+- **Frontend**: HTML/CSS/JavaScript
+- **Backend**: Firebase (Authentication, Firestore)
+- **Hosting**: GitHub Pages
 
 ## Data Source
 
@@ -114,12 +154,7 @@ This project is for educational purposes. Question content is © International A
 
 ## Contributing
 
-Issues and pull requests welcome! Suggestions for improvements:
-- Track which questions have been answered
-- Add a practice mode with scoring
-- Export practice session results
-- Add statistics tracking (accuracy, speed, etc.)
-- Add question bookmarking
+Issues and pull requests welcome!
 
 ## Credits
 

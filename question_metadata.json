@@ -1,6 +1,6 @@
 {
   "_progress": {
-    "last_updated": "2025-11-26T19:05:56.990756",
+    "last_updated": "2025-11-27T15:47:02.825394",
     "total_questions": 5988,
     "categorized": 5988
   },
@@ -714,7 +714,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -829,7 +828,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Places, Cities & Civilizations",
       "subject_themes": [
@@ -862,7 +861,6 @@
     },
     "P67": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -1165,7 +1163,6 @@
     },
     "P91": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -1360,12 +1357,10 @@
     },
     "P106": {
       "regions": [
-        "United States",
-        "Europe"
+        "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
-        "Medieval Era (500-1450)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -1810,7 +1805,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Religion & Mythology",
@@ -1899,7 +1893,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -2792,7 +2785,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
@@ -3338,7 +3330,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -3525,7 +3516,6 @@
     },
     "P276": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -4111,11 +4101,10 @@
     },
     "P322": {
       "regions": [
-        "United States",
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Medieval Era (500-1450)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
       "subject_themes": [
@@ -4141,7 +4130,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
@@ -4290,7 +4278,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -4424,7 +4412,6 @@
     },
     "P347": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -5435,7 +5422,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -6178,7 +6164,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -6669,7 +6654,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -6779,7 +6763,6 @@
     },
     "P531": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -6819,11 +6802,9 @@
     },
     "P534": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "Middle East & North Africa"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Medieval Era (500-1450)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -6851,7 +6832,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Geography & Environment",
@@ -7203,7 +7183,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -8547,7 +8526,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Social History & Daily Life",
       "subject_themes": [
@@ -8635,8 +8614,7 @@
         "United States"
       ],
       "time_periods": [
-        "Age of Revolutions (1750-1850)",
-        "Medieval Era (500-1450)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -8701,7 +8679,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -9036,7 +9014,6 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -9602,7 +9579,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "Places, Cities & Civilizations",
       "subject_themes": [
@@ -9780,7 +9757,7 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -10966,8 +10943,7 @@
     },
     "P860": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -11532,7 +11508,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -11953,7 +11929,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
       "subject_themes": [
@@ -12014,7 +11990,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Early Modern (1450-1750)"
       ],
       "answer_type": "Economic History & Trade",
@@ -12317,7 +12292,6 @@
     },
     "P966": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -12385,7 +12359,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Ideas, Ideologies & Philosophies",
@@ -13088,7 +13061,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -13537,7 +13510,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -13987,7 +13959,6 @@
     },
     "P1098": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -14050,8 +14021,7 @@
     },
     "P1103": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "Middle East & North Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -14344,7 +14314,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -16100,7 +16070,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "People & Biography",
@@ -16880,7 +16849,6 @@
     },
     "P1326": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -17087,7 +17055,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Social History & Daily Life",
       "subject_themes": [
@@ -17133,7 +17101,7 @@
     },
     "P1346": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Age of Revolutions (1750-1850)",
@@ -17543,7 +17511,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Early Modern (1450-1750)"
       ],
       "answer_type": "People & Biography",
@@ -17697,8 +17664,7 @@
     },
     "P1390": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)",
@@ -18083,7 +18049,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
       "subject_themes": [
@@ -18231,8 +18197,7 @@
     },
     "P1432": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "Middle East & North Africa"
       ],
       "time_periods": [
         "Industrial & Imperial Age (1850-1914)",
@@ -18843,8 +18808,7 @@
     },
     "P1480": {
       "regions": [
-        "Asia",
-        "United States"
+        "Asia"
       ],
       "time_periods": [
         "Industrial & Imperial Age (1850-1914)",
@@ -19456,7 +19420,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "People & Biography",
@@ -19605,7 +19568,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Science, Technology & Innovation",
       "subject_themes": [
@@ -20364,7 +20327,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
@@ -20765,7 +20727,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -21641,7 +21602,7 @@
     },
     "P1699": {
       "regions": [
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -22083,7 +22044,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
@@ -22502,7 +22462,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -22972,7 +22932,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
       "subject_themes": [
@@ -23373,7 +23333,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -23525,7 +23485,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Geography & Environment",
       "subject_themes": [
@@ -23813,7 +23773,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -25286,7 +25245,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -25358,8 +25317,7 @@
     },
     "P1990": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "Middle East & North Africa"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -25431,7 +25389,7 @@
     },
     "P1996": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -26754,7 +26712,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
@@ -26891,7 +26848,7 @@
     },
     "P2111": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)",
@@ -27502,7 +27459,7 @@
     },
     "P2159": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -28919,7 +28876,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -29185,7 +29142,7 @@
     },
     "P2291": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Age of Revolutions (1750-1850)",
@@ -29202,8 +29159,7 @@
         "United States"
       ],
       "time_periods": [
-        "World Wars & Interwar (1914-1945)",
-        "Medieval Era (500-1450)"
+        "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -29489,7 +29445,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Religion & Mythology",
@@ -31133,7 +31088,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Economic History & Trade",
       "subject_themes": [
@@ -31559,7 +31514,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Religion & Mythology",
@@ -31599,7 +31553,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -32248,7 +32202,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -33531,7 +33485,6 @@
     },
     "P2631": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -34054,7 +34007,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -34473,7 +34425,6 @@
     },
     "P2705": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -34621,7 +34572,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -34764,7 +34714,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -35371,7 +35321,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -35381,8 +35330,7 @@
     },
     "P2776": {
       "regions": [
-        "Global/Multi-Regional",
-        "United States"
+        "Global/Multi-Regional"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)",
@@ -35395,11 +35343,9 @@
     },
     "P2777": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Medieval Era (500-1450)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -35726,8 +35672,7 @@
     },
     "P2803": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -36077,7 +36022,6 @@
     },
     "P2831": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -36180,7 +36124,7 @@
     },
     "P2839": {
       "regions": [
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -36440,7 +36384,6 @@
     },
     "P2859": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -36615,7 +36558,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -36951,12 +36894,10 @@
     },
     "P2899": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
-        "Medieval Era (500-1450)"
+        "Ancient World (pre-500 CE)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -37734,7 +37675,6 @@
     },
     "P2960": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -37786,7 +37726,6 @@
     },
     "P2964": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -39107,8 +39046,7 @@
     },
     "P3067": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "Middle East & North Africa"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -39810,7 +39748,7 @@
     "P3122": {
       "regions": [
         "Middle East & North Africa",
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -40111,7 +40049,7 @@
     },
     "P3145": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -41319,7 +41257,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
       "subject_themes": [
@@ -41343,7 +41281,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Religion & Mythology",
@@ -41369,7 +41306,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
@@ -41638,7 +41574,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -42286,7 +42221,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
@@ -42360,8 +42294,7 @@
     },
     "P3321": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)",
@@ -42432,7 +42365,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -42552,7 +42485,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -43418,7 +43351,6 @@
     },
     "P3403": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -43445,7 +43377,6 @@
     },
     "P3405": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -43484,7 +43415,6 @@
     },
     "P3408": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -43889,8 +43819,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Age of Revolutions (1750-1850)",
-        "Medieval Era (500-1450)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
       "subject_themes": [
@@ -44488,7 +44417,7 @@
     },
     "P3486": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -44616,7 +44545,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "People & Biography",
@@ -44643,7 +44571,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
       "subject_themes": [
@@ -45608,7 +45536,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -45692,7 +45619,7 @@
     },
     "Q7": {
       "regions": [
-        "United States"
+        "Europe"
       ],
       "time_periods": [
         "Medieval Era (500-1450)"
@@ -45785,7 +45712,6 @@
     },
     "Q14": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -46764,7 +46690,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -47334,7 +47259,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
@@ -47672,7 +47596,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -48386,7 +48309,6 @@
     },
     "S20": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -48708,7 +48630,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
       "subject_themes": [
@@ -48783,7 +48705,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -50087,7 +50008,6 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Cultural History (Art, Literature, Music)",
@@ -51305,11 +51225,9 @@
     },
     "S249": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Medieval Era (500-1450)"
       ],
       "answer_type": "Religion & Mythology",
@@ -51476,7 +51394,6 @@
     },
     "S262": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -52474,7 +52391,6 @@
     },
     "S341": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -53021,7 +52937,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Early Modern (1450-1750)"
       ],
       "answer_type": "Places, Cities & Civilizations",
       "subject_themes": [
@@ -53744,7 +53660,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -54550,7 +54465,6 @@
     },
     "F140": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -55243,8 +55157,7 @@
     },
     "F194": {
       "regions": [
-        "Asia",
-        "United States"
+        "Asia"
       ],
       "time_periods": [
         "Industrial & Imperial Age (1850-1914)",
@@ -55334,7 +55247,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -55917,7 +55830,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Religion & Mythology",
@@ -56038,7 +55950,6 @@
     },
     "F257": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -56141,7 +56052,7 @@
     },
     "F265": {
       "regions": [
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -56356,7 +56267,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -56461,7 +56371,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Political History & Diplomacy",
@@ -56824,7 +56733,6 @@
     },
     "F319": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -57021,7 +56929,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Social History & Daily Life",
       "subject_themes": [
@@ -57095,7 +57003,6 @@
     },
     "F340": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -57160,8 +57067,8 @@
     },
     "F345": {
       "regions": [
-        "United States",
-        "Europe"
+        "Europe",
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -57283,7 +57190,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -57917,7 +57823,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -59178,8 +59083,7 @@
     },
     "F503": {
       "regions": [
-        "Global/Multi-Regional",
-        "United States"
+        "Global/Multi-Regional"
       ],
       "time_periods": [
         "World Wars & Interwar (1914-1945)",
@@ -59587,7 +59491,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
       "subject_themes": [
@@ -59658,7 +59562,6 @@
     },
     "F541": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -60295,7 +60198,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -60495,7 +60397,7 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Places, Cities & Civilizations",
       "subject_themes": [
@@ -60613,7 +60515,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
       "subject_themes": [
@@ -61124,7 +61026,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
       "subject_themes": [
@@ -61403,7 +61305,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -62129,7 +62031,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Events (Wars, Battles, Revolutions)",
@@ -62358,11 +62259,9 @@
     },
     "F753": {
       "regions": [
-        "Global/Multi-Regional",
-        "United States"
+        "Global/Multi-Regional"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Medieval Era (500-1450)"
       ],
       "answer_type": "People & Biography",
@@ -62480,7 +62379,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -63922,7 +63821,7 @@
     },
     "F875": {
       "regions": [
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -64481,7 +64380,7 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Political History & Diplomacy",
       "subject_themes": [
@@ -65690,7 +65589,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Groups, Organizations & Institutions",
@@ -66225,7 +66123,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -66509,7 +66406,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "Religion & Mythology",
@@ -66572,7 +66468,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -67207,7 +67102,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Contemporary Era (1945-present)"
       ],
       "answer_type": "Places, Cities & Civilizations",
@@ -67458,7 +67352,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -67906,7 +67799,7 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Early Modern (1450-1750)"
       ],
       "answer_type": "Documents, Laws & Treaties",
       "subject_themes": [
@@ -68521,7 +68414,6 @@
     },
     "F1237": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -69662,8 +69554,7 @@
     },
     "F1326": {
       "regions": [
-        "Africa",
-        "United States"
+        "Africa"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -69738,7 +69629,6 @@
     },
     "F1332": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -70376,7 +70266,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -70905,7 +70795,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -71038,7 +70927,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -72284,7 +72173,7 @@
     },
     "F1532": {
       "regions": [
-        "Latin America & Caribbean"
+        "Americas (Pre-Columbian)"
       ],
       "time_periods": [
         "Ancient World (pre-500 CE)"
@@ -72413,7 +72302,6 @@
     },
     "F1542": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -72520,7 +72408,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -73129,7 +73016,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "People & Biography",
@@ -74335,7 +74221,6 @@
         "Europe"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -74472,7 +74357,6 @@
     },
     "F1704": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [
@@ -74585,7 +74469,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Industrial & Imperial Age (1850-1914)"
       ],
       "answer_type": "Ideas, Ideologies & Philosophies",
@@ -74891,7 +74774,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "World Wars & Interwar (1914-1945)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -75043,7 +74926,7 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "People & Biography",
       "subject_themes": [
@@ -75457,7 +75340,7 @@
         "Latin America & Caribbean"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)"
+        "Contemporary Era (1945-present)"
       ],
       "answer_type": "Religion & Mythology",
       "subject_themes": [
@@ -75800,7 +75683,6 @@
         "United States"
       ],
       "time_periods": [
-        "Ancient World (pre-500 CE)",
         "Age of Revolutions (1750-1850)"
       ],
       "answer_type": "People & Biography",
@@ -75885,7 +75767,6 @@
     },
     "F1816": {
       "regions": [
-        "United States",
         "Europe"
       ],
       "time_periods": [

@@ -207,36 +207,6 @@
         }
 
         /* Filter Controls */
-        .filter-path-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .filter-path-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            font-size: 0.85em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .filter-path-btn:hover {
-            background: var(--bg-secondary);
-            border-color: var(--primary-blue);
-        }
-
-        .filter-path-btn.active {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
-        }
-
         .filter-section {
             margin-bottom: 12px;
         }
@@ -273,16 +243,15 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
-            margin-bottom: 12px;
-            padding: 8px 12px;
-            background: var(--bg-secondary);
-            border-radius: 4px;
+            margin-bottom: 8px;
+            margin-left: 15px;
+            font-size: 1.1em;
+            color: var(--text-secondary);
         }
 
         .question-types-label {
-            font-size: 0.85em;
-            color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
+            margin-right: 5px;
         }
 
         .question-types-tags {
@@ -316,82 +285,6 @@
             opacity: 1;
         }
 
-        .active-filters {
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-        }
-
-        .active-filters-label {
-            font-size: 0.75em;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        #activeFilterTags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: var(--primary-blue);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-        }
-
-        .filter-tag .remove {
-            cursor: pointer;
-            font-weight: bold;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-
-        .filter-tag .remove:hover {
-            opacity: 1;
-        }
-
-        .question-type-tag {
-            display: inline-block;
-            padding: 4px 10px;
-            background: var(--primary-blue);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-
-        .clear-filters-btn {
-            width: 100%;
-            padding: 6px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 3px;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            font-size: 0.8em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .clear-filters-btn:hover {
-            background: var(--error-red);
-            color: white;
-            border-color: var(--error-red);
-        }
 
         .matching-count {
             margin-top: 12px;
@@ -581,7 +474,7 @@
 
         .difficulty-indicator {
             font-size: 1.1em;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             margin-left: 15px;
             color: var(--text-secondary);
         }
@@ -2105,9 +1998,9 @@
 
         .history-table th {
             text-align: left;
-            padding: 10px 12px;
+            padding: 6px 10px;
             border-bottom: 2px solid var(--border-color);
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -2163,10 +2056,10 @@
         }
 
         .history-table td {
-            padding: 10px 12px;
+            padding: 5px 10px;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-primary);
-            font-size: 0.95em;
+            font-size: 0.9em;
             word-wrap: break-word;
             word-break: break-word;
             overflow-wrap: break-word;
@@ -2201,10 +2094,10 @@
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.85em;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
             font-weight: 600;
         }
 
@@ -2299,12 +2192,12 @@
             }
 
             .history-table {
-                font-size: 0.9em;
+                font-size: 0.85em;
             }
 
             .history-table th,
             .history-table td {
-                padding: 8px;
+                padding: 4px 8px;
             }
         }
     </style>
@@ -2357,9 +2250,21 @@
                 <span class="difficulty-value" id="difficultyValue"></span>
             </div>
 
+            <!-- Selected Region Display -->
+            <div class="question-types-indicator" id="regionIndicator" style="display: none;">
+                <span class="question-types-label">Region:</span>
+                <span class="question-types-tags" id="regionTags"></span>
+            </div>
+
+            <!-- Selected Time Period Display -->
+            <div class="question-types-indicator" id="timePeriodIndicator" style="display: none;">
+                <span class="question-types-label">Time Period:</span>
+                <span class="question-types-tags" id="timePeriodTags"></span>
+            </div>
+
             <!-- Selected Question Types Display -->
             <div class="question-types-indicator" id="questionTypesIndicator" style="display: none;">
-                <span class="question-types-label">Showing Question Types:</span>
+                <span class="question-types-label">Types:</span>
                 <span class="question-types-tags" id="questionTypesTags"></span>
             </div>
 
@@ -2458,17 +2363,7 @@
             <div class="setting-group">
                 <div class="setting-header">Question Filters</div>
 
-                <!-- Filter Path Selection -->
-                <div class="filter-path-selector">
-                    <button class="filter-path-btn active" id="filterByRegion" onclick="setFilterPath('region')">
-                        By Region
-                    </button>
-                    <button class="filter-path-btn" id="filterByTime" onclick="setFilterPath('time')">
-                        By Time Period
-                    </button>
-                </div>
-
-                <!-- Region Filter (Path A) -->
+                <!-- Region Filter -->
                 <div id="regionFilterSection" class="filter-section">
                     <label>Region</label>
                     <select id="regionFilter" class="filter-select">
@@ -2483,8 +2378,8 @@
                     </select>
                 </div>
 
-                <!-- Time Period Filter (Path B) -->
-                <div id="timeFilterSection" class="filter-section" style="display: none;">
+                <!-- Time Period Filter -->
+                <div id="timeFilterSection" class="filter-section">
                     <label>Time Period</label>
                     <select id="timeFilter" class="filter-select">
                         <option value="all">All Time Periods</option>
@@ -2495,14 +2390,6 @@
                         <option value="Industrial & Imperial Age (1850-1914)">Industrial & Imperial Age (1850-1914)</option>
                         <option value="World Wars & Interwar (1914-1945)">World Wars & Interwar (1914-1945)</option>
                         <option value="Contemporary Era (1945-present)">Contemporary Era (1945-present)</option>
-                    </select>
-                </div>
-
-                <!-- Secondary Filter (shown after primary selection) -->
-                <div id="secondaryFilterSection" class="filter-section" style="display: none;">
-                    <label id="secondaryFilterLabel">Time Period</label>
-                    <select id="secondaryFilter" class="filter-select">
-                        <option value="all">All</option>
                     </select>
                 </div>
 
@@ -2525,13 +2412,6 @@
                         <option value="Documents, Laws & Treaties">Documents, Laws & Treaties</option>
                         <option value="Ideas, Ideologies & Philosophies">Ideas, Ideologies & Philosophies</option>
                     </select>
-                </div>
-
-                <!-- Active Filters Display -->
-                <div id="activeFilters" class="active-filters" style="display: none;">
-                    <div class="active-filters-label">Active Filters:</div>
-                    <div id="activeFilterTags"></div>
-                    <button class="clear-filters-btn" onclick="clearAllFilters()">Clear All</button>
                 </div>
 
                 <!-- Matching Questions Count -->
@@ -2915,14 +2795,13 @@
         let answerInputShown = false;
         let questionsPracticed = 0;
         let questionHistory = []; // Track history of practiced questions
+        let sessionHistory = []; // Track history for current session only (Practice page display)
         let currentUser = null; // Current authenticated user
 
         // Filter state
         let activeFilters = {
-            path: 'region', // 'region' or 'time'
             region: 'all',
             timePeriod: 'all',
-            secondary: 'all',
             answerTypes: []  // Array for multi-select question types
         };
 
@@ -3058,6 +2937,7 @@
                 await signOut(window.firebaseAuth);
                 // Clear local history
                 questionHistory = [];
+                sessionHistory = [];
                 updateHistoryDisplay();
                 questionsPracticed = 0;
                 updateStats();
@@ -3355,104 +3235,17 @@
             }
         }
 
-        // Switch between filter paths (Region-first vs Time-first)
-        function setFilterPath(path) {
-            activeFilters.path = path;
-
-            // Update button states
-            document.getElementById('filterByRegion').classList.toggle('active', path === 'region');
-            document.getElementById('filterByTime').classList.toggle('active', path === 'time');
-
-            // Show/hide appropriate filter sections
-            document.getElementById('regionFilterSection').style.display = path === 'region' ? 'block' : 'none';
-            document.getElementById('timeFilterSection').style.display = path === 'time' ? 'block' : 'none';
-
-            // Reset secondary filter
-            document.getElementById('secondaryFilterSection').style.display = 'none';
-            activeFilters.secondary = 'all';
-
-            // Update display
+        // Handle region filter change
+        function onRegionFilterChange() {
+            activeFilters.region = document.getElementById('regionFilter').value;
+            updateSelectedTypesDisplay();
             updateFilterDisplay();
         }
 
-        // Handle primary filter change (region or time period)
-        function onPrimaryFilterChange() {
-            const path = activeFilters.path;
-
-            if (path === 'region') {
-                activeFilters.region = document.getElementById('regionFilter').value;
-                updateSecondaryFilter('time');
-            } else {
-                activeFilters.timePeriod = document.getElementById('timeFilter').value;
-                updateSecondaryFilter('region');
-            }
-
-            updateFilterDisplay();
-        }
-
-        // Update secondary filter options based on primary selection
-        function updateSecondaryFilter(type) {
-            const secondarySection = document.getElementById('secondaryFilterSection');
-            const secondarySelect = document.getElementById('secondaryFilter');
-            const secondaryLabel = document.getElementById('secondaryFilterLabel');
-
-            // Get relevant options based on selected primary filter
-            const options = getSecondaryOptions(type);
-
-            if (options.length > 0) {
-                // Show secondary filter
-                secondarySection.style.display = 'block';
-                secondaryLabel.textContent = type === 'time' ? 'Time Period' : 'Region';
-
-                // Populate options
-                secondarySelect.innerHTML = '<option value="all">All</option>';
-                options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt;
-                    option.textContent = opt;
-                    secondarySelect.appendChild(option);
-                });
-            } else {
-                secondarySection.style.display = 'none';
-            }
-        }
-
-        // Get available secondary options based on primary selection
-        function getSecondaryOptions(type) {
-            const allOptions = new Set();
-            const category = document.getElementById('category').value;
-
-            if (!questions[category]) return [];
-
-            questions[category].forEach(q => {
-                const meta = questionMetadata[q.id];
-                if (!meta) return;
-
-                // Check if question matches primary filter
-                let matches = false;
-                if (activeFilters.path === 'region' && activeFilters.region !== 'all') {
-                    matches = meta.regions.includes(activeFilters.region);
-                } else if (activeFilters.path === 'time' && activeFilters.timePeriod !== 'all') {
-                    matches = meta.time_periods.includes(activeFilters.timePeriod);
-                } else {
-                    matches = true;
-                }
-
-                if (matches) {
-                    if (type === 'time') {
-                        meta.time_periods.forEach(tp => allOptions.add(tp));
-                    } else {
-                        meta.regions.forEach(r => allOptions.add(r));
-                    }
-                }
-            });
-
-            return Array.from(allOptions).sort();
-        }
-
-        // Handle secondary filter change
-        function onSecondaryFilterChange() {
-            activeFilters.secondary = document.getElementById('secondaryFilter').value;
+        // Handle time period filter change
+        function onTimePeriodFilterChange() {
+            activeFilters.timePeriod = document.getElementById('timeFilter').value;
+            updateSelectedTypesDisplay();
             updateFilterDisplay();
         }
 
@@ -3479,18 +3272,71 @@
         }
 
         function updateSelectedTypesDisplay() {
-            const indicator = document.getElementById('questionTypesIndicator');
-            const tagsContainer = document.getElementById('questionTypesTags');
+            const regionIndicator = document.getElementById('regionIndicator');
+            const regionTagsContainer = document.getElementById('regionTags');
+            const timePeriodIndicator = document.getElementById('timePeriodIndicator');
+            const timePeriodTagsContainer = document.getElementById('timePeriodTags');
+            const typesIndicator = document.getElementById('questionTypesIndicator');
+            const typesTagsContainer = document.getElementById('questionTypesTags');
 
-            if (activeFilters.answerTypes.length === 0) {
-                indicator.style.display = 'none';
-                tagsContainer.innerHTML = '';
-            } else {
-                indicator.style.display = 'flex';
-                tagsContainer.innerHTML = activeFilters.answerTypes.map(type =>
-                    `<span class="question-type-filter-tag">${type}<span class="remove-type" onclick="removeQuestionType('${type.replace(/'/g, "\\'")}')">×</span></span>`
-                ).join('');
+            // Handle region display - show if region filter is selected (regardless of path)
+            const regionTags = [];
+
+            // Add region filter if active
+            if (activeFilters.region !== 'all') {
+                regionTags.push(`<span class="question-type-filter-tag">${activeFilters.region}<span class="remove-type" onclick="clearRegionFilter()">×</span></span>`);
             }
+
+            if (regionTags.length === 0) {
+                regionIndicator.style.display = 'none';
+                regionTagsContainer.innerHTML = '';
+            } else {
+                regionIndicator.style.display = 'flex';
+                regionTagsContainer.innerHTML = regionTags.join('');
+            }
+
+            // Handle time period display - show if time period filter is selected (regardless of path)
+            const timePeriodTags = [];
+
+            // Add time period filter if active
+            if (activeFilters.timePeriod !== 'all') {
+                timePeriodTags.push(`<span class="question-type-filter-tag">${activeFilters.timePeriod}<span class="remove-type" onclick="clearTimePeriodFilter()">×</span></span>`);
+            }
+
+            if (timePeriodTags.length === 0) {
+                timePeriodIndicator.style.display = 'none';
+                timePeriodTagsContainer.innerHTML = '';
+            } else {
+                timePeriodIndicator.style.display = 'flex';
+                timePeriodTagsContainer.innerHTML = timePeriodTags.join('');
+            }
+
+            // Handle question types display - ONLY for question type filters
+            const typeTags = activeFilters.answerTypes.map(type =>
+                `<span class="question-type-filter-tag">${type}<span class="remove-type" onclick="removeQuestionType('${type.replace(/'/g, "\\'")}')">×</span></span>`
+            );
+
+            if (typeTags.length === 0) {
+                typesIndicator.style.display = 'none';
+                typesTagsContainer.innerHTML = '';
+            } else {
+                typesIndicator.style.display = 'flex';
+                typesTagsContainer.innerHTML = typeTags.join('');
+            }
+        }
+
+        function clearRegionFilter() {
+            activeFilters.region = 'all';
+            document.getElementById('regionFilter').value = 'all';
+            updateSelectedTypesDisplay();
+            updateFilterDisplay();
+        }
+
+        function clearTimePeriodFilter() {
+            activeFilters.timePeriod = 'all';
+            document.getElementById('timeFilter').value = 'all';
+            updateSelectedTypesDisplay();
+            updateFilterDisplay();
         }
 
         function removeQuestionType(type) {
@@ -3508,24 +3354,13 @@
                 if (!meta) return true; // Include if no metadata
 
                 // Check region filter
-                if (activeFilters.path === 'region' && activeFilters.region !== 'all') {
+                if (activeFilters.region !== 'all') {
                     if (!meta.regions.includes(activeFilters.region)) return false;
                 }
 
                 // Check time period filter
-                if (activeFilters.path === 'time' && activeFilters.timePeriod !== 'all') {
+                if (activeFilters.timePeriod !== 'all') {
                     if (!meta.time_periods.includes(activeFilters.timePeriod)) return false;
-                }
-
-                // Check secondary filter
-                if (activeFilters.secondary !== 'all') {
-                    if (activeFilters.path === 'region') {
-                        // Secondary is time period
-                        if (!meta.time_periods.includes(activeFilters.secondary)) return false;
-                    } else {
-                        // Secondary is region
-                        if (!meta.regions.includes(activeFilters.secondary)) return false;
-                    }
                 }
 
                 // Check answer type filter (multi-select)
@@ -3537,34 +3372,14 @@
             });
         }
 
-        // Update filter display (tags and count)
+        // Update filter display (matching count only)
         function updateFilterDisplay() {
-            const activeFiltersDiv = document.getElementById('activeFilters');
-            const activeFilterTags = document.getElementById('activeFilterTags');
             const matchingCount = document.getElementById('matchingCount');
 
-            // Build active filter tags
-            const tags = [];
-
-            if (activeFilters.region !== 'all' && activeFilters.path === 'region') {
-                tags.push({ label: activeFilters.region, type: 'region' });
-            }
-            if (activeFilters.timePeriod !== 'all' && activeFilters.path === 'time') {
-                tags.push({ label: activeFilters.timePeriod, type: 'timePeriod' });
-            }
-            if (activeFilters.secondary !== 'all') {
-                tags.push({ label: activeFilters.secondary, type: 'secondary' });
-            }
-            // Note: Question types are displayed separately above the dropdown
-
-            // Show/hide active filters section (check both tags and question types)
-            const hasFilters = tags.length > 0 || activeFilters.answerTypes.length > 0;
-            activeFiltersDiv.style.display = tags.length > 0 ? 'block' : 'none';
-
-            // Render tags
-            activeFilterTags.innerHTML = tags.map(tag =>
-                `<div class="filter-tag">${tag.label} <span class="remove" onclick="removeFilter('${tag.type}')">×</span></div>`
-            ).join('');
+            // Check if any filters are active
+            const hasFilters = activeFilters.answerTypes.length > 0 ||
+                              activeFilters.region !== 'all' ||
+                              activeFilters.timePeriod !== 'all';
 
             // Update matching count
             const category = document.getElementById('category').value;
@@ -3628,9 +3443,8 @@
 
         // Add event listeners for filters
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('regionFilter')?.addEventListener('change', onPrimaryFilterChange);
-            document.getElementById('timeFilter')?.addEventListener('change', onPrimaryFilterChange);
-            document.getElementById('secondaryFilter')?.addEventListener('change', onSecondaryFilterChange);
+            document.getElementById('regionFilter')?.addEventListener('change', onRegionFilterChange);
+            document.getElementById('timeFilter')?.addEventListener('change', onTimePeriodFilterChange);
             document.getElementById('answerTypeFilter')?.addEventListener('change', onAnswerTypeFilterChange);
         });
 
@@ -3678,8 +3492,26 @@
             document.getElementById('speedLabel').textContent = label;
         });
 
-        // Update stats when category changes
-        document.getElementById('category').addEventListener('change', updateStats);
+        // Update difficulty display based on selected category
+        function updateDifficultyDisplay() {
+            const category = document.getElementById('category').value;
+            const difficultyNames = {
+                'preliminary': 'Preliminary',
+                'quarterfinals': 'Quarterfinals',
+                'semifinals': 'Semifinals',
+                'finals': 'Finals'
+            };
+            document.getElementById('difficultyValue').textContent = difficultyNames[category] || category;
+        }
+
+        // Update stats and difficulty display when category changes
+        document.getElementById('category').addEventListener('change', () => {
+            updateDifficultyDisplay();
+            updateStats();
+        });
+
+        // Initialize difficulty display on page load
+        updateDifficultyDisplay();
 
         // Helper function to remove all cursor elements from HTML
         function removeCursor(element) {
@@ -3784,14 +3616,7 @@
             }
 
             // Update difficulty indicator
-            const category = document.getElementById('category').value;
-            const difficultyNames = {
-                'preliminary': 'Preliminary',
-                'quarterfinals': 'Quarterfinals',
-                'semifinals': 'Semifinals',
-                'finals': 'Finals'
-            };
-            document.getElementById('difficultyValue').textContent = difficultyNames[category] || category;
+            updateDifficultyDisplay();
 
             questionsPracticed++;
             updateStats();
@@ -4299,6 +4124,7 @@
             };
 
             questionHistory.push(historyEntry);
+            sessionHistory.push(historyEntry);
             updateHistoryDisplay();
 
             // Save to Firestore if user is logged in AND email is verified
@@ -4357,14 +4183,14 @@
         function updateHistoryDisplay() {
             const historyItems = document.getElementById('historyItems');
 
-            if (questionHistory.length === 0) {
-                historyItems.innerHTML = '<span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>';
+            if (sessionHistory.length === 0) {
+                historyItems.innerHTML = '<span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet this session.</span>';
                 return;
             }
 
             historyItems.innerHTML = '';
 
-            questionHistory.forEach((entry, index) => {
+            sessionHistory.forEach((entry, index) => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.dataset.index = index;
@@ -5079,6 +4905,7 @@
             }
 
             questionHistory = [];
+            sessionHistory = [];
             updateHistoryDisplay();
             questionsPracticed = 0;
             updateStats();

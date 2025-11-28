@@ -4494,19 +4494,43 @@
             // All possible answer types
             const allAnswerTypes = [
                 "People & Biography",
-                "Events & Incidents",
-                "Places & Geography",
-                "Works & Documents",
-                "Groups & Institutions",
-                "Concepts & Ideas"
+                "Events (Wars, Battles, Revolutions)",
+                "Political History & Diplomacy",
+                "Economic History & Trade",
+                "Social History & Daily Life",
+                "Cultural History (Art, Literature, Music)",
+                "Religion & Mythology",
+                "Science, Technology & Innovation",
+                "Geography & Environment",
+                "Places, Cities & Civilizations",
+                "Groups, Organizations & Institutions",
+                "Documents, Laws & Treaties",
+                "Ideas, Ideologies & Philosophies"
             ];
 
+            // Display name abbreviations
+            const displayNames = {
+                "People & Biography": "People & Bio",
+                "Events (Wars, Battles, Revolutions)": "Events & Wars",
+                "Political History & Diplomacy": "Political & Diplomacy",
+                "Economic History & Trade": "Economic & Trade",
+                "Social History & Daily Life": "Social & Daily Life",
+                "Cultural History (Art, Literature, Music)": "Cultural & Arts",
+                "Religion & Mythology": "Religion & Myth",
+                "Science, Technology & Innovation": "Science & Tech",
+                "Geography & Environment": "Geography & Env",
+                "Places, Cities & Civilizations": "Places & Civs",
+                "Groups, Organizations & Institutions": "Groups & Orgs",
+                "Documents, Laws & Treaties": "Docs & Treaties",
+                "Ideas, Ideologies & Philosophies": "Ideas & Philosophy"
+            };
+
             // Helper function to create stat item HTML
-            function createStatItem(label, total, correct) {
+            function createStatItem(label, fullLabel, total, correct) {
                 const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
                 return `
                     <div class="category-stat-item">
-                        <div class="category-stat-label" title="${label}">${label}</div>
+                        <div class="category-stat-label" title="${fullLabel}">${label}</div>
                         <div class="category-stat-bar-container">
                             <div class="category-stat-bar" style="width: ${percentage}%"></div>
                         </div>
@@ -4520,15 +4544,8 @@
             let answerTypeHTML = '';
             allAnswerTypes.forEach(type => {
                 const stats = answerTypeStats[type] || { total: 0, correct: 0 };
-                // Abbreviate answer type names
-                let displayName = type;
-                if (type === 'People & Biography') displayName = 'People & Bio';
-                if (type === 'Events & Incidents') displayName = 'Events';
-                if (type === 'Places & Geography') displayName = 'Places & Geo';
-                if (type === 'Works & Documents') displayName = 'Works & Docs';
-                if (type === 'Groups & Institutions') displayName = 'Groups & Inst';
-                if (type === 'Concepts & Ideas') displayName = 'Concepts';
-                answerTypeHTML += createStatItem(displayName, stats.total, stats.correct);
+                const displayName = displayNames[type] || type;
+                answerTypeHTML += createStatItem(displayName, type, stats.total, stats.correct);
             });
             answerTypeStatsDiv.innerHTML = answerTypeHTML;
         }

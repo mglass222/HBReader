@@ -2247,8 +2247,9 @@
                 <nav class="nav-tabs" id="navTabs">
                     <button class="nav-tab active" onclick="navigateTo('practice')">Practice</button>
                     <button class="nav-tab" onclick="navigateTo('dashboard')">Dashboard</button>
-                    <button class="nav-tab" onclick="navigateTo('profile')">Profile</button>
+                    <button class="nav-tab" onclick="navigateTo('history')">Question History</button>
                     <button class="nav-tab" onclick="navigateTo('leaderboard')">Leaderboard</button>
+                    <button class="nav-tab" onclick="navigateTo('profile')">Profile</button>
                 </nav>
             </div>
             <div id="userAuth">
@@ -2485,7 +2486,7 @@
     <div id="dashboardContainer" class="dashboard-container">
         <div class="dashboard-header">
             <h1 class="dashboard-title">Dashboard</h1>
-            <p class="dashboard-subtitle">Track your progress and review your question history</p>
+            <p class="dashboard-subtitle">Track your progress and performance</p>
         </div>
 
         <!-- Overall Statistics -->
@@ -2535,10 +2536,16 @@
             </div>
         </div>
 
-        <!-- Question History Table -->
-        <div class="history-table-container">
-            <div class="card-header">Question History</div>
+    </div>
 
+    <!-- Question History Container -->
+    <div id="historyContainer" class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Question History</h1>
+            <p class="dashboard-subtitle">Review your practice history and track your progress</p>
+        </div>
+
+        <div class="history-table-container">
             <div class="history-controls">
                 <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID...">
                 <select class="history-filter" id="difficultyFilter">
@@ -4361,6 +4368,7 @@
             const hash = window.location.hash.slice(1) || 'practice';
             const practiceContainer = document.getElementById('practiceContainer');
             const dashboardContainer = document.getElementById('dashboardContainer');
+            const historyContainer = document.getElementById('historyContainer');
             const profileContainer = document.getElementById('profileContainer');
             const leaderboardContainer = document.getElementById('leaderboardContainer');
             const navTabs = document.querySelectorAll('.nav-tab');
@@ -4369,19 +4377,21 @@
             if (hash === 'dashboard') {
                 practiceContainer.classList.remove('active');
                 dashboardContainer.classList.add('active');
+                historyContainer.classList.remove('active');
                 profileContainer.classList.remove('active');
                 leaderboardContainer.classList.remove('active');
                 navTabs[0].classList.remove('active');
                 navTabs[1].classList.add('active');
                 navTabs[2].classList.remove('active');
                 navTabs[3].classList.remove('active');
+                navTabs[4].classList.remove('active');
 
                 // Check if user is logged in and verified
                 if (!currentUser || !currentUser.emailVerified) {
                     dashboardContainer.innerHTML = `
                         <div class="dashboard-header">
                             <h1 class="dashboard-title">Dashboard</h1>
-                            <p class="dashboard-subtitle">Track your progress and review your question history</p>
+                            <p class="dashboard-subtitle">Track your progress and performance</p>
                         </div>
                         <div class="dashboard-card">
                             <div class="card-body">
@@ -4394,35 +4404,75 @@
                     await loadUserHistory();
                     refreshDashboard();
                 }
-            } else if (hash === 'profile') {
+            } else if (hash === 'history') {
                 practiceContainer.classList.remove('active');
                 dashboardContainer.classList.remove('active');
-                profileContainer.classList.add('active');
+                historyContainer.classList.add('active');
+                profileContainer.classList.remove('active');
                 leaderboardContainer.classList.remove('active');
                 navTabs[0].classList.remove('active');
                 navTabs[1].classList.remove('active');
                 navTabs[2].classList.add('active');
                 navTabs[3].classList.remove('active');
-                await loadProfile();
+                navTabs[4].classList.remove('active');
+
+                // Check if user is logged in and verified
+                if (!currentUser || !currentUser.emailVerified) {
+                    historyContainer.innerHTML = `
+                        <div class="dashboard-header">
+                            <h1 class="dashboard-title">Question History</h1>
+                            <p class="dashboard-subtitle">Review your practice history and track your progress</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="card-body">
+                                <div class="leaderboard-empty">Please log in and verify your email to view your question history</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Make sure history structure exists (in case it was replaced by login message)
+                    let historyTableWrapper = document.getElementById('historyTableWrapper');
+                    if (!historyTableWrapper) {
+                        restoreHistoryStructure();
+                    }
+                    await loadUserHistory();
+                    renderHistoryTable(questionHistory);
+                }
             } else if (hash === 'leaderboard') {
                 practiceContainer.classList.remove('active');
                 dashboardContainer.classList.remove('active');
+                historyContainer.classList.remove('active');
                 profileContainer.classList.remove('active');
                 leaderboardContainer.classList.add('active');
                 navTabs[0].classList.remove('active');
                 navTabs[1].classList.remove('active');
                 navTabs[2].classList.remove('active');
                 navTabs[3].classList.add('active');
+                navTabs[4].classList.remove('active');
                 await loadLeaderboard();
+            } else if (hash === 'profile') {
+                practiceContainer.classList.remove('active');
+                dashboardContainer.classList.remove('active');
+                historyContainer.classList.remove('active');
+                profileContainer.classList.add('active');
+                leaderboardContainer.classList.remove('active');
+                navTabs[0].classList.remove('active');
+                navTabs[1].classList.remove('active');
+                navTabs[2].classList.remove('active');
+                navTabs[3].classList.remove('active');
+                navTabs[4].classList.add('active');
+                await loadProfile();
             } else {
                 practiceContainer.classList.add('active');
                 dashboardContainer.classList.remove('active');
+                historyContainer.classList.remove('active');
                 profileContainer.classList.remove('active');
                 leaderboardContainer.classList.remove('active');
                 navTabs[0].classList.add('active');
                 navTabs[1].classList.remove('active');
                 navTabs[2].classList.remove('active');
                 navTabs[3].classList.remove('active');
+                navTabs[4].classList.remove('active');
                 // Check profile warning status when returning to practice tab
                 checkAndShowProfileWarning();
             }
@@ -4659,9 +4709,6 @@
                 chartItem.appendChild(count);
                 difficultyCharts.appendChild(chartItem);
             });
-
-            // Update history table
-            renderHistoryTable(questionHistory);
         }
 
         function restoreDashboardStructure() {
@@ -4669,7 +4716,7 @@
             dashboardContainer.innerHTML = `
                 <div class="dashboard-header">
                     <h1 class="dashboard-title">Dashboard</h1>
-                    <p class="dashboard-subtitle">Track your progress and review your question history</p>
+                    <p class="dashboard-subtitle">Track your progress and performance</p>
                 </div>
 
                 <!-- Overall Statistics -->
@@ -4718,11 +4765,18 @@
                         </div>
                     </div>
                 </div>
+            `;
+        }
 
-                <!-- Question History Table -->
+        function restoreHistoryStructure() {
+            const historyContainer = document.getElementById('historyContainer');
+            historyContainer.innerHTML = `
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Question History</h1>
+                    <p class="dashboard-subtitle">Review your practice history and track your progress</p>
+                </div>
+
                 <div class="history-table-container">
-                    <div class="card-header">Question History</div>
-
                     <div class="history-controls">
                         <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID...">
                         <select class="history-filter" id="difficultyFilter">
@@ -4762,9 +4816,9 @@
             dashboardContainer.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📊</div>
-                    <h2 class="empty-state-title">No History Yet</h2>
+                    <h2 class="empty-state-title">No Statistics Yet</h2>
                     <p class="empty-state-message">
-                        Start practicing questions to see your performance statistics and history here.
+                        Start practicing questions to see your performance statistics here.
                     </p>
                     <button class="btn-primary" onclick="navigateTo('practice')" style="margin-top: 20px; padding: 12px 24px;">
                         Start Practicing
@@ -5027,6 +5081,7 @@
                     await Promise.all(deletePromises);
                     alert('History cleared successfully!');
                     refreshDashboard();
+                    renderHistoryTable(questionHistory);
                 } catch (error) {
                     console.error('Error clearing history:', error);
                     alert('Error clearing history from cloud. Please try again.');
@@ -5034,6 +5089,7 @@
             } else {
                 alert('History cleared!');
                 refreshDashboard();
+                renderHistoryTable(questionHistory);
             }
         }
 

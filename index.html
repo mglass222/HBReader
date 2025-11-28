@@ -512,6 +512,10 @@
             50% { opacity: 0; }
         }
 
+        .buzz-marker {
+            color: var(--primary-blue);
+        }
+
         /* Answer Section */
         .answer-section {
             border: 1px solid var(--border-color);
@@ -584,7 +588,7 @@
         .placeholder {
             text-align: center;
             color: var(--text-tertiary);
-            font-size: 1.1em;
+            font-size: 0.85em;
             padding: 20px;
         }
 
@@ -599,7 +603,8 @@
             border-radius: 3px;
         }
 
-        .hint strong {
+        .hint strong,
+        .placeholder strong {
             color: var(--primary-blue);
         }
 
@@ -2275,12 +2280,12 @@
             <div class="question-display">
                 <div class="question-text" id="questionText">
                     <div class="placeholder">
-                        Click "Start" to begin practicing.
+                        <strong>S</strong> start &nbsp;|&nbsp; <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause/resume &nbsp;|&nbsp; <strong>N</strong> next
                     </div>
                 </div>
 
                 <div class="hint hidden" id="spacebarHint">
-                    <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause &nbsp;|&nbsp; <strong>R</strong> resume &nbsp;|&nbsp; <strong>N</strong> next
+                    <strong>S</strong> start &nbsp;|&nbsp; <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause/resume &nbsp;|&nbsp; <strong>N</strong> next
                 </div>
 
                 <!-- Buzzer Button (Mobile/Tablet) -->
@@ -3673,6 +3678,11 @@
             // Remove all cursor elements
             removeCursor(questionText);
 
+            // Insert buzz marker "(#)" at the current position if user buzzed in early (display only)
+            if (currentQuestion && currentCharIndex < currentQuestion.question.length) {
+                questionText.innerHTML += '<span class="buzz-marker">(#)</span>';
+            }
+
             // Update buzzer visibility
             updateBuzzerVisibility();
 
@@ -4079,7 +4089,27 @@
             }
         });
 
-        // Keyboard hotkeys for streaming control (P=pause, R=resume, N=next)
+        // Keyboard hotkey for S=start/next
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            if (key === 's') {
+                e.preventDefault();
+                // Start first question or go to next
+                if (!currentQuestion) {
+                    handleStart();
+                } else {
+                    handleNext();
+                }
+            }
+        });
+
+        // Keyboard hotkeys for streaming control (P=pause/resume, N=next)
         document.addEventListener('keydown', (e) => {
             // Don't trigger if typing in an input field
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
@@ -4093,12 +4123,8 @@
 
             const key = e.key.toLowerCase();
 
-            if (key === 'p' && !isPaused) {
-                // Pause streaming
-                e.preventDefault();
-                handlePauseResume();
-            } else if (key === 'r' && isPaused) {
-                // Resume streaming
+            if (key === 'p') {
+                // Toggle pause/resume
                 e.preventDefault();
                 handlePauseResume();
             } else if (key === 'n') {

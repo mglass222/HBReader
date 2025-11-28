@@ -203,6 +203,34 @@
             border-color: var(--primary-blue);
         }
 
+        .setting-group input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            padding: 0;
+        }
+
+        .setting-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .setting-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
         .speed-display {
             font-size: 0.85em;
             color: var(--text-secondary);
@@ -292,7 +320,7 @@
         .matching-count {
             margin-top: 12px;
             padding: 8px 12px;
-            background: var(--success-green);
+            background: var(--primary-blue);
             color: white;
             border-radius: 4px;
             font-size: 0.85em;
@@ -878,7 +906,7 @@
         .btn-logout {
             padding: 6px 12px;
             font-size: 0.85em;
-            background: var(--error-red);
+            background: var(--primary-blue);
             color: white;
             border: none;
             border-radius: 3px;
@@ -887,7 +915,7 @@
         }
 
         .btn-logout:hover {
-            background: #c0392b;
+            background: var(--primary-blue-hover);
         }
 
         .btn-login {
@@ -1298,7 +1326,7 @@
 
         .leaderboard-points {
             font-weight: 600;
-            color: var(--success-green);
+            color: var(--primary-blue);
         }
 
         .leaderboard-empty {
@@ -1801,7 +1829,7 @@
         }
 
         .radial-chart-progress.correct {
-            stroke: var(--success-green);
+            stroke: var(--primary-blue);
         }
 
         .radial-chart-text {
@@ -1853,7 +1881,7 @@
         }
 
         .stat-value.correct {
-            color: var(--success-green);
+            color: var(--primary-blue);
         }
 
         .stat-value.incorrect {
@@ -1942,7 +1970,7 @@
 
         .category-stat-bar {
             height: 100%;
-            background: var(--success-green);
+            background: var(--primary-blue);
             border-radius: 8px;
             transition: width 0.3s ease;
         }
@@ -2424,7 +2452,7 @@
                 </div>
 
                 <!-- Matching Questions Count -->
-                <div id="matchingCount" class="matching-count"></div>
+                <div id="matchingCount" class="matching-count" style="display: none;"></div>
             </div>
 
             <!-- Theme Toggle -->
@@ -3158,6 +3186,25 @@
             return 'Extra Large';
         }
 
+        // Update slider fill based on value
+        function updateSliderFill(slider) {
+            const min = slider.min || 0;
+            const max = slider.max || 100;
+            const value = slider.value;
+            const percentage = ((value - min) / (max - min)) * 100;
+            const blue = getComputedStyle(document.documentElement).getPropertyValue('--primary-blue').trim();
+            const gray = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            slider.style.background = `linear-gradient(to right, ${blue} 0%, ${blue} ${percentage}%, ${gray} ${percentage}%, ${gray} 100%)`;
+        }
+
+        // Initialize all sliders
+        function initSliders() {
+            document.querySelectorAll('.setting-group input[type="range"]').forEach(slider => {
+                updateSliderFill(slider);
+                slider.addEventListener('input', () => updateSliderFill(slider));
+            });
+        }
+
         // Update font size display and apply changes
         document.getElementById('fontSize').addEventListener('input', (e) => {
             const size = parseInt(e.target.value);
@@ -3178,6 +3225,9 @@
         document.getElementById('answerTolerance').value = savedTolerance;
         document.getElementById('toleranceValue').textContent = savedTolerance;
         document.getElementById('toleranceWarning').style.display = parseInt(savedTolerance) < 80 ? 'block' : 'none';
+
+        // Initialize sliders after DOM is ready
+        initSliders();
 
         // Device Detection (Mobile/Tablet vs Desktop)
         function detectDeviceType() {

@@ -3264,6 +3264,14 @@
                     if (window.location.hash === '#profile') {
                         await loadProfile();
                     }
+                    // If on history, refresh it to show the loaded data
+                    if (window.location.hash === '#history') {
+                        let historyTableWrapper = document.getElementById('historyTableWrapper');
+                        if (!historyTableWrapper) {
+                            restoreHistoryStructure();
+                        }
+                        renderHistoryTable(questionHistory);
+                    }
                 } else {
                     // Email NOT verified - don't show logged-in UI
                     userAuthDiv.innerHTML = `

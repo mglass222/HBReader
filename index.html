@@ -854,7 +854,7 @@
             .settings-panel {
                 position: relative;
                 top: 0;
-                order: -1;
+                order: 1;
             }
         }
 
@@ -877,6 +877,32 @@
                 max-width: 90vw;
                 left: 5vw !important;
                 right: 5vw;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-content > div:first-child {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-tabs {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+                width: 100%;
+            }
+
+            .nav-tab {
+                font-size: 0.85em;
+                padding: 8px 4px;
+                text-align: center;
             }
         }
 
@@ -6570,6 +6596,15 @@
 
         initTheme();
         initFontSize();
+
+        // Collapse settings by default on mobile
+        if (window.innerWidth <= 768) {
+            const settingsPanel = document.getElementById('settingsPanel');
+            if (settingsPanel) {
+                settingsPanel.classList.add('collapsed');
+            }
+        }
+
         loadQuestions();
     </script>
 </body>

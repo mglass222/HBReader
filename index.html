@@ -904,6 +904,18 @@
                 padding: 8px 4px;
                 text-align: center;
             }
+
+            /* Mobile history table */
+            .history-table th,
+            .history-table td {
+                font-size: 0.75em;
+                padding: 4px 6px;
+            }
+
+            .status-badge.correct { color: #27ae60; }
+            .status-badge.incorrect { color: #e74c3c; }
+            .status-badge.skipped { color: #999; }
+            .status-text { display: none; }
         }
 
         /* User Authentication Styles */
@@ -5454,31 +5466,43 @@
 
         function renderHistoryTable(data) {
             const wrapper = document.getElementById('historyTableWrapper');
+            const isMobile = window.innerWidth <= 480;
 
             if (data.length === 0) {
                 wrapper.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">No questions match your filters.</p>';
                 return;
             }
 
+            // Abbreviation helper for mobile
+            function abbreviate(text, maxLen) {
+                if (!isMobile || !text || text === 'N/A') return text;
+                return text.length > maxLen ? text.substring(0, maxLen) : text;
+            }
+
             let tableHTML = `
                 <table class="history-table" id="historyTable">
                     <thead>
                         <tr>
-                            <th style="min-width: 80px;">Question ID<div class="resizer"></div></th>
-                            <th style="min-width: 100px;">Status<div class="resizer"></div></th>
-                            <th style="min-width: 100px;">Difficulty<div class="resizer"></div></th>
-                            <th style="min-width: 120px;">Region<div class="resizer"></div></th>
-                            <th style="min-width: 150px;">Time Period<div class="resizer"></div></th>
-                            <th style="min-width: 100px;">Type<div class="resizer"></div></th>
-                            <th style="min-width: 80px;">Date</th>
+                            <th style="min-width: ${isMobile ? '50px' : '80px'};">${isMobile ? 'ID' : 'Question ID'}<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '30px' : '100px'};">${isMobile ? '' : 'Status'}<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '30px' : '100px'};">${isMobile ? 'Diff' : 'Difficulty'}<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '50px' : '120px'};">${isMobile ? 'Reg' : 'Region'}<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '50px' : '150px'};">${isMobile ? 'Time' : 'Time Period'}<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '40px' : '100px'};">Type<div class="resizer"></div></th>
+                            <th style="min-width: ${isMobile ? '50px' : '80px'};">Date</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             data.forEach(entry => {
-                const date = new Date(entry.timestamp).toLocaleDateString();
-                const difficulty = getDifficultyName(entry.id.charAt(0));
+                const dateObj = new Date(entry.timestamp);
+                const date = isMobile
+                    ? `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
+                    : dateObj.toLocaleDateString();
+                const difficulty = isMobile
+                    ? entry.id.charAt(0)
+                    : getDifficultyName(entry.id.charAt(0));
                 const statusIcon = entry.status === 'correct' ? '✓' : (entry.status === 'incorrect' ? '✗' : '—');
 
                 // Get category information from metadata
@@ -5492,13 +5516,13 @@
                         <td><strong>${entry.id}</strong></td>
                         <td>
                             <span class="status-badge ${entry.status}">
-                                ${statusIcon} ${entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
+                                ${statusIcon}<span class="status-text"> ${entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}</span>
                             </span>
                         </td>
                         <td>${difficulty}</td>
-                        <td>${region}</td>
-                        <td>${timePeriod}</td>
-                        <td>${answerType}</td>
+                        <td>${abbreviate(region, 6)}</td>
+                        <td>${abbreviate(timePeriod, 6)}</td>
+                        <td>${abbreviate(answerType, 4)}</td>
                         <td>${date}</td>
                     </tr>
                 `;

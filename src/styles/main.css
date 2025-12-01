@@ -91,9 +91,10 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    padding-right: 10px;
     display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 20px;
+    grid-template-columns: 1fr 320px;
+    gap: 10px;
     align-items: start;
 }
 
@@ -112,8 +113,9 @@ body {
 .settings-panel {
     background: transparent;
     border: none;
-    padding: 20px;
-    padding-left: 40px;
+    padding: 15px;
+    padding-top: 30px;
+    padding-left: 20px;
     position: sticky;
     top: 20px;
     transition: all 0.3s;
@@ -129,25 +131,25 @@ body {
 }
 
 .settings-title {
-    font-size: 1em;
+    font-size: 1.1em;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 14px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .setting-group {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .setting-group label,
 .setting-group .setting-header {
     display: block;
-    font-size: 0.85em;
+    font-size: 0.75em;
     font-weight: 600;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -155,10 +157,10 @@ body {
 .setting-group select,
 .setting-group input[type="range"] {
     width: 100%;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 3px;
-    font-size: 0.95em;
+    font-size: 0.85em;
     background: var(--bg-tertiary);
     color: var(--text-primary);
     font-family: inherit;
@@ -182,16 +184,16 @@ body {
 .setting-group input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     background: var(--primary-blue);
     border-radius: 50%;
     cursor: pointer;
 }
 
 .setting-group input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     background: var(--primary-blue);
     border-radius: 50%;
     cursor: pointer;
@@ -199,32 +201,32 @@ body {
 }
 
 .speed-display {
-    font-size: 0.85em;
+    font-size: 0.75em;
     color: var(--text-secondary);
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 /* Filter Controls */
 .filter-section {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .filter-section label {
     display: block;
-    font-size: 0.8em;
+    font-size: 0.7em;
     font-weight: 600;
     color: var(--text-secondary);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .filter-select {
     width: 100%;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 3px;
-    font-size: 0.9em;
+    font-size: 0.8em;
     background: var(--bg-tertiary);
     color: var(--text-primary);
     font-family: inherit;
@@ -295,12 +297,12 @@ body {
 
 
 .matching-count {
-    margin-top: 12px;
-    padding: 8px 12px;
+    margin-top: 8px;
+    padding: 6px 10px;
     background: var(--primary-blue);
     color: white;
     border-radius: 4px;
-    font-size: 0.85em;
+    font-size: 0.75em;
     font-weight: 500;
     text-align: center;
 }
@@ -319,7 +321,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 8px 10px;
     background: var(--bg-tertiary);
     border-radius: 3px;
     cursor: pointer;
@@ -331,24 +333,24 @@ body {
 }
 
 .theme-toggle-label {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .theme-icon {
-    font-size: 1.2em;
+    font-size: 1em;
 }
 
 /* Toggle Switch */
 .toggle-switch {
     position: relative;
-    width: 48px;
-    height: 24px;
+    width: 40px;
+    height: 20px;
     background: var(--border-color);
-    border-radius: 12px;
+    border-radius: 10px;
     transition: background-color 0.3s;
 }
 
@@ -360,15 +362,15 @@ body {
     position: absolute;
     top: 2px;
     left: 2px;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     background: white;
     border-radius: 50%;
     transition: transform 0.3s;
 }
 
 .toggle-switch.active .toggle-slider {
-    transform: translateX(24px);
+    transform: translateX(20px);
 }
 
 /* Score Display */
@@ -398,7 +400,7 @@ body {
     position: fixed;
     bottom: 20px;
     left: max(50px, calc(50vw - 700px + 50px));
-    right: max(490px, calc(50vw - 700px + 490px));
+    right: max(360px, calc(50vw - 700px + 360px));
     z-index: 100;
 }
 

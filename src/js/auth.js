@@ -13,7 +13,9 @@ export const deps = {
     restoreHistoryStructure: null,
     renderHistoryTable: null,
     navigateTo: null,
-    saveHistoryItem: null
+    saveHistoryItem: null,
+    checkForRecoverableAccount: null,
+    recoverAccountData: null
 };
 
 export function showAuthModal() {
@@ -190,6 +192,34 @@ export async function updateUserUI(user) {
             verificationBanner.classList.remove('show');
 
             if (deps.loadUserProfile) await deps.loadUserProfile();
+
+            // Check for recoverable account data (from previously deleted account)
+            if (deps.checkForRecoverableAccount && deps.recoverAccountData) {
+                // Only check if user doesn't have profile data yet (new account)
+                if (!state.userProfile || !state.userProfile.username) {
+                    const recoverable = await deps.checkForRecoverableAccount(user.email);
+                    if (recoverable) {
+                        const shouldRecover = confirm(
+                            `We found data from a previous account associated with ${user.email}.\n\n` +
+                            `Username: ${recoverable.profileData.username || 'Not set'}\n` +
+                            `Total XP: ${recoverable.profileData.totalPoints || 0}\n` +
+                            `Questions Answered: ${recoverable.profileData.questionsAnswered || 0}\n\n` +
+                            `Would you like to recover this data?`
+                        );
+                        if (shouldRecover) {
+                            const success = await deps.recoverAccountData(recoverable.oldUserId, user.uid);
+                            if (success) {
+                                alert('Your account data has been recovered successfully!');
+                                // Reload profile with recovered data
+                                if (deps.loadUserProfile) await deps.loadUserProfile();
+                            } else {
+                                alert('There was an error recovering your data. Please contact support.');
+                            }
+                        }
+                    }
+                }
+            }
+
             if (deps.loadUserHistory) await deps.loadUserHistory();
 
             if (window.location.hash === '#dashboard' && deps.refreshDashboard) {

@@ -100,19 +100,13 @@ export function detectDeviceType() {
 
 export function updateBuzzerVisibility() {
     const buzzer = document.getElementById('buzzerButton');
-    const spacebarHint = document.getElementById('spacebarHint');
     const isMobile = detectDeviceType() === 'mobile';
     const isStreaming = state.currentQuestion && !state.answerInputShown && state.currentSection === 'question';
 
     if (isMobile && isStreaming) {
         buzzer.classList.add('show');
-        spacebarHint.classList.add('hidden');
-    } else if (!isMobile && isStreaming) {
-        buzzer.classList.remove('show');
-        spacebarHint.classList.remove('hidden');
     } else {
         buzzer.classList.remove('show');
-        spacebarHint.classList.add('hidden');
     }
 }
 

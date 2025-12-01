@@ -10,8 +10,16 @@ Classifies questions by analyzing their content to determine:
 
 This script handles impossible combinations (e.g., US + Ancient) during
 initial classification rather than requiring a separate fix pass.
+
+Usage:
+    python classify_questions.py [--questions FILE] [--metadata FILE]
+
+Options:
+    --questions, -q  Questions JSON file (default: nat_hist_bee_questions.json)
+    --metadata, -m   Metadata output file (default: nat_hist_bee_question_metadata.json)
 """
 
+import argparse
 import json
 import re
 import sys
@@ -22,8 +30,72 @@ from collections import defaultdict
 # CONFIGURATION
 # =============================================================================
 
-QUESTIONS_FILE = "questions.json"
-METADATA_FILE = "question_metadata.json"
+# Files to operate on (must be specified via command line)
+QUESTIONS_FILE = None
+METADATA_FILE = None
+
+# =============================================================================
+# DIFFICULTY CLASSIFICATION (based on source filename)
+# =============================================================================
+
+def get_difficulty_from_filename(filename):
+    """Determine difficulty level based on source filename."""
+    if not filename:
+        return None
+    filename_lower = filename.lower()
+
+    if 'semifinal' in filename_lower:
+        return 'semifinals'
+    elif 'playoff' in filename_lower:
+        return 'semifinals'
+    elif 'quarterfinal' in filename_lower:
+        return 'quarterfinals'
+    elif 'finals' in filename_lower or 'championship' in filename_lower:
+        return 'finals'
+    else:
+        return 'preliminary'
+
+
+def classify_by_difficulty(questions_data):
+    """Classify all questions by difficulty based on source_file field.
+
+    Handles both flat list format {'questions': [...]} and
+    categorized format {'preliminary': [...], 'finals': [...], ...}
+    """
+    new_structure = {
+        'preliminary': [],
+        'quarterfinals': [],
+        'semifinals': [],
+        'finals': []
+    }
+
+    # Collect all questions - handle both formats
+    all_questions = []
+
+    # New flat list format
+    if 'questions' in questions_data and isinstance(questions_data['questions'], list):
+        all_questions = questions_data['questions']
+    else:
+        # Old categorized format
+        for category in ['preliminary', 'quarterfinals', 'semifinals', 'finals']:
+            if category in questions_data and isinstance(questions_data[category], list):
+                all_questions.extend(questions_data[category])
+
+    # Classify based on source_file
+    for q in all_questions:
+        source_file = q.get('source_file', '')
+        difficulty = get_difficulty_from_filename(source_file)
+        if difficulty:
+            new_structure[difficulty].append(q)
+        else:
+            # Default to preliminary if no source_file
+            new_structure['preliminary'].append(q)
+
+    return new_structure
+
+# =============================================================================
+# CATEGORY DEFINITIONS
+# =============================================================================
 
 # Valid categories
 REGIONS = [
@@ -89,6 +161,25 @@ PRE_COLUMBIAN_PATTERNS = [
     r'\b(mesoamerican|pre-columbian|pre-conquest)\b',
     r'\b(Cholula|Tlaxcala|Texcoco)\b',
     r'\b(Triple Alliance|Flower War)\b',
+]
+
+# Native American / Pre-Columbian cultures in what is now the US
+# Used to determine if US History questions about ancient times are legitimate
+US_NATIVE_AMERICAN_PATTERNS = [
+    # Cultures and peoples
+    r'\b(Mississippian|Plaquemine|Cahokia)\b',
+    r'\b(Pueblo|Puebloan|Anasazi|Ancestral Puebloan)\b',
+    r'\b(Hohokam|Mogollon)\b',
+    r'\b(Mound Builder|Adena|Hopewell)\b',
+    r'\b(Clovis|Folsom)\b',  # Paleo-Indian cultures
+    # Archaeological sites
+    r'\b(Mesa Verde|Chaco Canyon|Pueblo Bonito)\b',
+    r'\b(Serpent Mound|Poverty Point|Cahokia Mounds)\b',
+    r'\b(Cliff Palace|Cliff Dwelling)\b',
+    # Terms indicating pre-contact Native history
+    r'\b(pre-contact|precontact)\b',
+    r'\b(archaeological site|ancient Native|ancient American Indian)\b',
+    r'\b(petroglyph|pictograph|kiva|great house)\b',
 ]
 
 # Ancient World indicators (HIGH PRIORITY - determines time period first)
@@ -665,6 +756,102 @@ def count_matches(text, patterns):
             count += 1
     return count
 
+
+def is_pre_columbian_us_content(text):
+    """
+    Check if text is about pre-Columbian/Native American cultures in the US.
+    Used to determine if Ancient/Medieval time periods are legitimate for US History.
+
+    We require strong evidence because many US History questions incidentally mention
+    pre-Columbian names (e.g., "Montezuma Marsh", "Chapultepec") without being about
+    those cultures.
+    """
+    text_lower = text.lower()
+
+    # Check for US Native American patterns - these are specific enough that 1 match is sufficient
+    us_native_score = count_matches(text, US_NATIVE_AMERICAN_PATTERNS)
+    if us_native_score >= 1:
+        return True
+
+    # For general pre-Columbian patterns, require stronger evidence
+    # Many US places/things are named after Aztec/Inca figures
+    pre_columbian_score = count_matches(text, PRE_COLUMBIAN_PATTERNS)
+
+    # Require 2+ pre-Columbian matches, OR 1 match plus contextual clues
+    if pre_columbian_score >= 2:
+        # Check it's not about a modern person who discovered/studied these cultures
+        # (e.g., Hiram Bingham discovering Machu Picchu)
+        modern_explorer_clues = ['discover', 'found', 'excavat', 'archaeolog', 'expedition',
+                                  'explorer', 'publiciz', 'uncover', 'search for', 'lost city']
+        is_about_explorer = any(clue in text_lower for clue in modern_explorer_clues)
+        if not is_about_explorer:
+            return True
+
+    if pre_columbian_score >= 1:
+        # Single match - require additional context indicating it's truly about the culture
+        culture_context_clues = [
+            'civilization', 'empire', 'culture', 'ritual', 'sacrifice',
+            'temple', 'pyramid', 'conquest', 'conquistador', 'indigenous',
+            'native people', 'pre-contact', 'before european'
+        ]
+        has_culture_context = any(clue in text_lower for clue in culture_context_clues)
+        if has_culture_context:
+            return True
+
+    return False
+
+
+def fix_us_time_period(classification, question_text, answer_text):
+    """
+    Fix impossible US + Ancient/Medieval combinations.
+    If the question is truly about pre-Columbian cultures, keep it.
+    Otherwise, recalculate an appropriate time period.
+    """
+    time_periods = classification.get('time_periods', [])
+
+    # Check if we have an impossible combination
+    has_ancient_medieval = any(
+        t in ['Ancient World (pre-500 CE)', 'Medieval Era (500-1450)']
+        for t in time_periods
+    )
+
+    if not has_ancient_medieval:
+        return classification  # No fix needed
+
+    combined = question_text + ' ' + answer_text
+
+    # If it's truly about pre-Columbian content, keep the time period
+    if is_pre_columbian_us_content(combined):
+        return classification
+
+    # Otherwise, recalculate time period based on explicit years or patterns
+    new_periods = []
+
+    # Try to determine from explicit years first
+    years = get_years_from_text(combined)
+    if years:
+        # Filter out ancient years that were false positives
+        modern_years = [y for y in years if y >= 1450]
+        if modern_years:
+            period = determine_time_period_from_years(modern_years)
+            if period:
+                new_periods.append(period)
+
+    # If no years found, try pattern matching
+    if not new_periods:
+        for period, patterns in TIME_PERIOD_YEAR_PATTERNS.items():
+            if period not in ['Ancient World (pre-500 CE)', 'Medieval Era (500-1450)']:
+                if count_matches(combined, patterns) >= 1:
+                    new_periods.append(period)
+                    break
+
+    # Default to Contemporary if nothing else matches
+    if not new_periods:
+        new_periods = ['Contemporary Era (1945-present)']
+
+    classification['time_periods'] = new_periods
+    return classification
+
 def get_years_from_text(text):
     """Extract years mentioned in the text."""
     years = []
@@ -869,15 +1056,69 @@ def classify_question(question_text, answer_text):
 # MAIN
 # =============================================================================
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Classify History Bee questions by region, time period, and topic',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python classify_questions.py --questions nat_hist_bee_questions.json --metadata nat_hist_bee_question_metadata.json
+  python classify_questions.py -q us_hist_bee_questions.json -m us_hist_bee_metadata.json --force-region "United States"
+"""
+    )
+    parser.add_argument('--questions', '-q', required=True,
+                        help='Questions JSON file')
+    parser.add_argument('--metadata', '-m', required=True,
+                        help='Metadata output file')
+    parser.add_argument('--force-region', '-r', default=None,
+                        help='Force all questions to use this region (e.g., "United States")')
+    return parser.parse_args()
+
+
 def main():
+    global QUESTIONS_FILE, METADATA_FILE
+
+    args = parse_args()
+    QUESTIONS_FILE = args.questions
+    METADATA_FILE = args.metadata
+    force_region = args.force_region
+
     print("=" * 70)
     print("Question Classification Script")
     print("=" * 70)
+    print(f"\nQuestions file: {QUESTIONS_FILE}")
+    print(f"Metadata file: {METADATA_FILE}")
+    if force_region:
+        print(f"Forced region: {force_region}")
 
     # Load questions
     print(f"\nLoading questions from {QUESTIONS_FILE}...")
     with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
         questions_data = json.load(f)
+
+    # Classify by difficulty based on source_file
+    print("Classifying questions by difficulty...")
+    questions_data = classify_by_difficulty(questions_data)
+
+    # Assign IDs to questions
+    print("Assigning question IDs...")
+    prefixes = {'preliminary': 'P', 'quarterfinals': 'Q', 'semifinals': 'S', 'finals': 'F'}
+    for category in ['preliminary', 'quarterfinals', 'semifinals', 'finals']:
+        if category in questions_data and isinstance(questions_data[category], list):
+            for i, q in enumerate(questions_data[category]):
+                q['id'] = f"{prefixes[category]}{i}"
+
+    # Print difficulty counts
+    print(f"  Preliminary:   {len(questions_data.get('preliminary', [])):,}")
+    print(f"  Quarterfinals: {len(questions_data.get('quarterfinals', [])):,}")
+    print(f"  Semifinals:    {len(questions_data.get('semifinals', [])):,}")
+    print(f"  Finals:        {len(questions_data.get('finals', [])):,}")
+
+    # Save classified questions
+    with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(questions_data, f, indent=2, ensure_ascii=False)
+    print("Questions classified by difficulty and saved.")
 
     # Initialize metadata structure
     metadata = {
@@ -921,6 +1162,15 @@ def main():
 
             # Classify the question
             classification = classify_question(question_text, answer_text)
+
+            # Override region if force_region is set
+            if force_region:
+                classification['regions'] = [force_region]
+
+                # Fix impossible US + Ancient/Medieval combinations
+                if force_region == 'United States':
+                    classification = fix_us_time_period(classification, question_text, answer_text)
+
             metadata['categories'][qid] = classification
 
             processed += 1

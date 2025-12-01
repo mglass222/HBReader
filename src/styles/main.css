@@ -99,10 +99,11 @@ body {
 
 /* Play Area (Left Side) */
 .play-area {
+    position: relative;
     background: transparent;
     border: none;
     padding: 30px;
-    padding-bottom: 0;
+    padding-bottom: 80px;
     min-height: 600px;
     transition: border-color 0.3s;
 }
@@ -394,16 +395,46 @@ body {
 .action-buttons {
     display: flex;
     gap: 12px;
-    justify-content: flex-start;
-    width: 100%;
-    margin: 10px 0 20px 0;
-    padding: 5px 0;
+    position: fixed;
+    bottom: 20px;
+    left: 30px;
+    right: 450px;
+    z-index: 100;
+}
+
+/* Adjust action buttons width when settings panel is collapsed */
+.main-layout:has(.settings-panel.collapsed) .action-buttons {
+    right: 30px;
+}
+
+/* Buzz Button (aligned with question text area) */
+.buzz-btn {
+    margin-left: auto;
+    padding: 6px 12px;
+    min-width: 80px;
+    min-height: 40px;
+    border: 1px solid var(--primary-blue);
+    border-radius: 8px;
+    background: var(--primary-blue);
+    color: white;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.buzz-btn:hover {
+    background: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
 }
 
 .action-btn {
-    padding: 10px 24px;
+    padding: 6px 12px;
+    min-width: 70px;
+    min-height: 40px;
     border: 1px solid var(--border-color);
-    border-radius: 3px;
+    border-radius: 8px;
     background: var(--bg-tertiary);
     color: var(--text-primary);
     font-size: 0.95em;
@@ -415,6 +446,37 @@ body {
 
 .action-btn:hover {
     background: var(--border-color);
+}
+
+/* Custom Tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    font-size: 0.9em;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, visibility 0.15s;
+    pointer-events: none;
+    z-index: 200;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
 }
 
 button {
@@ -471,19 +533,33 @@ button:hover {
     border-color: var(--success-green-hover);
 }
 
+.btn-danger {
+    background: var(--error-red);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: all 0.3s;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+    filter: brightness(0.9);
+}
+
 /* Question Display */
 .question-display {
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 15px;
+    border: none;
+    padding: 0;
     margin-bottom: 10px;
 }
 
 .difficulty-indicator {
     font-size: 1.1em;
-    margin-bottom: 8px;
-    margin-left: 15px;
-    color: var(--text-secondary);
+    margin-bottom: 15px;
+    margin-left: 0;
+    color: var(--text-primary);
 }
 
 .difficulty-label {
@@ -501,6 +577,8 @@ button:hover {
     line-height: 1.8;
     color: var(--text-primary);
     margin-bottom: 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .cursor {
@@ -520,72 +598,62 @@ button:hover {
     color: var(--primary-blue);
 }
 
-/* Answer Section */
-.answer-section {
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 15px;
-    margin-top: 10px;
-}
-
-.answer-label {
-    font-size: 0.85em;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
+/* Answer Text (below question) */
 .answer-text {
     font-size: 1em;
     line-height: 1.7;
     color: var(--text-primary);
+    margin-top: 20px;
+    font-weight: 600;
+}
+
+.answer-text:empty {
+    display: none;
 }
 
 /* Answer Input */
 .answer-input-section {
-    margin-top: 20px;
-    padding: 20px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 3px;
-}
-
-.answer-input-section label {
-    display: block;
-    font-size: 0.85em;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .answer-input-section input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 3px;
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--primary-blue);
+    border-radius: 8px;
     font-size: 1em;
     font-family: inherit;
     background: var(--bg-primary);
     color: var(--text-primary);
+    box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
 }
 
 .answer-input-section input[type="text"]:focus {
     outline: none;
     border-color: var(--primary-blue);
+    box-shadow: 0 0 12px rgba(74, 144, 226, 0.6);
+}
+
+.answer-input-section input[type="text"]::placeholder {
+    color: var(--text-tertiary);
 }
 
 .answer-input-buttons {
     display: flex;
-    gap: 10px;
-    margin-top: 12px;
 }
 
 .answer-input-buttons button {
-    flex: 1;
+    padding: 6px 12px;
+    min-width: 70px;
+    min-height: 40px;
+    font-size: 0.95em;
+    border-radius: 8px;
 }
 
 /* Placeholder */

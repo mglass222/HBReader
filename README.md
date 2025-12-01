@@ -104,20 +104,24 @@ If you have additional PDF files:
 
 ```
 .
-├── index.html              # Main webpage
-├── questions.json          # Extracted questions (5,988 total)
-├── question_metadata.json  # Question classifications
-├── question_editor.html    # Question editor interface
-├── extract_questions.py    # PDF extraction script
-├── classify_questions.py   # Question classification script
-├── fix_classifications.py  # Classification fix script
-├── check_duplicates.py     # Duplicate checker
-├── remove_duplicates.py    # Duplicate remover
-├── editor_server.py        # Editor server
-├── firebase.json           # Firebase configuration
-├── firestore.rules         # Firestore security rules
-├── firestore.indexes.json  # Firestore indexes
-└── README.md               # This file
+├── index.html                  # Main webpage
+├── question_editor.html        # Question editor interface
+├── scripts/                    # Utility scripts
+│   ├── extract_questions.py    # PDF extraction script
+│   ├── classify_questions.py   # Question classification script
+│   ├── cleanup_questions.py    # Answer cleaning & deduplication
+│   └── editor_server.py        # Editor server
+├── src/
+│   └── assets/                 # JSON data files used by the app
+│       ├── nat_hist_bee_questions.json
+│       └── nat_hist_bee_question_metadata.json
+├── data/                       # Source files (not in git)
+│   └── *.zip                   # PDF archives
+├── backup/                     # Backup files (not in git)
+├── firebase.json               # Firebase configuration
+├── firestore.rules             # Firestore security rules
+├── firestore.indexes.json      # Firestore indexes
+└── README.md                   # This file
 ```
 
 ## Technical Details

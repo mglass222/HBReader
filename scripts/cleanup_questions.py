@@ -8,7 +8,7 @@ This script combines multiple cleanup operations:
 3. Check for duplicates - reports duplicate questions without removing them
 
 Usage:
-    python cleanup_questions.py [command]
+    python cleanup_questions.py [command] [--file FILE]
 
 Commands:
     clean       - Clean answer text (remove unwanted suffixes)
@@ -16,15 +16,20 @@ Commands:
     check       - Check for duplicates (report only)
     all         - Run all cleanup operations (clean + dedup)
 
+Options:
+    --file, -f  - Specify the questions JSON file (default: nat_hist_bee_questions.json)
+
 If no command is provided, runs in interactive mode.
 """
 
+import argparse
 import json
 import re
 import sys
 from collections import defaultdict
 
-QUESTIONS_FILE = "questions.json"
+# File to operate on (must be specified via command line or interactive mode)
+QUESTIONS_FILE = None
 
 # =============================================================================
 # ANSWER CLEANING
@@ -32,6 +37,7 @@ QUESTIONS_FILE = "questions.json"
 
 # Patterns to remove from answer strings
 ANSWER_CLEANUP_PATTERNS = [
+    # National History Bee patterns
     r'\s*DRAFT\s*Bee\s*PlayoffRound\s*\d+\s*$',
     r'\s*Bee\s*PlayoffRound\s*\d+\s*$',
     r'\s*Round\s*\d+\s*<strong>Extra\s*Tossups</strong>\s*$',
@@ -39,6 +45,20 @@ ANSWER_CLEANUP_PATTERNS = [
     r'\s*Bee\s*Round\s*\d+\s*$',
     r'\s*History\s*Bee\s*Round\s*\d+\s*$',
     r'\s*Extra\s*Tossups?\s*$',
+    # US History Bee patterns (note: ﬀ is a ligature for "ff", ﬁ for "fi")
+    r'\s*US History Bee \d{4}-\d{4} Playoﬀ?Round \d+.*$',
+    r'\s*US History Bee \d{4}-\d{4} Round \d+.*$',
+    r'\s*US History Bee \d{4}-\d{4}.*$',
+    r'\s*US History Bee.*Playoﬀ?Round.*$',
+    r'\s*US History Bee.*Playoff.*$',
+    r'\s*US History Bee.*Round.*$',
+    r'\s*US History Bee.*Semiﬁnals.*$',
+    r'\s*US History Bee.*Semifinals.*$',
+    r'\s*US History Bee.*Finals.*$',
+    r'\s*US History Bee Nationals.*$',
+    r'\s*US History Bee.*Bee Playoﬀs.*$',
+    r'\s*US History Bee.*Bee Playoffs.*$',
+    r'\s*US History Bee.*Phase \d+.*$',
 ]
 
 def clean_answer(answer):
@@ -267,19 +287,31 @@ def run_all():
 
 def interactive_mode():
     """Run in interactive mode."""
+    global QUESTIONS_FILE
+
     print("\n" + "=" * 70)
     print("HISTORY BEE QUESTIONS CLEANUP TOOL")
     print("=" * 70)
+
+    # Prompt for file if not set
+    if not QUESTIONS_FILE:
+        QUESTIONS_FILE = input("\nEnter questions JSON file path: ").strip()
+        if not QUESTIONS_FILE:
+            print("No file specified. Exiting.")
+            return
+
+    print(f"\nCurrent file: {QUESTIONS_FILE}")
     print("\nAvailable commands:")
     print("  1. clean  - Clean answer text (remove unwanted suffixes)")
     print("  2. dedup  - Remove duplicate questions")
     print("  3. check  - Check for duplicates (report only)")
     print("  4. all    - Run all cleanup operations")
-    print("  5. quit   - Exit")
+    print("  5. file   - Change questions file")
+    print("  6. quit   - Exit")
     print()
 
     while True:
-        choice = input("Enter command (1-5 or name): ").strip().lower()
+        choice = input("Enter command (1-6 or name): ").strip().lower()
 
         if choice in ['1', 'clean']:
             clean_answers()
@@ -297,7 +329,12 @@ def interactive_mode():
                 run_all()
             else:
                 print("Operation cancelled.")
-        elif choice in ['5', 'quit', 'exit', 'q']:
+        elif choice in ['5', 'file']:
+            new_file = input(f"Enter new file path (current: {QUESTIONS_FILE}): ").strip()
+            if new_file:
+                QUESTIONS_FILE = new_file
+                print(f"Now using: {QUESTIONS_FILE}")
+        elif choice in ['6', 'quit', 'exit', 'q']:
             print("Goodbye!")
             break
         else:
@@ -305,26 +342,58 @@ def interactive_mode():
 
         print()
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Cleanup script for History Bee Questions',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Commands:
+  clean       Clean answer text (remove unwanted suffixes)
+  dedup       Remove duplicate questions
+  check       Check for duplicates (report only)
+  all         Run all cleanup operations (clean + dedup)
+
+Examples:
+  python cleanup_questions.py clean --file nat_hist_bee_questions.json
+  python cleanup_questions.py all --file us_hist_bee_questions.json
+  python cleanup_questions.py check -f my_questions.json
+"""
+    )
+    parser.add_argument('command', nargs='?', default=None,
+                        choices=['clean', 'dedup', 'check', 'all'],
+                        help='Command to run')
+    parser.add_argument('--file', '-f', default=None,
+                        help='Questions JSON file (required for non-interactive mode)')
+    return parser.parse_args()
+
+
 def main():
     """Main entry point."""
-    if len(sys.argv) > 1:
-        command = sys.argv[1].lower()
+    global QUESTIONS_FILE
 
-        if command == 'clean':
+    args = parse_args()
+    QUESTIONS_FILE = args.file
+
+    if args.command:
+        if not QUESTIONS_FILE:
+            print("Error: --file is required when specifying a command.")
+            print("Usage: python cleanup_questions.py <command> --file <questions.json>")
+            sys.exit(1)
+
+        print(f"Using questions file: {QUESTIONS_FILE}\n")
+
+        if args.command == 'clean':
             clean_answers()
-        elif command == 'dedup':
+        elif args.command == 'dedup':
             remove_duplicates()
-        elif command == 'check':
+        elif args.command == 'check':
             check_duplicates()
-        elif command == 'all':
+        elif args.command == 'all':
             run_all()
-        elif command in ['help', '-h', '--help']:
-            print(__doc__)
-        else:
-            print(f"Unknown command: {command}")
-            print("Use 'python cleanup_questions.py help' for usage information.")
     else:
         interactive_mode()
+
 
 if __name__ == '__main__':
     main()

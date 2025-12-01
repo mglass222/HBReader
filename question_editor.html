@@ -585,13 +585,21 @@
         const editForm = document.getElementById('editForm');
         const loadingOverlay = document.getElementById('loadingOverlay');
 
+        // Get question set from URL parameter (default: nat_hist_bee)
+        function getQuestionSet() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('set') || 'nat_hist_bee';
+        }
+
+        const currentQuestionSet = getQuestionSet();
+
         // Initialize
         async function init() {
             try {
-                // Load data
+                // Load data based on question set parameter
                 const [questionsRes, metadataRes] = await Promise.all([
-                    fetch('questions.json'),
-                    fetch('question_metadata.json')
+                    fetch(`src/assets/${currentQuestionSet}_questions.json`),
+                    fetch(`src/assets/${currentQuestionSet}_question_metadata.json`)
                 ]);
 
                 questions = await questionsRes.json();

@@ -338,6 +338,196 @@ export async function loadProfile() {
     }
 }
 
+// Delete Account - removes leaderboard data but preserves profile/history for potential recovery
+export async function deleteAccount() {
+    if (!state.currentUser || !state.currentUser.emailVerified) {
+        alert('Please log in to delete your account.');
+        return;
+    }
+
+    // Multiple confirmations for safety
+    if (!confirm('Are you sure you want to delete your account?\n\nYour leaderboard rankings will be removed.\n\nYour profile and history data will be preserved - if you create a new account with the same email, you can recover your data.')) {
+        return;
+    }
+
+    const confirmText = prompt('To confirm deletion, please type "DELETE" (all caps):');
+    if (confirmText !== 'DELETE') {
+        alert('Account deletion cancelled.');
+        return;
+    }
+
+    try {
+        const { doc, deleteDoc, updateDoc } = window.firebaseDbFunctions;
+        const { deleteUser } = window.firebaseAuthFunctions;
+        const userId = state.currentUser.uid;
+        const userEmail = state.currentUser.email;
+
+        // Show loading state
+        const deleteBtn = document.querySelector('.btn-danger');
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Deleting...';
+        }
+
+        // 1. Mark profile as orphaned (account deleted) but preserve data
+        const profileDocRef = doc(window.firebaseDb, 'users', userId, 'profile', 'data');
+        await updateDoc(profileDocRef, {
+            accountDeleted: true,
+            deletedAt: Date.now(),
+            recoveryEmail: userEmail.toLowerCase()
+        });
+
+        // 2. Delete leaderboard entries (all periods)
+        const leaderboardPeriods = ['allTime'];
+
+        // Add current monthly, weekly, daily periods
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const week = Math.ceil((now.getDate() + 6 - now.getDay()) / 7);
+        const weekKey = `${now.getFullYear()}-W${String(week).padStart(2, '0')}`;
+        const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+        leaderboardPeriods.push(`monthly-${monthKey}`, `weekly-${weekKey}`, `daily-${dayKey}`);
+
+        for (const period of leaderboardPeriods) {
+            try {
+                const leaderboardDocRef = doc(window.firebaseDb, 'leaderboards', period, 'rankings', userId);
+                await deleteDoc(leaderboardDocRef);
+            } catch (err) {
+                // Ignore errors for leaderboard entries that don't exist
+                console.log(`No leaderboard entry for period ${period}`);
+            }
+        }
+
+        // 3. Delete Firebase Auth account
+        await deleteUser(state.currentUser);
+
+        // Clear local state
+        state.currentUser = null;
+        state.userProfile = null;
+        state.questionHistory = [];
+        state.sessionHistory = [];
+
+        alert('Your account has been deleted.\n\nYour profile and history have been preserved. Create a new account with the same email to recover your data.');
+
+        // Redirect to practice page
+        window.location.hash = 'practice';
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error deleting account:', error);
+
+        // Reset button state
+        const deleteBtn = document.querySelector('.btn-danger');
+        if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Delete Account';
+        }
+
+        // Handle re-authentication requirement
+        if (error.code === 'auth/requires-recent-login') {
+            alert('For security reasons, please log out and log back in, then try deleting your account again.');
+        } else {
+            alert('Error deleting account: ' + error.message);
+        }
+    }
+}
+
+// Check for orphaned account data that can be recovered
+export async function checkForRecoverableAccount(email) {
+    if (!email) return null;
+
+    try {
+        const { collection, query, where, getDocs } = window.firebaseDbFunctions;
+
+        // Search for orphaned profiles with matching recovery email
+        const usersRef = collection(window.firebaseDb, 'users');
+        const usersSnapshot = await getDocs(usersRef);
+
+        for (const userDoc of usersSnapshot.docs) {
+            const profileRef = collection(window.firebaseDb, 'users', userDoc.id, 'profile');
+            const profileSnapshot = await getDocs(profileRef);
+
+            for (const profileDoc of profileSnapshot.docs) {
+                const profileData = profileDoc.data();
+                if (profileData.accountDeleted &&
+                    profileData.recoveryEmail === email.toLowerCase()) {
+                    return {
+                        oldUserId: userDoc.id,
+                        profileData: profileData
+                    };
+                }
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error checking for recoverable account:', error);
+        return null;
+    }
+}
+
+// Recover/migrate orphaned account data to new account
+export async function recoverAccountData(oldUserId, newUserId) {
+    try {
+        const { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } = window.firebaseDbFunctions;
+
+        // 1. Get old profile data
+        const oldProfileRef = doc(window.firebaseDb, 'users', oldUserId, 'profile', 'data');
+        const oldProfileDoc = await getDoc(oldProfileRef);
+
+        if (!oldProfileDoc.exists()) {
+            throw new Error('Old profile not found');
+        }
+
+        const oldProfileData = oldProfileDoc.data();
+
+        // 2. Copy profile to new user (remove deletion markers)
+        const newProfileRef = doc(window.firebaseDb, 'users', newUserId, 'profile', 'data');
+        const newProfileData = { ...oldProfileData };
+        delete newProfileData.accountDeleted;
+        delete newProfileData.deletedAt;
+        delete newProfileData.recoveryEmail;
+        newProfileData.recoveredAt = Date.now();
+        newProfileData.previousUserId = oldUserId;
+
+        await setDoc(newProfileRef, newProfileData);
+
+        // 3. Copy history documents
+        const oldHistoryRef = collection(window.firebaseDb, 'users', oldUserId, 'history');
+        const historySnapshot = await getDocs(oldHistoryRef);
+
+        if (!historySnapshot.empty) {
+            const batch = writeBatch(window.firebaseDb);
+
+            historySnapshot.forEach((historyDoc) => {
+                const newHistoryDocRef = doc(window.firebaseDb, 'users', newUserId, 'history', historyDoc.id);
+                batch.set(newHistoryDocRef, historyDoc.data());
+            });
+
+            await batch.commit();
+
+            // Delete old history documents
+            const deleteBatch = writeBatch(window.firebaseDb);
+            historySnapshot.forEach((historyDoc) => {
+                deleteBatch.delete(historyDoc.ref);
+            });
+            await deleteBatch.commit();
+        }
+
+        // 4. Delete old profile
+        await deleteDoc(oldProfileRef);
+
+        // 5. Update state with recovered profile
+        state.userProfile = newProfileData;
+
+        return true;
+    } catch (error) {
+        console.error('Error recovering account data:', error);
+        return false;
+    }
+}
+
 export async function saveProfile() {
     if (!state.currentUser || !state.currentUser.emailVerified) {
         alert('Please log in to save your profile.');

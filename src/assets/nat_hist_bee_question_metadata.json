@@ -1,6 +1,6 @@
 {
   "_progress": {
-    "last_updated": "2025-11-27T15:47:02.825394",
+    "last_updated": "2025-11-28T09:28:58.552806",
     "total_questions": 5988,
     "categorized": 5988
   },
@@ -66,7 +66,7 @@
       "time_periods": [
         "Contemporary Era (1945-present)"
       ],
-      "answer_type": "Places, Cities & Civilizations",
+      "answer_type": "",
       "subject_themes": [
         "Political & Governmental"
       ]
@@ -141,7 +141,7 @@
       "time_periods": [
         "Contemporary Era (1945-present)"
       ],
-      "answer_type": "Political History & Diplomacy",
+      "answer_type": "",
       "subject_themes": [
         "Military & Conflict"
       ]
@@ -217,7 +217,7 @@
         "Early Modern (1450-1750)",
         "Contemporary Era (1945-present)"
       ],
-      "answer_type": "Political History & Diplomacy",
+      "answer_type": "",
       "subject_themes": [
         "Political & Governmental"
       ]
@@ -257,7 +257,7 @@
       "time_periods": [
         "Contemporary Era (1945-present)"
       ],
-      "answer_type": "Groups, Organizations & Institutions",
+      "answer_type": "",
       "subject_themes": [
         "Economic & Trade"
       ]
@@ -406,14 +406,14 @@
     },
     "P31": {
       "regions": [
-        "Middle East & North Africa",
-        "United States"
+        "United States",
+        "Middle East & North Africa"
       ],
       "time_periods": [
         "Age of Revolutions (1750-1850)",
         "Contemporary Era (1945-present)"
       ],
-      "answer_type": "Political History & Diplomacy",
+      "answer_type": "",
       "subject_themes": [
         "Military & Conflict"
       ]

@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
 """
 Extract History Bee questions from PDF files and save to JSON with formatting.
+
+Usage:
+    python extract_questions.py [--input DIR] [--output FILE]
+
+Options:
+    --input, -i   Directory containing PDF files (default: current directory)
+    --output, -o  Output JSON file (default: questions.json in input directory)
 """
 
+import argparse
 import json
 import re
 from pathlib import Path
 import fitz  # PyMuPDF
 
-def get_difficulty_level(filename):
-    """Determine difficulty level based on filename."""
-    filename_lower = filename.lower()
-
-    if 'semifinal' in filename_lower:
-        return 'semifinals'
-    elif 'quarterfinal' in filename_lower:
-        return 'quarterfinals'
-    elif 'finals' in filename_lower or 'championship' in filename_lower:
-        return 'finals'
-    else:
-        return 'preliminary'
 
 def get_text_with_formatting(page):
     """Extract text from page with formatting information (bold, italic, underline)."""
@@ -139,20 +135,47 @@ def extract_from_pdf(pdf_path):
         print(f"Error reading {pdf_path}: {e}")
         return None
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Extract History Bee questions from PDF files',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python extract_questions.py --input /path/to/pdfs --output nat_hist_bee_questions.json
+  python extract_questions.py -i ./pdfs -o us_hist_bee_questions.json
+"""
+    )
+    parser.add_argument('--input', '-i', required=True,
+                        help='Directory containing PDF files')
+    parser.add_argument('--output', '-o', required=True,
+                        help='Output JSON file')
+    return parser.parse_args()
+
+
 def main():
     """Main extraction function."""
-    pdf_dir = Path('/Users/matthew/Documents/Code/Python/IAC Website/NatHistBee')
-    pdf_files = sorted(pdf_dir.glob('*.pdf'))
+    args = parse_args()
 
-    # Initialize question categories
-    questions_by_difficulty = {
-        'preliminary': [],
-        'quarterfinals': [],
-        'semifinals': [],
-        'finals': []
-    }
+    pdf_dir = Path(args.input)
+    output_file = Path(args.output)
 
-    print(f"Found {len(pdf_files)} PDF files\n")
+    all_pdf_files = sorted(pdf_dir.glob('*.pdf'))
+
+    # Filter out answer key files
+    pdf_files = [f for f in all_pdf_files if 'answer' not in f.name.lower() and 'key' not in f.name.lower()]
+    skipped = len(all_pdf_files) - len(pdf_files)
+
+    print("=" * 50)
+    print("Question Extraction Script")
+    print("=" * 50)
+    print(f"\nInput directory: {pdf_dir}")
+    print(f"Output file: {output_file}")
+
+    # All questions in a flat list
+    all_questions = []
+
+    print(f"Found {len(all_pdf_files)} PDF files ({skipped} answer keys skipped)\n")
 
     for pdf_file in pdf_files:
         print(f"Processing {pdf_file.name}...")
@@ -168,39 +191,27 @@ def main():
         # Extract questions
         questions = extract_questions_from_text(cleaned_text)
 
-        # Categorize by difficulty level
-        difficulty = get_difficulty_level(pdf_file.name)
-        questions_by_difficulty[difficulty].extend(questions)
+        # Add source filename to each question
+        for q in questions:
+            q['source_file'] = pdf_file.name
 
-        print(f"  Extracted {len(questions)} questions ({difficulty})")
+        all_questions.extend(questions)
 
-    # Calculate totals
-    total_questions = sum(len(q) for q in questions_by_difficulty.values())
+        print(f"  Extracted {len(questions)} questions")
 
-    # Save to JSON
+    # Save to JSON (flat list)
     output = {
-        **questions_by_difficulty,
+        'questions': all_questions,
         'metadata': {
-            'total_preliminary': len(questions_by_difficulty['preliminary']),
-            'total_quarterfinals': len(questions_by_difficulty['quarterfinals']),
-            'total_semifinals': len(questions_by_difficulty['semifinals']),
-            'total_finals': len(questions_by_difficulty['finals']),
-            'total': total_questions
+            'total': len(all_questions)
         }
     }
 
-    output_file = pdf_dir / 'questions.json'
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     print(f"\n{'='*50}")
-    print(f"Questions by difficulty level:")
-    print(f"  Preliminary:    {len(questions_by_difficulty['preliminary']):,}")
-    print(f"  Quarterfinals:  {len(questions_by_difficulty['quarterfinals']):,}")
-    print(f"  Semifinals:     {len(questions_by_difficulty['semifinals']):,}")
-    print(f"  Finals:         {len(questions_by_difficulty['finals']):,}")
-    print(f"{'='*50}")
-    print(f"Grand total: {total_questions:,}")
+    print(f"Total questions extracted: {len(all_questions):,}")
     print(f"{'='*50}")
     print(f"\nSaved to {output_file}")
 

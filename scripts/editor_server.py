@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
 Simple server for the Question Database Editor.
-Handles saving changes to questions.json and question_metadata.json.
+Handles saving changes to questions and metadata JSON files.
 
-Run: python3 editor_server.py
-Then open: http://localhost:8765/question_editor.html
+Usage:
+    python3 editor_server.py [--questions FILE] [--metadata FILE] [--port PORT]
+
+Options:
+    --questions, -q  Questions JSON file (default: nat_hist_bee_questions.json)
+    --metadata, -m   Metadata JSON file (default: nat_hist_bee_question_metadata.json)
+    --port, -p       Server port (default: 8765)
 """
 
+import argparse
 import http.server
 import socketserver
 import json
@@ -14,9 +20,11 @@ import os
 from urllib.parse import urlparse
 from datetime import datetime
 
-PORT = 8765
-QUESTIONS_FILE = 'questions.json'
-METADATA_FILE = 'question_metadata.json'
+# Configuration (must be specified via command line)
+DEFAULT_PORT = 8765
+PORT = DEFAULT_PORT
+QUESTIONS_FILE = None
+METADATA_FILE = None
 
 class EditorHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -140,14 +148,46 @@ class EditorHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(str(e).encode())
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Server for the Question Database Editor',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python3 editor_server.py --questions nat_hist_bee_questions.json --metadata nat_hist_bee_question_metadata.json
+  python3 editor_server.py -q us_hist_bee_questions.json -m us_hist_bee_metadata.json
+  python3 editor_server.py -q my_questions.json -m my_metadata.json -p 8080
+"""
+    )
+    parser.add_argument('--questions', '-q', required=True,
+                        help='Questions JSON file')
+    parser.add_argument('--metadata', '-m', required=True,
+                        help='Metadata JSON file')
+    parser.add_argument('--port', '-p', type=int, default=DEFAULT_PORT,
+                        help=f'Server port (default: {DEFAULT_PORT})')
+    return parser.parse_args()
+
+
 def main():
-    # Change to script directory
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    global PORT, QUESTIONS_FILE, METADATA_FILE
+
+    args = parse_args()
+    PORT = args.port
+    QUESTIONS_FILE = args.questions
+    METADATA_FILE = args.metadata
+
+    # Change to project root (parent of scripts/)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    os.chdir(project_root)
 
     with socketserver.TCPServer(("", PORT), EditorHandler) as httpd:
         print(f"\n{'='*50}")
         print(f"  Question Database Editor Server")
         print(f"{'='*50}")
+        print(f"\n  Questions file: {QUESTIONS_FILE}")
+        print(f"  Metadata file:  {METADATA_FILE}")
         print(f"\n  Open in browser: http://localhost:{PORT}/question_editor.html")
         print(f"\n  Press Ctrl+C to stop the server")
         print(f"{'='*50}\n")

@@ -102,46 +102,24 @@
 
             <!-- Question Display -->
             <div class="question-display">
-                <div class="question-text" id="questionText">
-                    <div class="placeholder">
-                        <strong>S</strong> start &nbsp;|&nbsp; <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause/resume &nbsp;|&nbsp; <strong>N</strong> next
-                    </div>
-                </div>
-
-                <div class="hint hidden" id="spacebarHint">
-                    <strong>S</strong> start &nbsp;|&nbsp; <strong>SPACE</strong> buzz in &nbsp;|&nbsp; <strong>P</strong> pause/resume &nbsp;|&nbsp; <strong>N</strong> next
-                </div>
+                <div class="question-text" id="questionText"></div>
 
                 <!-- Buzzer Button (Mobile/Tablet) -->
                 <button id="buzzerButton" class="buzzer-button" title="Tap to buzz in and answer">
                     TAP TO BUZZ IN
                 </button>
-            </div>
 
-            <!-- Answer Section -->
-            <div class="answer-section">
-                <div class="answer-label">Answer</div>
-                <div class="answer-text" id="answerText">
-                    <span style="color: var(--text-tertiary); font-style: italic;">Answer will appear here</span>
-                </div>
+                <!-- Answer (displayed below question) -->
+                <div class="answer-text" id="answerText"></div>
             </div>
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="action-btn" id="startButton" onclick="handleStart()">Start</button>
-                <button class="action-btn hidden" id="nextButton" onclick="handleNext()">Next</button>
-                <button class="action-btn hidden" id="pauseButton" onclick="handlePauseResume()">Pause</button>
-                <button class="action-btn" id="settingsButton" onclick="toggleSettings()">Settings</button>
-            </div>
-
-            <!-- Question History Section -->
-            <div class="history-section">
-                <div class="history-container">
-                    <div class="history-title">Question History</div>
-                    <div class="history-items" id="historyItems">
-                        <span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">No questions practiced yet. Start practicing to see your history here.</span>
-                    </div>
-                </div>
+                <button class="action-btn" id="startButton" onclick="handleStart()" data-tooltip="S">Start</button>
+                <button class="action-btn hidden" id="nextButton" onclick="handleNext()" data-tooltip="N">Next</button>
+                <button class="action-btn hidden" id="pauseButton" onclick="handlePauseResume()" data-tooltip="P">Pause</button>
+                <button class="action-btn" id="settingsButton" onclick="toggleSettings()" data-tooltip="E">Settings</button>
+                <button class="buzz-btn" id="buzzButton" onclick="showAnswerInput()" data-tooltip="Space">Buzz</button>
             </div>
 
         </div>

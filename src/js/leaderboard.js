@@ -46,7 +46,7 @@ export async function displayLeaderboard(period, containerId) {
         const { collection, getDocs, query, orderBy, limit } = window.firebaseDbFunctions;
         const path = getLeaderboardPath(period);
         const leaderboardCollectionRef = collection(window.firebaseDb, 'leaderboards', path, 'rankings');
-        const q = query(leaderboardCollectionRef, orderBy('points', 'desc'), limit(10)); // Show top 10 per board
+        const q = query(leaderboardCollectionRef, orderBy('points', 'desc'), limit(10));
         const querySnapshot = await getDocs(q);
 
         const rankings = [];

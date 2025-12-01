@@ -1,6 +1,12 @@
 # PDF source files (too large for GitHub)
 *.pdf
 
+# Data folder (source files, large datasets)
+data/
+
+# Backup files
+backup/
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -21,6 +27,9 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code local settings
+.claude/
 
 # Logs
 *.log

@@ -39,6 +39,8 @@ auth.deps.restoreHistoryStructure = history.restoreHistoryStructure;
 auth.deps.renderHistoryTable = history.renderHistoryTable;
 auth.deps.navigateTo = router.navigateTo;
 auth.deps.saveHistoryItem = history.saveHistoryItem;
+auth.deps.checkForRecoverableAccount = profile.checkForRecoverableAccount;
+auth.deps.recoverAccountData = profile.recoverAccountData;
 
 // Settings dependencies
 settings.deps.showAnswerInput = game.showAnswerInput;
@@ -117,6 +119,7 @@ window.changeUsername = profile.changeUsername;
 window.saveProfile = profile.saveProfile;
 window.loadUserProfile = profile.loadUserProfile;
 window.dismissProfileWarning = profile.dismissProfileWarning;
+window.deleteAccount = profile.deleteAccount;
 
 // XP System
 window.closeLevelUpNotification = xpSystem.closeLevelUpNotification;

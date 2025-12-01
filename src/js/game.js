@@ -106,7 +106,7 @@ export function displayQuestion() {
     removeCursor(questionText);
     questionText.innerHTML = '';
 
-    document.getElementById('answerText').innerHTML = '<span style="color: var(--text-tertiary); font-style: italic;">Answer will appear here</span>';
+    document.getElementById('answerText').innerHTML = '';
 
     const pauseBtn = document.getElementById('pauseButton');
     pauseBtn.classList.remove('hidden');
@@ -151,14 +151,13 @@ export function showAnswerInput() {
     inputSection.className = 'answer-input-section';
     inputSection.id = 'answerInputSection';
     inputSection.innerHTML = `
-        <label for="userAnswer">Your Answer</label>
-        <input type="text" id="userAnswer" placeholder="Type your answer here..." autofocus>
+        <input type="text" id="userAnswer" placeholder="Enter your answer..." autofocus>
         <div class="answer-input-buttons">
-            <button class="btn-primary" onclick="checkAnswer()">Submit Answer</button>
+            <button class="btn-primary" onclick="checkAnswer()">Submit</button>
         </div>
     `;
 
-    questionDisplay.appendChild(inputSection);
+    questionDisplay.insertBefore(inputSection, questionText);
     document.getElementById('userAnswer').focus();
 
     document.getElementById('userAnswer').addEventListener('keypress', (e) => {
@@ -495,17 +494,23 @@ export function initGameEventListeners() {
         }
     });
 
-    // P = pause/resume, N = next
+    // P = pause/resume, N = next, E = settings
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        const key = e.key.toLowerCase();
+
+        if (key === 'e') {
+            e.preventDefault();
+            import('./settings.js').then(settings => settings.toggleSettings());
             return;
         }
 
         if (!state.currentQuestion || state.answerInputShown) {
             return;
         }
-
-        const key = e.key.toLowerCase();
 
         if (key === 'p') {
             e.preventDefault();

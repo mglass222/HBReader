@@ -13,6 +13,7 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, where, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyADQMMGw1DXiUiNPBqnMcJh6iNdSrOZpTE",
@@ -29,6 +30,8 @@
         window.firebaseDb = getFirestore(app);
         window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser };
         window.firebaseDbFunctions = { doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, where, limit };
+        window.firebaseFunctions = getFunctions(app);
+        window.firebaseFunctionsFunctions = { httpsCallable };
     </script>
 
     <link rel="stylesheet" href="src/styles/main.css">

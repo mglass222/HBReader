@@ -7,6 +7,10 @@
  * level/tier, and updates the leaderboard documents, all inside a single
  * Firestore transaction with an idempotency guard.
  *
+ * Callable: recalculateXP - self-service server-side recompute of a user's
+ * XP from their full history (replaces the old client-side recalculation,
+ * which wrote counter fields directly and would break once rules lock them).
+ *
  * IMPORTANT - DOUBLE-AWARD HAZARD:
  * The shipped client (src/js/profile.js updatePointsAndLeaderboard) still
  * increments totalPoints/questionsAnswered and writes leaderboard docs
@@ -30,10 +34,11 @@
 'use strict';
 
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineBoolean } = require('firebase-functions/params');
 const { logger } = require('firebase-functions');
 const { initializeApp } = require('firebase-admin/app');
-const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getFirestore, FieldValue, FieldPath } = require('firebase-admin/firestore');
 
 initializeApp();
 const db = getFirestore();
@@ -310,6 +315,185 @@ exports.scoreHistoryEntry = onDocumentCreated(
     logger.info('Awarded XP', { userId, historyId, xp });
   }
 );
+
+// ---------------------------------------------------------------------------
+// Batched writes (Firestore batches cap at 500; chunk generously below that).
+// ---------------------------------------------------------------------------
+async function commitInBatches(ops) {
+  for (let i = 0; i < ops.length; i += 450) {
+    const batch = db.batch();
+    for (const op of ops.slice(i, i + 450)) {
+      batch.set(op.ref, op.data, op.options);
+    }
+    await batch.commit();
+  }
+}
+
+async function commitDeletes(refs) {
+  for (let i = 0; i < refs.length; i += 450) {
+    const batch = db.batch();
+    for (const ref of refs.slice(i, i + 450)) {
+      batch.delete(ref);
+    }
+    await batch.commit();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Callable: recalculate a user's XP from their full history.
+//
+// Replaces the old client-side calculateRetroactivePoints, which wrote
+// totalPoints/leaderboard rows directly and would break once the rules lock
+// those fields down (migration step 5). The Admin SDK bypasses rules, so this
+// works before AND after the scoring cutover.
+//
+// Semantics match scoreHistoryEntry exactly: count entries with
+// status === 'correct' and xpEligible !== false, XP from the id prefix.
+// Counted-but-unscored docs are stamped (scoredAt + scoredHistory ledger) so
+// the create trigger never awards them again - running this pre-cutover
+// doubles as the per-user backfill for go-live.
+//
+// Throttled to once per hour per user via recalcThrottle/{uid} (a collection
+// the rules deny to clients), since each run reads the user's full history.
+// ---------------------------------------------------------------------------
+const RECALC_MIN_INTERVAL_MS = 60 * 60 * 1000;
+
+exports.recalculateXP = onCall({ timeoutSeconds: 120 }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'You must be signed in.');
+  }
+  if (request.auth.token.email_verified !== true) {
+    throw new HttpsError('permission-denied', 'Verify your email before recalculating XP.');
+  }
+
+  const uid = request.auth.uid;
+  const throttleRef = db.doc(`recalcThrottle/${uid}`);
+  const now = Date.now();
+
+  const throttleSnap = await throttleRef.get();
+  const lastRecalc = throttleSnap.exists ? throttleSnap.data().lastRecalcAt : 0;
+  if (typeof lastRecalc === 'number' && now - lastRecalc < RECALC_MIN_INTERVAL_MS) {
+    const minutesLeft = Math.ceil((RECALC_MIN_INTERVAL_MS - (now - lastRecalc)) / 60000);
+    throw new HttpsError(
+      'resource-exhausted',
+      `Recalculation is limited to once per hour. Try again in about ${minutesLeft} minutes.`
+    );
+  }
+  // Claim the slot up front so concurrent calls can't both run; released on failure.
+  await throttleRef.set({ lastRecalcAt: now });
+
+  try {
+    const [profileSnap, historySnap] = await Promise.all([
+      db.doc(`users/${uid}/profile/data`).get(),
+      db.collection(`users/${uid}/history`).get()
+    ]);
+    const profile = profileSnap.exists ? profileSnap.data() : {};
+
+    let totalPoints = 0;
+    let counted = 0;
+    const periodBuckets = {}; // periodKey -> { points, questions }
+    const stampOps = [];
+
+    for (const docSnap of historySnap.docs) {
+      const entry = docSnap.data();
+      if (entry.status !== 'correct') continue;
+      if (entry.xpEligible === false) continue;
+      const xp = POINTS_VALUES[String(entry.id ?? '').charAt(0)];
+      if (!xp) continue;
+
+      totalPoints += xp;
+      counted++;
+
+      const answeredAt =
+        typeof entry.timestamp === 'number' && entry.timestamp > 0
+          ? new Date(entry.timestamp)
+          : null;
+      if (answeredAt) {
+        for (const period of ['monthly', 'weekly', 'daily']) {
+          const key = getLeaderboardPath(period, answeredAt);
+          if (!periodBuckets[key]) periodBuckets[key] = { points: 0, questions: 0 };
+          periodBuckets[key].points += xp;
+          periodBuckets[key].questions += 1;
+        }
+      }
+
+      // Mark counted-but-unscored docs so the create trigger skips them later.
+      if (!entry.scoredAt) {
+        stampOps.push(
+          { ref: docSnap.ref, data: { scoredAt: now, xpAwarded: xp }, options: { merge: true } },
+          {
+            ref: db.doc(`scoredHistory/${uid}_${docSnap.id}`),
+            data: { userId: uid, historyId: docSnap.id, xpAwarded: xp, scoredAt: now }
+          }
+        );
+      }
+    }
+
+    const level = getLevelFromXP(totalPoints);
+    const tier = getTierForLevel(level).name;
+
+    // Profile totals (server-authoritative); streaks and identity fields
+    // are left untouched.
+    await db.doc(`users/${uid}/profile/data`).set(
+      { totalPoints, questionsAnswered: counted },
+      { merge: true }
+    );
+
+    // Leaderboards - only for users with a username, mirroring the trigger.
+    // All-time holds lifetime totals; period docs hold per-period sums
+    // rebuilt from history timestamps (same bucketing as the trigger).
+    const leaderboardOps = [];
+    if (profile.username) {
+      const commonFields = { username: profile.username, level, tier, lastUpdated: now };
+      if (profile.avatar) commonFields.avatar = profile.avatar;
+
+      leaderboardOps.push({
+        ref: db.doc(`leaderboards/allTime/rankings/${uid}`),
+        data: { ...commonFields, points: totalPoints, questionsAnswered: counted },
+        options: { merge: true }
+      });
+      for (const [key, bucket] of Object.entries(periodBuckets)) {
+        leaderboardOps.push({
+          ref: db.doc(`leaderboards/${key}/rankings/${uid}`),
+          data: { ...commonFields, points: bucket.points, questionsAnswered: bucket.questions },
+          options: { merge: true }
+        });
+      }
+    }
+
+    await commitInBatches([...leaderboardOps, ...stampOps]);
+
+    // Prune ranking rows the recomputed history no longer supports (e.g.
+    // forged or since-deleted entries). Users without a username shouldn't
+    // appear on any board, so every row of theirs is pruned.
+    const rankingsSnap = await db
+      .collectionGroup('rankings')
+      .where(FieldPath.documentId(), '==', uid)
+      .get();
+    const validPeriods = profile.username
+      ? new Set(['allTime', ...Object.keys(periodBuckets)])
+      : new Set();
+    const staleRefs = rankingsSnap.docs
+      .filter((d) => !validPeriods.has(d.ref.parent.parent.id))
+      .map((d) => d.ref);
+    await commitDeletes(staleRefs);
+
+    logger.info('Recalculated XP', {
+      uid,
+      totalPoints,
+      counted,
+      periods: Object.keys(periodBuckets).length,
+      prunedRows: staleRefs.length
+    });
+    return { totalPoints, questionsAnswered: counted, counted };
+  } catch (error) {
+    // Release the throttle slot so the user can retry.
+    await throttleRef.delete().catch(() => {});
+    if (error instanceof HttpsError) throw error;
+    logger.error('recalculateXP failed', { uid, error: String(error) });
+    throw new HttpsError('internal', 'Recalculation failed. Please try again later.');
+  }
+});
 
 // Exported for potential reuse/tests (e.g. an emulator-driven unit test).
 exports._internal = {

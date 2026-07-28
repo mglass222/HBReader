@@ -5,6 +5,11 @@ import { getLeaderboardPath } from './leaderboardPeriods.js';
 
 export { getLeaderboardPath };
 
+// Forward declarations for cross-module dependencies
+export const deps = {
+    updateProfileUI: null
+};
+
 export function calculatePoints(difficulty) {
     return POINTS_VALUES[difficulty] || 0;
 }
@@ -124,67 +129,47 @@ export async function displayLeaderboard(period, containerId) {
     }
 }
 
-// Retroactive Points Calculation
+// Retroactive Points Recalculation
+// Server-authoritative: the recalculateXP callable Cloud Function recomputes
+// totals from the user's full history with the Admin SDK (which bypasses
+// rules), so this keeps working after the scoring cutover locks clients out
+// of the counter fields. The server applies the same semantics as the scoring
+// trigger (correct + xpEligible !== false), rebuilds period boards from
+// history timestamps, prunes stale ranking rows, and is throttled hourly.
 export async function calculateRetroactivePoints() {
-    if (!state.currentUser || !state.currentUser.emailVerified || !state.userProfile) {
-        alert('Please log in to calculate retroactive points.');
+    if (!state.currentUser || !state.currentUser.emailVerified) {
+        alert('Please log in to recalculate points.');
         return;
     }
 
-    if (!confirm('This will recalculate all your points based on your question history. This may take a moment. Continue?')) {
+    if (!confirm('This will recalculate your points from your full question history on the server. This may take a moment. Continue?')) {
         return;
     }
 
     try {
-        let totalPoints = 0;
-        let correctAnswers = 0;
+        const { httpsCallable } = window.firebaseFunctionsFunctions;
+        const recalculateXP = httpsCallable(window.firebaseFunctions, 'recalculateXP', { timeout: 120000 });
+        const result = await recalculateXP();
+        const { totalPoints, questionsAnswered, counted } = result.data;
 
-        // Calculate points from history
-        state.questionHistory.forEach(entry => {
-            if (entry.status === 'correct') {
-                const points = calculatePoints(entry.id.charAt(0));
-                totalPoints += points;
-                correctAnswers++;
-            }
-        });
-
-        // Update profile
-        const { doc, setDoc, updateDoc } = window.firebaseDbFunctions;
-        const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
-        await updateDoc(profileDocRef, {
-            totalPoints: totalPoints,
-            questionsAnswered: correctAnswers
-        });
-
-        state.userProfile.totalPoints = totalPoints;
-        state.userProfile.questionsAnswered = correctAnswers;
-
-        // Only update the all-time leaderboard if user has a username.
-        // Period boards (daily/weekly/monthly) hold per-period deltas and
-        // cannot be reconstructed from totals, so they are left untouched.
-        if (state.userProfile.username) {
-            const path = getLeaderboardPath('allTime');
-            const leaderboardDocRef = doc(window.firebaseDb, 'leaderboards', path, 'rankings', state.currentUser.uid);
-
-            await setDoc(leaderboardDocRef, {
-                username: state.userProfile.username,
-                avatar: state.userProfile.avatar || '👤',
-                points: totalPoints,
-                questionsAnswered: correctAnswers,
-                lastUpdated: Date.now()
-            }, { merge: true });
+        // Reflect the server-computed totals locally
+        if (state.userProfile) {
+            state.userProfile.totalPoints = totalPoints;
+            state.userProfile.questionsAnswered = questionsAnswered;
         }
+        if (deps.updateProfileUI) deps.updateProfileUI();
 
-        alert(`Retroactive points calculated! Total: ${totalPoints} points from ${correctAnswers} correct answers.`);
+        alert(`Recalculation complete! Total: ${totalPoints} XP from ${counted} XP-earning correct answers.`);
 
         // Refresh leaderboard if on that page
         if (window.location.hash.includes('leaderboard')) {
             await loadLeaderboard();
         }
 
-        return { totalPoints, correctAnswers };
+        return { totalPoints, questionsAnswered };
     } catch (error) {
-        console.error('Error calculating retroactive points:', error);
-        alert('Error calculating points. Please try again.');
+        console.error('Error recalculating points:', error);
+        // HttpsError messages (throttle, auth, internal) are user-presentable
+        alert(error.message || 'Error recalculating points. Please try again.');
     }
 }

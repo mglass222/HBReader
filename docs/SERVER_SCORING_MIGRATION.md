@@ -97,16 +97,28 @@ All in `src/js/profile.js` and `src/js/history.js`:
      local `state.userProfile` only, or switch to an `onSnapshot` listener
      on the profile doc so the UI reflects the server-awarded values.
 
-3. **`src/js/profile.js` - `calculateRetroactivePoints()`** (client-side
-   backfill helper): do not use it post-migration - clients will no longer
-   be allowed to write `totalPoints`. Use the admin backfill script
-   instead (below). The function itself stays in the codebase per the
-   project's script-preservation policy; just stop invoking it.
+3. **`calculateRetroactivePoints()`** ("Recalculate XP from History" button):
+   **RESOLVED (2026-07-28).** The button no longer writes Firestore directly.
+   It calls the `recalculateXP` callable Cloud Function
+   (`functions/index.js`), which recomputes totals server-side with the Admin
+   SDK (rules-exempt), so the feature works before AND after cutover:
+   - Same counting semantics as the scoring trigger (`status === 'correct'`
+     && `xpEligible !== false`, XP from the id prefix) - including the
+     tolerance gate the old client version ignored.
+   - Rewrites profile totals and the all-time board, and REBUILDS period
+     boards from history timestamps (the old version left period boards
+     stale).
+   - Prunes ranking rows the recomputed history no longer supports.
+   - Stamps counted-but-unscored history docs (`scoredAt` + `scoredHistory`
+     ledger), so running it pre-cutover doubles as the per-user backfill -
+     the trigger will skip everything it counted.
+   - Throttled to once/hour/user via `recalcThrottle/{uid}` (rules deny
+     clients access to that collection).
 
-   **DONE (2026-07-28, partial):** `saveUsername()` no longer spreads the
-   in-memory profile into its write (it was clobbering
-   `totalPoints`/`questionsAnswered` from stale state); it now writes only
-   `{username, createdAt}`, matching the `saveProfile()` pattern.
+   Also: `saveUsername()` no longer spreads the in-memory profile into its
+   write (it was clobbering `totalPoints`/`questionsAnswered` from stale
+   state); it now writes only `{username, createdAt}`, matching the
+   `saveProfile()` pattern.
 
 ## Rules changes needed (step 5)
 
@@ -151,10 +163,16 @@ claim for the function. They can simply deny clients:
 
 ## Backfill / reconciliation (step 6)
 
-`calculateRetroactivePoints()` exists client-side but is the wrong tool
-once rules deny client XP writes. Instead, run a **one-off admin script**
-(Node + `firebase-admin`, service-account credentials, run from a trusted
-machine - it bypasses rules):
+**Per-user path (exists since 2026-07-28):** the `recalculateXP` callable
+function recomputes one user's totals from their history and stamps
+`scoredAt`/ledger markers on everything it counts - users can self-serve
+the cutover backfill from the Profile page ("Recalculate XP from History").
+Inviting all users to click it once post-cutover is a viable fleet-wide
+strategy.
+
+**Fleet-wide path:** for an authoritative sweep (or users who never click),
+run a **one-off admin script** (Node + `firebase-admin`, service-account
+credentials, run from a trusted machine - it bypasses rules):
 
 - For each user: read all `users/{uid}/history` docs; sum XP over docs with
   `status === 'correct'` and `xpEligible !== false` using the prefix table;

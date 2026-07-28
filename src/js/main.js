@@ -59,6 +59,9 @@ router.deps.loadUserHistory = history.loadUserHistory;
 // History Page dependencies
 historyPage.deps.updateHistoryDisplay = history.updateHistoryDisplay;
 
+// Leaderboard dependencies
+leaderboard.deps.updateProfileUI = profile.updateProfileUI;
+
 // Make functions globally available for HTML onclick handlers
 
 // Auth

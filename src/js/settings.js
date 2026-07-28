@@ -116,6 +116,14 @@ export function toggleSettings() {
 
     if (!settingsPanel) return;
 
+    // Below 1024px the sidebar is hidden by CSS, so the panel opens as a
+    // fixed drawer instead of collapsing in place.
+    if (window.matchMedia('(max-width: 1024px)').matches) {
+        const isOpen = settingsPanel.classList.toggle('mobile-open');
+        if (toggleBtn) toggleBtn.textContent = isOpen ? 'Hide Settings' : 'Show Settings';
+        return;
+    }
+
     if (settingsPanel.classList.contains('collapsed')) {
         settingsPanel.classList.remove('collapsed');
         if (toggleBtn) toggleBtn.textContent = 'Hide Settings';
@@ -127,6 +135,8 @@ export function toggleSettings() {
 
 export function initSettingsEventListeners() {
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+    document.getElementById('settingsCloseButton')?.addEventListener('click', toggleSettings);
 
     document.getElementById('fontSize').addEventListener('input', (e) => {
         const size = parseInt(e.target.value);

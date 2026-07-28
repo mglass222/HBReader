@@ -4,14 +4,20 @@
     --bg-tertiary: #f8f9fa;
     --text-primary: #333;
     --text-secondary: #666;
-    --text-tertiary: #999;
+    --text-tertiary: #767676; /* 4.5:1 on white (WCAG AA) */
     --border-color: #ddd;
     --shadow-color: rgba(0,0,0,0.05);
-    --primary-blue: #4a90e2;
-    --primary-blue-hover: #357abd;
-    --success-green: #27ae60;
-    --success-green-hover: #229954;
-    --error-red: #e74c3c;
+    --primary-blue: #2c6cb0; /* 5.4:1 on white; white text on it 5.4:1 */
+    --primary-blue-hover: #1f568f;
+    --accent-color: #2c6cb0;
+    /* Filled button surfaces: same in both themes so white text stays >= 4.5:1 */
+    --btn-primary-bg: #2c6cb0;
+    --btn-primary-bg-hover: #1f568f;
+    --header-text: #444; /* 6.5:1 on the gray header */
+    --success-green: #1e8449; /* white text on it 4.7:1 */
+    --success-green-hover: #196f3d;
+    --error-red: #c0392b; /* white text on it 5.4:1 */
+    --warning-yellow: #ffc107;
     --header-bg: #d3d3d3;
     --panel-bg: #ffffff;
     /* Tier Colors */
@@ -37,15 +43,20 @@
     --bg-tertiary: #2a2a2a;
     --text-primary: #e0e0e0;
     --text-secondary: #a0a0a0;
-    --text-tertiary: #666;
+    --text-tertiary: #9e9e9e; /* 6.5:1 on #1a1a1a */
     --border-color: #333;
     --shadow-color: rgba(0,0,0,0.3);
     --primary-blue: #5ba3f5;
     --primary-blue-hover: #4a90e2;
+    --accent-color: #5ba3f5;
+    --btn-primary-bg: #2c6cb0;
+    --btn-primary-bg-hover: #1f568f;
+    --header-text: #a0a0a0;
     --success-green: #2ecc71;
     --success-green-hover: #27ae60;
     --error-red: #ff6b6b;
-    --header-bg: #ffffff;
+    --warning-yellow: #ffc107;
+    --header-bg: #1f1f1f; /* dark surface instead of the jarring white inversion */
     --panel-bg: #1f1f1f;
 }
 
@@ -186,7 +197,7 @@ body {
     appearance: none;
     width: 14px;
     height: 14px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     border-radius: 50%;
     cursor: pointer;
 }
@@ -194,7 +205,7 @@ body {
 .setting-group input[type="range"]::-moz-range-thumb {
     width: 14px;
     height: 14px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     border-radius: 50%;
     cursor: pointer;
     border: none;
@@ -275,7 +286,7 @@ body {
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border-radius: 12px;
     font-size: 0.8em;
@@ -299,7 +310,7 @@ body {
 .matching-count {
     margin-top: 8px;
     padding: 6px 10px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border-radius: 4px;
     font-size: 0.75em;
@@ -355,7 +366,7 @@ body {
 }
 
 .toggle-switch.active {
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
 }
 
 .toggle-slider {
@@ -417,7 +428,7 @@ body {
     min-height: 40px;
     border: 1px solid var(--primary-blue);
     border-radius: 8px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     font-size: 1em;
     font-weight: 600;
@@ -427,7 +438,7 @@ body {
 }
 
 .buzz-btn:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
     border-color: var(--primary-blue-hover);
 }
 
@@ -499,13 +510,13 @@ button:hover {
 }
 
 .btn-primary {
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border-color: var(--primary-blue);
 }
 
 .btn-primary:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
     border-color: var(--primary-blue-hover);
 }
 
@@ -587,7 +598,7 @@ button:hover {
     display: inline-block;
     width: 2px;
     height: 1.2em;
-    background-color: var(--primary-blue);
+    background-color: var(--btn-primary-bg);
     animation: blink 1s step-end infinite;
     vertical-align: text-bottom;
 }
@@ -758,7 +769,7 @@ button:hover {
     padding: 15px 20px;
     margin: 10px 0;
     border-radius: 8px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     font-size: 1.1em;
     font-weight: 700;
@@ -771,7 +782,7 @@ button:hover {
 
 .buzzer-button:active {
     transform: scale(0.98);
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
@@ -897,8 +908,28 @@ button:hover {
         grid-template-columns: 1fr;
     }
 
+    /* Sidebar is hidden; toggleSettings() opens it as a drawer instead */
     .settings-panel {
         display: none;
+    }
+
+    .settings-panel.mobile-open {
+        display: block;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(360px, 92vw);
+        background: var(--bg-primary);
+        border-left: 1px solid var(--border-color);
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
+        overflow-y: auto;
+        z-index: 1100;
+        padding: 20px;
+    }
+
+    .settings-panel.mobile-open .settings-close {
+        display: inline-flex;
     }
 
     .action-buttons {
@@ -998,7 +1029,7 @@ button:hover {
 .btn-logout {
     padding: 6px 12px;
     font-size: 0.85em;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border: none;
     border-radius: 3px;
@@ -1007,13 +1038,13 @@ button:hover {
 }
 
 .btn-logout:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
 }
 
 .btn-login {
     padding: 8px 16px;
     font-size: 0.9em;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border: none;
     border-radius: 3px;
@@ -1022,7 +1053,7 @@ button:hover {
 }
 
 .btn-login:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
 }
 
 /* Auth Modal */
@@ -1159,7 +1190,7 @@ button:hover {
 .auth-submit {
     width: 100%;
     padding: 12px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border: none;
     border-radius: 4px;
@@ -1171,7 +1202,7 @@ button:hover {
 }
 
 .auth-submit:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
 }
 
 .auth-submit:disabled {
@@ -1333,7 +1364,7 @@ button:hover {
     padding: 8px 16px;
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--header-text);
     font-size: 1.1em;
     font-weight: 500;
     cursor: pointer;
@@ -1345,8 +1376,12 @@ button:hover {
     color: var(--text-primary);
 }
 
+/* Active tab: dark bold text + blue underline. The underline only needs
+   3:1 as a UI indicator; colored text on the gray header would not reach
+   4.5:1, so the text itself stays high-contrast. */
 .nav-tab.active {
-    color: var(--primary-blue);
+    color: var(--text-primary);
+    font-weight: 700;
     border-bottom-color: var(--primary-blue);
 }
 
@@ -1397,20 +1432,27 @@ button:hover {
     color: var(--primary-blue);
 }
 
+/* Medal ranks: darkened metal tones that stay readable on white cards
+   (raw gold #FFD700 is 1.4:1 on white). Dark theme reverts to the bright
+   tones, which read fine on dark surfaces. */
 .leaderboard-rank.top-1 {
-    color: #FFD700;
+    color: #8a6d00;
     font-size: 1.2em;
 }
 
 .leaderboard-rank.top-2 {
-    color: #C0C0C0;
+    color: #6e6e6e;
     font-size: 1.1em;
 }
 
 .leaderboard-rank.top-3 {
-    color: #CD7F32;
+    color: #8c5523;
     font-size: 1.1em;
 }
+
+[data-theme="dark"] .leaderboard-rank.top-1 { color: var(--tier-gold); }
+[data-theme="dark"] .leaderboard-rank.top-2 { color: var(--tier-silver); }
+[data-theme="dark"] .leaderboard-rank.top-3 { color: var(--tier-bronze); }
 
 .leaderboard-username {
     font-weight: 500;
@@ -1536,13 +1578,23 @@ button:hover {
     text-overflow: ellipsis;
 }
 
-.level-badge-title.tier-bronze { color: var(--tier-bronze); }
-.level-badge-title.tier-silver { color: var(--tier-silver); }
-.level-badge-title.tier-gold { color: var(--tier-gold); }
-.level-badge-title.tier-platinum { color: #8a8a8a; }
-.level-badge-title.tier-diamond { color: #5bc0de; }
-.level-badge-title.tier-master { color: var(--tier-master); }
-.level-badge-title.tier-grandmaster { color: var(--tier-grandmaster); }
+/* Darkened tier tones for light backgrounds; dark theme uses the bright
+   tier colors, which have sufficient contrast on dark surfaces. */
+.level-badge-title.tier-bronze { color: #8c5523; }
+.level-badge-title.tier-silver { color: #6e6e6e; }
+.level-badge-title.tier-gold { color: #8a6d00; }
+.level-badge-title.tier-platinum { color: #6e6e6e; }
+.level-badge-title.tier-diamond { color: #1a7a99; }
+.level-badge-title.tier-master { color: #7a4cab; }
+.level-badge-title.tier-grandmaster { color: #c23200; }
+
+[data-theme="dark"] .level-badge-title.tier-bronze { color: var(--tier-bronze); }
+[data-theme="dark"] .level-badge-title.tier-silver { color: var(--tier-silver); }
+[data-theme="dark"] .level-badge-title.tier-gold { color: var(--tier-gold); }
+[data-theme="dark"] .level-badge-title.tier-platinum { color: var(--tier-platinum); }
+[data-theme="dark"] .level-badge-title.tier-diamond { color: var(--tier-diamond); }
+[data-theme="dark"] .level-badge-title.tier-master { color: var(--tier-master-light); }
+[data-theme="dark"] .level-badge-title.tier-grandmaster { color: var(--tier-grandmaster-light); }
 
 .level-badge-progress {
     display: flex;
@@ -2089,7 +2141,7 @@ button:hover {
 
 .category-stat-bar {
     height: 100%;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     border-radius: 4px;
     transition: width 0.3s ease;
 }
@@ -2150,7 +2202,7 @@ button:hover {
 }
 
 .time-period-btn.active {
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border-color: var(--primary-blue);
 }
@@ -2402,12 +2454,12 @@ button:hover {
 }
 
 .history-table th .resizer:hover::after {
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     opacity: 1;
 }
 
 .history-table th .resizer:active::after {
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     opacity: 1;
 }
 
@@ -2489,7 +2541,7 @@ button:hover {
 
 .btn-export {
     padding: 10px 20px;
-    background: var(--primary-blue);
+    background: var(--btn-primary-bg);
     color: white;
     border: none;
     border-radius: 4px;
@@ -2500,7 +2552,7 @@ button:hover {
 }
 
 .btn-export:hover {
-    background: var(--primary-blue-hover);
+    background: var(--btn-primary-bg-hover);
 }
 
 .btn-clear {
@@ -2563,4 +2615,137 @@ button:hover {
     .history-table td {
         padding: 4px 8px;
     }
+}
+
+/* Settings drawer close button (visible only in the mobile drawer) */
+.settings-close {
+    display: none;
+    float: right;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 1em;
+    cursor: pointer;
+}
+
+/* Play-area status row: difficulty, session stats, and XP total */
+.play-area-status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.session-stats {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+}
+
+.points-display {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-left: auto;
+}
+
+/* Hide the settings-panel XP card when logged out (container is empty) */
+.xp-display:empty {
+    display: none;
+}
+
+/* XP gained indicator shown with the answer reveal */
+.xp-gain {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: var(--success-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9em;
+    animation: xp-gain-pop 0.3s ease-out;
+}
+
+@keyframes xp-gain-pop {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+.toast {
+    max-width: min(480px, 90vw);
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    font-size: 0.9em;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background: var(--success-green);
+    color: #fff;
+}
+
+.toast-error {
+    background: var(--error-red);
+    color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast,
+    .xp-gain,
+    .cursor,
+    .level-up-notification,
+    .level-up-overlay {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Keyboard focus indicator. Several inputs set outline: none on :focus
+   with a border-color swap only; these rules restore a visible indicator
+   for keyboard users without affecting mouse clicks. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
 }

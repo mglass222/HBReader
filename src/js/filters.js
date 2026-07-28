@@ -1,15 +1,49 @@
 // Filter management module
 import { state } from './state.js';
 
-export async function loadMetadata(questionSet = 'nat_hist_bee') {
-    try {
-        const response = await fetch(`src/assets/${questionSet}_question_metadata.json`);
-        const data = await response.json();
-        state.questionMetadata = data.categories;
-        console.log(`Loaded metadata for ${Object.keys(state.questionMetadata).length} questions`);
-    } catch (error) {
-        console.error('Error loading metadata:', error);
+export const QUESTION_SETS = ['nat_hist_bee', 'us_hist_bee'];
+const DEFAULT_QUESTION_SET = 'nat_hist_bee';
+
+// Question IDs collide across question sets (both use P/Q/S/F prefixes),
+// so metadata is cached per set and lookups must be set-qualified.
+const metadataCache = {};
+const metadataPromises = {};
+
+export function fetchMetadata(questionSet) {
+    if (!metadataPromises[questionSet]) {
+        metadataPromises[questionSet] = (async () => {
+            const response = await fetch(`src/assets/${questionSet}_question_metadata.json`);
+            if (!response.ok) {
+                throw new Error(`Failed to load metadata for ${questionSet}: HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            metadataCache[questionSet] = data.categories || {};
+            return metadataCache[questionSet];
+        })().catch(error => {
+            delete metadataPromises[questionSet];
+            throw error;
+        });
     }
+    return metadataPromises[questionSet];
+}
+
+export async function loadMetadata(questionSet = DEFAULT_QUESTION_SET) {
+    state.questionMetadata = await fetchMetadata(questionSet);
+}
+
+// Set-qualified metadata lookup for history entries
+export function getQuestionMeta(entry) {
+    if (!entry || !entry.id) return undefined;
+    const questionSet = entry.questionSet || DEFAULT_QUESTION_SET;
+    return metadataCache[questionSet]?.[entry.id];
+}
+
+// Dashboard and History render entries from every set, so both metadata
+// files must be available before set-qualified lookups can succeed.
+export async function ensureAllMetadataLoaded() {
+    await Promise.all(QUESTION_SETS.map(set =>
+        fetchMetadata(set).catch(error => console.error('Error preloading metadata:', error))
+    ));
 }
 
 export function onRegionFilterChange() {
@@ -49,45 +83,54 @@ export function updateSelectedTypesDisplay() {
     const typesTagsContainer = document.getElementById('questionTypesTags');
 
     // Region display
-    const regionTags = [];
+    regionTagsContainer.replaceChildren();
     if (state.activeFilters.region !== 'all') {
-        regionTags.push(`<span class="question-type-filter-tag">${state.activeFilters.region}<span class="remove-type" onclick="clearRegionFilter()">×</span></span>`);
+        regionTagsContainer.appendChild(createFilterTag(state.activeFilters.region, clearRegionFilter));
     }
 
-    if (regionTags.length === 0) {
+    if (regionTagsContainer.children.length === 0) {
         regionIndicator.style.display = 'none';
-        regionTagsContainer.innerHTML = '';
     } else {
         regionIndicator.style.display = 'flex';
-        regionTagsContainer.innerHTML = regionTags.join('');
     }
 
     // Time period display
-    const timePeriodTags = [];
+    timePeriodTagsContainer.replaceChildren();
     if (state.activeFilters.timePeriod !== 'all') {
-        timePeriodTags.push(`<span class="question-type-filter-tag">${state.activeFilters.timePeriod}<span class="remove-type" onclick="clearTimePeriodFilter()">×</span></span>`);
+        timePeriodTagsContainer.appendChild(createFilterTag(state.activeFilters.timePeriod, clearTimePeriodFilter));
     }
 
-    if (timePeriodTags.length === 0) {
+    if (timePeriodTagsContainer.children.length === 0) {
         timePeriodIndicator.style.display = 'none';
-        timePeriodTagsContainer.innerHTML = '';
     } else {
         timePeriodIndicator.style.display = 'flex';
-        timePeriodTagsContainer.innerHTML = timePeriodTags.join('');
     }
 
     // Question types display
-    const typeTags = state.activeFilters.answerTypes.map(type =>
-        `<span class="question-type-filter-tag">${type}<span class="remove-type" onclick="removeQuestionType('${type.replace(/'/g, "\\'")}')">×</span></span>`
-    );
+    typesTagsContainer.replaceChildren();
+    state.activeFilters.answerTypes.forEach(type => {
+        typesTagsContainer.appendChild(createFilterTag(type, () => removeQuestionType(type)));
+    });
 
-    if (typeTags.length === 0) {
+    if (typesTagsContainer.children.length === 0) {
         typesIndicator.style.display = 'none';
-        typesTagsContainer.innerHTML = '';
     } else {
         typesIndicator.style.display = 'flex';
-        typesTagsContainer.innerHTML = typeTags.join('');
     }
+}
+
+function createFilterTag(label, onRemove) {
+    const tag = document.createElement('span');
+    tag.className = 'question-type-filter-tag';
+    tag.append(document.createTextNode(label));
+
+    const remove = document.createElement('span');
+    remove.className = 'remove-type';
+    remove.textContent = '×';
+    remove.addEventListener('click', onRemove);
+    tag.appendChild(remove);
+
+    return tag;
 }
 
 export function clearRegionFilter() {

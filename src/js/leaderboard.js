@@ -1,29 +1,12 @@
 // Leaderboard module - leaderboard display and points calculation
 import { state, POINTS_VALUES } from './state.js';
 import { calculateLevelProgress, generateTierShield } from './xpSystem.js';
+import { getLeaderboardPath } from './leaderboardPeriods.js';
+
+export { getLeaderboardPath };
 
 export function calculatePoints(difficulty) {
     return POINTS_VALUES[difficulty] || 0;
-}
-
-export function getLeaderboardPath(period) {
-    const now = new Date();
-    let periodKey;
-
-    switch(period) {
-        case 'monthly':
-            periodKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            return `monthly-${periodKey}`;
-        case 'weekly':
-            const week = Math.ceil((now.getDate() + 6 - now.getDay()) / 7);
-            periodKey = `${now.getFullYear()}-W${String(week).padStart(2, '0')}`;
-            return `weekly-${periodKey}`;
-        case 'daily':
-            periodKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            return `daily-${periodKey}`;
-        default:
-            return 'allTime';
-    }
 }
 
 // Leaderboard Display
@@ -59,29 +42,39 @@ export async function displayLeaderboard(period, containerId) {
             return;
         }
 
-        // Generate compact leaderboard table
-        let tableHTML = `
-            <table class="leaderboard-table" style="font-size: 0.9em;">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">Rank</th>
-                        <th style="width: 50%;">Player</th>
-                        <th style="width: 35%;">Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        const table = document.createElement('table');
+        table.className = 'leaderboard-table';
+        table.style.fontSize = '0.9em';
+
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        [
+            ['Rank', '15%'],
+            ['Player', '50%'],
+            ['Points', '35%']
+        ].forEach(([label, width]) => {
+            const th = document.createElement('th');
+            th.style.width = width;
+            th.textContent = label;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        const tbody = document.createElement('tbody');
 
         rankings.forEach((entry, index) => {
             const rank = index + 1;
             const isCurrentUser = state.currentUser && state.currentUser.emailVerified && entry.userId === state.currentUser.uid;
             const rankClass = rank === 1 ? 'top-1' : rank === 2 ? 'top-2' : rank === 3 ? 'top-3' : '';
-            const rowClass = isCurrentUser ? 'current-user' : '';
 
-            // Show tier shield based on XP
+            // Tier shield: prefer the stored all-time level. Period boards hold
+            // per-period point deltas, so deriving the tier from entry.points
+            // would show e.g. a Bronze shield for a Grandmaster's quiet week.
             const xp = entry.points || 0;
-            const levelInfo = calculateLevelProgress(xp);
-            const shield = generateTierShield(levelInfo.level, 'small');
+            const level = typeof entry.level === 'number'
+                ? entry.level
+                : calculateLevelProgress(xp).level; // legacy docs without level
+            const shield = generateTierShield(level, 'small');
 
             // For all-time leaderboard top 3, add medal indicator
             let medalIcon = '';
@@ -91,26 +84,40 @@ export async function displayLeaderboard(period, containerId) {
                 else if (rank === 3) medalIcon = '🥉 ';
             }
 
-            tableHTML += `
-                <tr class="${rowClass}">
-                    <td><span class="leaderboard-rank ${rankClass}">${medalIcon}${rank}</span></td>
-                    <td class="leaderboard-username">
-                        <span style="display: inline-flex; align-items: center; gap: 8px;">
-                            ${shield}
-                            <span>${entry.username}</span>
-                        </span>
-                    </td>
-                    <td class="leaderboard-points">${entry.points} XP</td>
-                </tr>
-            `;
+            const row = document.createElement('tr');
+            if (isCurrentUser) {
+                row.className = 'current-user';
+            }
+
+            const rankCell = document.createElement('td');
+            const rankSpan = document.createElement('span');
+            rankSpan.className = `leaderboard-rank ${rankClass}`.trim();
+            rankSpan.textContent = `${medalIcon}${rank}`;
+            rankCell.appendChild(rankSpan);
+
+            const playerCell = document.createElement('td');
+            playerCell.className = 'leaderboard-username';
+            const playerWrapper = document.createElement('span');
+            playerWrapper.style.display = 'inline-flex';
+            playerWrapper.style.alignItems = 'center';
+            playerWrapper.style.gap = '8px';
+            const shieldWrapper = document.createElement('span');
+            shieldWrapper.innerHTML = shield;
+            const username = document.createElement('span');
+            username.textContent = entry.username || 'Unknown';
+            playerWrapper.append(shieldWrapper, username);
+            playerCell.appendChild(playerWrapper);
+
+            const pointsCell = document.createElement('td');
+            pointsCell.className = 'leaderboard-points';
+            pointsCell.textContent = `${entry.points || 0} XP`;
+
+            row.append(rankCell, playerCell, pointsCell);
+            tbody.appendChild(row);
         });
 
-        tableHTML += `
-                </tbody>
-            </table>
-        `;
-
-        content.innerHTML = tableHTML;
+        table.append(thead, tbody);
+        content.replaceChildren(table);
     } catch (error) {
         console.error(`Error loading ${period} leaderboard:`, error);
         content.innerHTML = `<div class="leaderboard-empty" style="padding: 20px; font-size: 0.9em;">Error loading</div>`;
@@ -152,22 +159,20 @@ export async function calculateRetroactivePoints() {
         state.userProfile.totalPoints = totalPoints;
         state.userProfile.questionsAnswered = correctAnswers;
 
-        // Only update leaderboards if user has a username
+        // Only update the all-time leaderboard if user has a username.
+        // Period boards (daily/weekly/monthly) hold per-period deltas and
+        // cannot be reconstructed from totals, so they are left untouched.
         if (state.userProfile.username) {
-            // Update all leaderboards
-            const periods = ['allTime', 'monthly', 'weekly', 'daily'];
-            for (const period of periods) {
-                const path = getLeaderboardPath(period);
-                const leaderboardDocRef = doc(window.firebaseDb, 'leaderboards', path, 'rankings', state.currentUser.uid);
+            const path = getLeaderboardPath('allTime');
+            const leaderboardDocRef = doc(window.firebaseDb, 'leaderboards', path, 'rankings', state.currentUser.uid);
 
-                await setDoc(leaderboardDocRef, {
-                    username: state.userProfile.username,
-                    avatar: state.userProfile.avatar || '👤',
-                    points: totalPoints,
-                    questionsAnswered: correctAnswers,
-                    lastUpdated: Date.now()
-                }, { merge: true });
-            }
+            await setDoc(leaderboardDocRef, {
+                username: state.userProfile.username,
+                avatar: state.userProfile.avatar || '👤',
+                points: totalPoints,
+                questionsAnswered: correctAnswers,
+                lastUpdated: Date.now()
+            }, { merge: true });
         }
 
         alert(`Retroactive points calculated! Total: ${totalPoints} points from ${correctAnswers} correct answers.`);

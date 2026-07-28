@@ -1,5 +1,6 @@
 // Dashboard module - statistics, charts, and performance trends
 import { state, DIFFICULTY_COLORS, DIFFICULTY_NAMES, ANSWER_TYPE_COLORS, ANSWER_TYPE_SHORT_NAMES } from './state.js';
+import { getQuestionMeta } from './filters.js';
 
 // Forward declarations for cross-module dependencies
 export const deps = {
@@ -68,11 +69,12 @@ export function calculateStats() {
             stats.skipped++;
         }
 
-        // Difficulty stats
+        // Difficulty stats (treat unknown legacy statuses as skipped)
         const difficultyKey = entry.id.charAt(0);
         if (stats.byDifficulty[difficultyKey]) {
+            const status = ['correct', 'incorrect', 'skipped'].includes(entry.status) ? entry.status : 'skipped';
             stats.byDifficulty[difficultyKey].total++;
-            stats.byDifficulty[difficultyKey][entry.status]++;
+            stats.byDifficulty[difficultyKey][status]++;
         }
     });
 
@@ -96,11 +98,11 @@ export function calculateCategoryStats() {
     const answerTypeStats = {};
 
     filteredHistory.forEach((entry) => {
-        const meta = state.questionMetadata[entry.id];
+        const meta = getQuestionMeta(entry);
         if (!meta) return;
 
         // Process regions
-        meta.regions.forEach(region => {
+        (meta.regions || []).forEach(region => {
             if (!regionStats[region]) {
                 regionStats[region] = { total: 0, correct: 0 };
             }
@@ -224,6 +226,16 @@ export function filterHistoryByTimePeriod(period) {
     return historyToFilter.filter(entry => entry.timestamp >= startDate.getTime());
 }
 
+// Local-timezone YYYY-MM-DD key. toISOString() buckets by UTC, which puts
+// evening sessions on the wrong day relative to the local-midnight period
+// boundaries used by filterHistoryByTimePeriod.
+function localDateKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
 export function calculateTrendStats(period) {
     const filteredHistory = filterHistoryByTimePeriod(period);
 
@@ -243,10 +255,10 @@ export function calculateTrendStats(period) {
             // Group by week for year/all time
             const weekStart = new Date(date);
             weekStart.setDate(date.getDate() - date.getDay());
-            dateKey = weekStart.toISOString().split('T')[0];
+            dateKey = localDateKey(weekStart);
         } else {
             // Group by day for shorter periods
-            dateKey = date.toISOString().split('T')[0];
+            dateKey = localDateKey(date);
         }
 
         if (!byDate[dateKey]) {
@@ -260,7 +272,7 @@ export function calculateTrendStats(period) {
         const dayData = byDate[dateKey];
         const isCorrect = entry.status === 'correct';
         const difficulty = entry.id.charAt(0);
-        const meta = state.questionMetadata[entry.id];
+        const meta = getQuestionMeta(entry);
         const answerType = meta ? meta.answer_type : null;
 
         // Overall stats
@@ -382,9 +394,11 @@ export function createTrendChart(container, data, options = {}) {
             label.setAttribute('x', x);
             label.setAttribute('y', height - 5);
             label.setAttribute('class', 'trend-axis-label trend-x-label');
-            // Format date as MM/DD
-            const d = new Date(date);
-            label.textContent = `${d.getMonth() + 1}/${d.getDate()}`;
+            // Format date as MM/DD. Keys are local YYYY-MM-DD strings; parse
+            // the parts directly since `new Date('YYYY-MM-DD')` is UTC midnight
+            // and would shift the label back a day in western timezones.
+            const [, labelMonth, labelDay] = date.split('-').map(Number);
+            label.textContent = `${labelMonth}/${labelDay}`;
             svg.appendChild(label);
         }
     });

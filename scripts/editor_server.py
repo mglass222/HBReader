@@ -17,19 +17,32 @@ import http.server
 import socketserver
 import json
 import os
-from urllib.parse import urlparse
+import shutil
 from datetime import datetime
+from pathlib import Path
 
 # Configuration (must be specified via command line)
 DEFAULT_PORT = 8765
 PORT = DEFAULT_PORT
 QUESTIONS_FILE = None
 METADATA_FILE = None
+PROJECT_ROOT = None
+MAX_BODY_BYTES = 10 * 1024 * 1024  # 10 MB cap on save payloads
+
+
+def allowed_origins():
+    return {
+        f'http://localhost:{PORT}',
+        f'http://127.0.0.1:{PORT}',
+    }
+
 
 class EditorHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
-        # Add CORS headers for local development
-        self.send_header('Access-Control-Allow-Origin', '*')
+        # Restrict CORS to the local editor origin.
+        origin = self.headers.get('Origin')
+        if origin in allowed_origins():
+            self.send_header('Access-Control-Allow-Origin', origin)
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         super().end_headers()
@@ -44,10 +57,37 @@ class EditorHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_error(404, 'Not Found')
 
+    def reject_cross_origin_request(self):
+        """CSRF guard: CORS headers alone do not stop a cross-origin page from
+        executing a 'simple' POST against this server. Reject any browser
+        request whose Origin is not the local editor, and require the JSON
+        content type so no-preflight form/text submissions are refused.
+        Requests without an Origin header (curl, scripts) are allowed."""
+        origin = self.headers.get('Origin')
+        if origin is not None and origin not in allowed_origins():
+            self.send_error(403, 'Cross-origin requests are not allowed')
+            return True
+
+        content_type = (self.headers.get('Content-Type') or '').split(';')[0].strip().lower()
+        if content_type != 'application/json':
+            self.send_error(415, 'Content-Type must be application/json')
+            return True
+
+        return False
+
     def handle_save(self):
+        if self.reject_cross_origin_request():
+            return
+
         try:
-            # Read request body
-            content_length = int(self.headers['Content-Length'])
+            # Read request body (bounded)
+            content_length = int(self.headers.get('Content-Length') or 0)
+            if content_length <= 0:
+                self.send_error(400, 'Missing request body')
+                return
+            if content_length > MAX_BODY_BYTES:
+                self.send_error(413, 'Request body too large')
+                return
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode('utf-8'))
 
@@ -67,8 +107,14 @@ class EditorHandler(http.server.SimpleHTTPRequestHandler):
             with open(METADATA_FILE, 'r', encoding='utf-8') as f:
                 metadata = json.load(f)
 
-            # Backup before modifying
-            backup_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+            # Backup before modifying (microseconds avoid same-second collisions)
+            backup_time = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+            backup_dir = PROJECT_ROOT / 'backup'
+            backup_dir.mkdir(exist_ok=True)
+            questions_backup = backup_dir / f'{QUESTIONS_FILE.stem}_{backup_time}{QUESTIONS_FILE.suffix}'
+            metadata_backup = backup_dir / f'{METADATA_FILE.stem}_{backup_time}{METADATA_FILE.suffix}'
+            shutil.copy2(QUESTIONS_FILE, questions_backup)
+            shutil.copy2(METADATA_FILE, metadata_backup)
 
             # Find and update the question
             found = False
@@ -169,26 +215,45 @@ Examples:
     return parser.parse_args()
 
 
+def resolve_project_file(path):
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = PROJECT_ROOT / candidate
+    candidate = candidate.resolve()
+
+    try:
+        candidate.relative_to(PROJECT_ROOT)
+    except ValueError as exc:
+        raise ValueError(f'File must be inside project root: {path}') from exc
+
+    return candidate
+
+
 def main():
-    global PORT, QUESTIONS_FILE, METADATA_FILE
+    global PORT, QUESTIONS_FILE, METADATA_FILE, PROJECT_ROOT
 
     args = parse_args()
     PORT = args.port
-    QUESTIONS_FILE = args.questions
-    METADATA_FILE = args.metadata
 
     # Change to project root (parent of scripts/)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-    os.chdir(project_root)
+    PROJECT_ROOT = Path(os.path.dirname(script_dir)).resolve()
+    os.chdir(PROJECT_ROOT)
 
-    with socketserver.TCPServer(("", PORT), EditorHandler) as httpd:
+    try:
+        QUESTIONS_FILE = resolve_project_file(args.questions)
+        METADATA_FILE = resolve_project_file(args.metadata)
+    except ValueError as exc:
+        print(f'Error: {exc}')
+        return
+
+    with socketserver.TCPServer(("127.0.0.1", PORT), EditorHandler) as httpd:
         print(f"\n{'='*50}")
         print(f"  Question Database Editor Server")
         print(f"{'='*50}")
         print(f"\n  Questions file: {QUESTIONS_FILE}")
         print(f"  Metadata file:  {METADATA_FILE}")
-        print(f"\n  Open in browser: http://localhost:{PORT}/question_editor.html")
+        print(f"\n  Open in browser: http://127.0.0.1:{PORT}/question_editor.html")
         print(f"\n  Press Ctrl+C to stop the server")
         print(f"{'='*50}\n")
 

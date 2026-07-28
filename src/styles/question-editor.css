@@ -1,0 +1,396 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar - Question List */
+.sidebar {
+    width: 400px;
+    background: #16213e;
+    border-right: 1px solid #0f3460;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-section {
+    padding: 15px;
+    background: #0f3460;
+    border-bottom: 1px solid #1a1a2e;
+}
+
+.search-section h2 {
+    margin-bottom: 10px;
+    color: #e94560;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #1a1a2e;
+    color: #eee;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.search-input:focus {
+    outline: 2px solid #e94560;
+}
+
+.filter-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.filter-row select {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background: #1a1a2e;
+    color: #eee;
+    font-size: 12px;
+}
+
+.stats {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.question-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.question-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #0f3460;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.question-item:hover {
+    background: #0f3460;
+}
+
+.question-item.selected {
+    background: #e94560;
+}
+
+.question-item .id {
+    font-weight: bold;
+    color: #e94560;
+    font-size: 12px;
+}
+
+.question-item.selected .id {
+    color: #fff;
+}
+
+.question-item .preview {
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.question-item.selected .preview {
+    color: #eee;
+}
+
+.question-item .answer-preview {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.question-item.selected .answer-preview {
+    color: #ddd;
+}
+
+/* Main Editor */
+.editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-header {
+    padding: 15px 20px;
+    background: #0f3460;
+    border-bottom: 1px solid #1a1a2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editor-header h1 {
+    color: #e94560;
+    font-size: 18px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #e94560;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #ff6b6b;
+}
+
+.btn-secondary {
+    background: #16213e;
+    color: #eee;
+    border: 1px solid #0f3460;
+}
+
+.btn-secondary:hover {
+    background: #0f3460;
+}
+
+.btn-danger {
+    background: #c0392b;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #e74c3c;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.editor-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.no-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-size: 18px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #e94560;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #0f3460;
+    border-radius: 5px;
+    background: #16213e;
+    color: #eee;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #e94560;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.section-title {
+    font-size: 16px;
+    color: #e94560;
+    margin: 25px 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #0f3460;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checkbox-item:hover {
+    border-color: #e94560;
+}
+
+.checkbox-item.checked {
+    background: #e94560;
+    border-color: #e94560;
+    color: white;
+}
+
+.checkbox-item input {
+    display: none;
+}
+
+.checkbox-item span {
+    font-size: 13px;
+}
+
+.preview-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #16213e;
+    border-radius: 5px;
+    border: 1px solid #0f3460;
+}
+
+.preview-section h4 {
+    color: #e94560;
+    margin-bottom: 10px;
+}
+
+.preview-content {
+    line-height: 1.6;
+}
+
+.preview-content strong {
+    color: #ff6b6b;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+}
+
+.toast.success {
+    background: #27ae60;
+}
+
+.toast.error {
+    background: #c0392b;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.modified-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #f39c12;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.html-hint {
+    font-size: 11px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-text {
+    color: #e94560;
+    font-size: 24px;
+}
+
+.hidden {
+    display: none !important;
+}

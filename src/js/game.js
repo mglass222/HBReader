@@ -3,6 +3,8 @@ import { state } from './state.js';
 import { getFilteredQuestions, updateFilterDisplay } from './filters.js';
 import { updateStats, updateDifficultyDisplay } from './questions.js';
 import { updateBuzzerVisibility } from './settings.js';
+import { appendSanitizedHtml } from './rendering.js';
+import { isAnswerCorrect } from './answerChecker.js';
 
 // Forward declarations
 export const deps = {
@@ -14,7 +16,10 @@ export const deps = {
 let buzzCharIndex = null;
 
 function getQuestionWithBuzzMarker() {
-    if (buzzCharIndex === null || !state.currentQuestion) {
+    if (!state.currentQuestion) {
+        return '';
+    }
+    if (buzzCharIndex === null) {
         return state.currentQuestion.question;
     }
     const question = state.currentQuestion.question;
@@ -38,7 +43,7 @@ export function getRandomQuestion() {
     return categoryQuestions[randomIndex];
 }
 
-export function streamText(text, targetElement, callback) {
+export function streamText(text, targetElement, callback, resume = false) {
     if (state.streamingInterval) {
         clearInterval(state.streamingInterval);
         state.streamingInterval = null;
@@ -46,8 +51,12 @@ export function streamText(text, targetElement, callback) {
 
     removeCursor(targetElement);
 
-    let displayText = '';
-    state.currentCharIndex = 0;
+    // When resuming, keep what is already on screen and continue from
+    // state.currentCharIndex instead of starting over.
+    let displayText = resume ? targetElement.innerHTML : '';
+    if (!resume) {
+        state.currentCharIndex = 0;
+    }
     let lastCharTime = Date.now();
 
     function addNextChar() {
@@ -143,7 +152,9 @@ export function displayQuestion() {
 }
 
 export function showAnswerInput() {
-    if (state.answerInputShown) return;
+    // Only allow buzzing while a question is being read - prevents re-opening
+    // the answer input after the answer is revealed (XP re-award exploit).
+    if (state.answerInputShown || state.currentSection !== 'question' || !state.currentQuestion) return;
 
     state.answerInputShown = true;
     state.isPaused = true;
@@ -159,6 +170,11 @@ export function showAnswerInput() {
         buzzCharIndex = null;
     }
 
+    // Hide Pause while the answer input is up - otherwise pausing would cancel
+    // the buzz and resume the stream, letting the player hear more of the
+    // question and re-buzz.
+    document.getElementById('pauseButton').classList.add('hidden');
+
     updateBuzzerVisibility();
 
     const questionDisplay = document.querySelector('.question-display');
@@ -166,7 +182,7 @@ export function showAnswerInput() {
     inputSection.className = 'answer-input-section';
     inputSection.id = 'answerInputSection';
     inputSection.innerHTML = `
-        <input type="text" id="userAnswer" placeholder="Enter your answer..." autofocus>
+        <input type="text" id="userAnswer" placeholder="Enter your answer..." aria-label="Your answer" autofocus>
         <div class="answer-input-buttons">
             <button class="btn-primary" onclick="checkAnswer()">Submit</button>
         </div>
@@ -182,82 +198,21 @@ export function showAnswerInput() {
     });
 }
 
-function levenshteinDistance(a, b) {
-    if (a.length === 0) return b.length;
-    if (b.length === 0) return a.length;
+function createQuestionTypeTag(questionType) {
+    if (!questionType) return null;
 
-    const matrix = [];
-    for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-    }
-    for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1,
-                    matrix[i][j - 1] + 1,
-                    matrix[i - 1][j] + 1
-                );
-            }
-        }
-    }
-    return matrix[b.length][a.length];
-}
-
-function calculateSimilarity(a, b) {
-    if (a === b) return 1;
-    if (a.length === 0 || b.length === 0) return 0;
-    const distance = levenshteinDistance(a, b);
-    return 1 - (distance / Math.max(a.length, b.length));
-}
-
-function extractAcceptableAnswers(answerField) {
-    const answers = [];
-    let text = answerField;
-
-    const strongMatches = text.match(/<strong>([^<]+)<\/strong>/gi) || [];
-    strongMatches.forEach(match => {
-        const content = match.replace(/<\/?strong>/gi, '').trim();
-        if (content && content.length > 1) {
-            answers.push(content);
-        }
-    });
-
-    const acceptMatches = text.match(/accept\s+([^;)]+)/gi) || [];
-    acceptMatches.forEach(match => {
-        let content = match.replace(/^accept\s+/i, '').trim();
-        content = content.replace(/<[^>]*>/g, '').trim();
-        if (content && content.length > 1) {
-            answers.push(content);
-        }
-    });
-
-    const primaryPart = text.split(/\(/)[0];
-    const primaryClean = primaryPart.replace(/<[^>]*>/g, '').trim();
-    if (primaryClean && primaryClean.length > 1) {
-        answers.push(primaryClean);
-    }
-
-    return [...new Set(answers)];
-}
-
-function normalizeAnswer(answer) {
-    let normalized = answer.replace(/<[^>]*>/g, '');
-    normalized = normalized.toLowerCase()
-        .replace(/\b(the|a|an|of|or|and|in|on|at|to)\b/g, '')
-        .replace(/[^\w\s]/g, '')
-        .trim()
-        .replace(/\s+/g, ' ');
-    return normalized;
+    const wrapper = document.createElement('div');
+    const tag = document.createElement('span');
+    tag.className = 'question-type-tag';
+    tag.textContent = questionType;
+    wrapper.appendChild(tag);
+    return wrapper;
 }
 
 export function checkAnswer() {
+    // Guard against double-submits and submits after the answer is revealed
+    if (!state.currentQuestion || state.currentSection !== 'question' || !state.answerInputShown) return;
+
     const userAnswer = document.getElementById('userAnswer').value.trim();
     if (!userAnswer) {
         alert('Please enter an answer!');
@@ -266,44 +221,7 @@ export function checkAnswer() {
 
     const correctAnswer = state.currentQuestion.answer;
     const tolerance = parseInt(localStorage.getItem('answerTolerance') || '80') / 100;
-
-    const acceptableAnswers = extractAcceptableAnswers(correctAnswer);
-    const normalizedUser = normalizeAnswer(userAnswer);
-
-    let isCorrect = false;
-    for (const acceptable of acceptableAnswers) {
-        const normalizedAcceptable = normalizeAnswer(acceptable);
-
-        if (normalizedUser === normalizedAcceptable) {
-            isCorrect = true;
-            break;
-        }
-
-        if (normalizedAcceptable.includes(normalizedUser) ||
-            normalizedUser.includes(normalizedAcceptable)) {
-            isCorrect = true;
-            break;
-        }
-
-        const similarity = calculateSimilarity(normalizedUser, normalizedAcceptable);
-        if (similarity >= tolerance) {
-            isCorrect = true;
-            break;
-        }
-    }
-
-    if (!isCorrect) {
-        const normalizedCorrect = normalizeAnswer(correctAnswer);
-        if (normalizedCorrect.includes(normalizedUser) ||
-            normalizedUser.includes(normalizedCorrect) ||
-            normalizedUser === normalizedCorrect) {
-            isCorrect = true;
-        }
-        const similarity = calculateSimilarity(normalizedUser, normalizedCorrect);
-        if (similarity >= tolerance) {
-            isCorrect = true;
-        }
-    }
+    const isCorrect = isAnswerCorrect(userAnswer, correctAnswer, tolerance);
 
     if (deps.addToHistory) {
         deps.addToHistory(state.currentQuestion, isCorrect ? 'correct' : 'incorrect');
@@ -322,25 +240,30 @@ export function checkAnswer() {
     document.getElementById('pauseButton').classList.add('hidden');
 
     const answerText = document.getElementById('answerText');
-    const indicator = isCorrect
-        ? '<span class="correct" style="font-size: 1.3em;">✓</span>'
-        : '<span class="incorrect" style="font-size: 1.3em;">✗</span>';
+    const indicator = document.createElement('span');
+    indicator.className = isCorrect ? 'correct' : 'incorrect';
+    indicator.style.fontSize = '1.3em';
+    indicator.textContent = isCorrect ? '✓' : '✗';
 
     const meta = state.questionMetadata[state.currentQuestion.id];
     const questionType = meta ? meta.answer_type : null;
-    const questionTypeTag = questionType
-        ? `<div><span class="question-type-tag">${questionType}</span></div>`
-        : '';
+    const yourAnswer = document.createElement('div');
+    yourAnswer.style.marginBottom = '15px';
+    const yourAnswerLabel = document.createElement('strong');
+    yourAnswerLabel.textContent = 'Your Answer:';
+    yourAnswer.append(yourAnswerLabel, ` ${userAnswer} `, indicator);
 
-    answerText.innerHTML = `
-        <div style="margin-bottom: 15px;">
-            <strong>Your Answer:</strong> ${userAnswer} ${indicator}
-        </div>
-        <div>
-            <strong>Correct Answer:</strong> ${correctAnswer}
-        </div>
-        ${questionTypeTag}
-    `;
+    const correctAnswerDisplay = document.createElement('div');
+    const correctAnswerLabel = document.createElement('strong');
+    correctAnswerLabel.textContent = 'Correct Answer:';
+    correctAnswerDisplay.append(correctAnswerLabel, ' ');
+    appendSanitizedHtml(correctAnswerDisplay, correctAnswer);
+
+    answerText.replaceChildren(yourAnswer, correctAnswerDisplay);
+    const questionTypeTag = createQuestionTypeTag(questionType);
+    if (questionTypeTag) {
+        answerText.appendChild(questionTypeTag);
+    }
 
     state.currentSection = 'answer';
     state.answerInputShown = false;
@@ -357,58 +280,23 @@ export function resumeQuestion() {
 
     updateBuzzerVisibility();
 
-    if (state.streamingInterval) {
-        clearInterval(state.streamingInterval);
-        state.streamingInterval = null;
-    }
+    const questionText = document.getElementById('questionText');
+    removeCursor(questionText);
 
-    const targetElement = document.getElementById('questionText');
-    const text = state.currentQuestion.question;
+    // Drop any buzz marker left from a cancelled buzz before resuming
+    questionText.innerHTML = questionText.innerHTML.replace(/<span class="buzz-marker">\(#\)<\/span>/g, '');
+    buzzCharIndex = null;
 
-    removeCursor(targetElement);
-    let displayText = targetElement.innerHTML;
-    let lastCharTime = Date.now();
-
-    function addNextChar() {
-        if (state.isPaused) return;
-
-        const currentSpeed = 110 - parseInt(document.getElementById('speed').value);
-        const now = Date.now();
-
-        if (now - lastCharTime < currentSpeed) {
-            return;
-        }
-
-        lastCharTime = now;
-
-        if (state.currentCharIndex >= text.length) {
-            clearInterval(state.streamingInterval);
-            targetElement.innerHTML = displayText;
-            document.getElementById('pauseButton').classList.add('hidden');
-            updateBuzzerVisibility();
-            return;
-        }
-
-        const char = text[state.currentCharIndex];
-
-        if (char === '<') {
-            let tagEnd = text.indexOf('>', state.currentCharIndex);
-            if (tagEnd !== -1) {
-                displayText += text.substring(state.currentCharIndex, tagEnd + 1);
-                state.currentCharIndex = tagEnd + 1;
-            } else {
-                displayText += char;
-                state.currentCharIndex++;
+    streamText(
+        state.currentQuestion.question,
+        questionText,
+        () => {
+            if (!state.answerInputShown) {
+                showAnswerInput();
             }
-        } else {
-            displayText += char;
-            state.currentCharIndex++;
-        }
-
-        targetElement.innerHTML = displayText + '<span class="cursor"></span>';
-    }
-
-    state.streamingInterval = setInterval(addNextChar, 10);
+        },
+        true
+    );
 }
 
 export function revealAnswer() {
@@ -437,22 +325,14 @@ export function showAnswer() {
 
     const meta = state.questionMetadata[state.currentQuestion.id];
     const questionType = meta ? meta.answer_type : null;
-    const questionTypeTag = questionType
-        ? `<div><span class="question-type-tag">${questionType}</span></div>`
-        : '';
-
-    document.getElementById('answerText').innerHTML = state.currentQuestion.answer + questionTypeTag;
+    const answerText = document.getElementById('answerText');
+    answerText.replaceChildren();
+    appendSanitizedHtml(answerText, state.currentQuestion.answer);
+    const questionTypeTag = createQuestionTypeTag(questionType);
+    if (questionTypeTag) {
+        answerText.appendChild(questionTypeTag);
+    }
     updateBuzzerVisibility();
-}
-
-export function closeModal() {
-    document.getElementById('feedbackModal').style.display = 'none';
-    document.getElementById('userAnswer')?.focus();
-}
-
-export function nextQuestionFromModal() {
-    closeModal();
-    displayQuestion();
 }
 
 export function handleStart() {
@@ -467,7 +347,9 @@ export function handleNext() {
 }
 
 export function handlePauseResume() {
-    if (!state.currentQuestion) return;
+    // No pause while the answer input is shown: resuming would cancel the buzz
+    // (resumeQuestion removes the input) and reveal more of the question.
+    if (!state.currentQuestion || state.currentSection !== 'question' || state.answerInputShown) return;
 
     state.isPaused = !state.isPaused;
     const button = document.getElementById('pauseButton');
@@ -485,6 +367,7 @@ export function initGameEventListeners() {
     // Spacebar to buzz in
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' && state.currentQuestion && !state.answerInputShown &&
+            state.currentSection === 'question' &&
             e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
             e.preventDefault();
             showAnswerInput();
@@ -536,11 +419,4 @@ export function initGameEventListeners() {
         }
     });
 
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('feedbackModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    };
 }

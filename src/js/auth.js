@@ -7,6 +7,7 @@ export const deps = {
     updateHistoryDisplay: null,
     updateStats: null,
     loadUserProfile: null,
+    updateProfileUI: null,
     loadUserHistory: null,
     refreshDashboard: null,
     loadProfile: null,
@@ -20,7 +21,15 @@ export const deps = {
 
 export function showAuthModal() {
     document.getElementById('authModal').classList.add('show');
+    document.getElementById('loginEmail')?.focus();
 }
+
+// Escape closes the auth modal
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && document.getElementById('authModal')?.classList.contains('show')) {
+        closeAuthModal();
+    }
+});
 
 export function closeAuthModal() {
     document.getElementById('authModal').classList.remove('show');
@@ -76,6 +85,36 @@ export function getAuthErrorMessage(errorCode) {
         'auth/operation-not-supported-in-this-environment': 'This operation is not supported in this environment'
     };
     return errorMessages[errorCode] || `An error occurred (${errorCode || 'unknown'}). Please try again.`;
+}
+
+function renderLoginButton(container) {
+    const button = document.createElement('button');
+    button.className = 'btn-login';
+    button.textContent = 'Login / Sign Up';
+    button.addEventListener('click', showAuthModal);
+    container.replaceChildren(button);
+}
+
+function renderVerifiedUser(container, user) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'user-profile';
+
+    const levelBadge = document.createElement('span');
+    levelBadge.id = 'headerLevelBadge';
+    levelBadge.style.display = 'none';
+
+    const displayName = document.createElement('span');
+    displayName.className = 'user-display-name';
+    displayName.id = 'headerDisplayName';
+    displayName.textContent = user.email;
+
+    const logoutButton = document.createElement('button');
+    logoutButton.className = 'btn-logout';
+    logoutButton.textContent = 'Logout';
+    logoutButton.addEventListener('click', handleLogout);
+
+    wrapper.append(levelBadge, displayName, logoutButton);
+    container.replaceChildren(wrapper);
 }
 
 export async function handleLogin(event) {
@@ -163,6 +202,7 @@ export async function handleLogout() {
         await signOut(window.firebaseAuth);
         state.questionHistory = [];
         state.sessionHistory = [];
+        state.historyLoaded = false;
         if (deps.updateHistoryDisplay) deps.updateHistoryDisplay();
         state.questionsPracticed = 0;
         if (deps.updateStats) deps.updateStats();
@@ -181,13 +221,7 @@ export async function updateUserUI(user) {
         state.currentUser = user;
 
         if (user.emailVerified) {
-            userAuthDiv.innerHTML = `
-                <div class="user-profile">
-                    <span id="headerLevelBadge" style="display: none;"></span>
-                    <span class="user-display-name" id="headerDisplayName">${user.email}</span>
-                    <button class="btn-logout" onclick="handleLogout()">Logout</button>
-                </div>
-            `;
+            renderVerifiedUser(userAuthDiv, user);
             navTabs.classList.add('show');
             verificationBanner.classList.remove('show');
 
@@ -236,9 +270,7 @@ export async function updateUserUI(user) {
                 if (deps.renderHistoryTable) deps.renderHistoryTable(state.questionHistory);
             }
         } else {
-            userAuthDiv.innerHTML = `
-                <button class="btn-login" onclick="showAuthModal()">Login / Sign Up</button>
-            `;
+            renderLoginButton(userAuthDiv);
             navTabs.classList.add('show');
             verificationBanner.classList.add('show');
             if (window.location.hash === '#dashboard' && deps.navigateTo) {
@@ -247,9 +279,10 @@ export async function updateUserUI(user) {
         }
     } else {
         state.currentUser = null;
-        userAuthDiv.innerHTML = `
-            <button class="btn-login" onclick="showAuthModal()">Login / Sign Up</button>
-        `;
+        // Clear the signed-out user's profile so no stale XP/rank UI remains
+        state.userProfile = null;
+        if (deps.updateProfileUI) deps.updateProfileUI();
+        renderLoginButton(userAuthDiv);
         navTabs.classList.add('show');
         verificationBanner.classList.remove('show');
         if (window.location.hash === '#dashboard' && deps.navigateTo) {
@@ -289,13 +322,17 @@ export async function checkVerificationStatus() {
             }
             updateUserUI(state.currentUser);
         } else {
-            alert('Please verify your email to save progress');
-            await handleLogout();
+            alert('Your email is still unverified. Click the link in the verification email, then press "I\'ve Verified" again.');
         }
     } catch (error) {
         console.error('Error checking verification status:', error);
         alert('Error checking verification status. Please try again.');
     }
+}
+
+export function dismissVerificationBanner() {
+    const banner = document.getElementById('verificationBanner');
+    if (banner) banner.classList.remove('show');
 }
 
 export function initAuthListener() {

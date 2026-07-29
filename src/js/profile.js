@@ -9,44 +9,60 @@ import {
     showLevelUpNotification,
     updateXPDisplay
 } from './xpSystem.js';
-import { calculatePoints, getLeaderboardPath, loadLeaderboard } from './leaderboard.js';
+import { calculatePoints, getLeaderboardPath } from './leaderboard.js';
+import { showToast, showXPGain } from './ui.js';
+
+function getDefaultProfile() {
+    return {
+        username: null,
+        firstName: null,
+        lastName: null,
+        state: null,
+        school: null,
+        totalPoints: 0,
+        questionsAnswered: 0,
+        currentStreak: 0,
+        bestStreak: 0,
+        createdAt: Date.now()
+    };
+}
+
+// Document ID is the raw lowercased email so Firestore rules can verify
+// it matches request.auth.token.email (prevents recovery-doc squatting).
+function getRecoveryDocumentId(email) {
+    return email.toLowerCase();
+}
+
+// Older recovery docs were stored under the URI-encoded email
+function getLegacyRecoveryDocumentId(email) {
+    return encodeURIComponent(email.toLowerCase());
+}
 
 // Username Management
 export async function loadUserProfile() {
     if (!state.currentUser || !state.currentUser.emailVerified) return;
 
     try {
-        const { doc, getDoc } = window.firebaseDbFunctions;
+        const { doc, getDoc, setDoc } = window.firebaseDbFunctions;
         const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
         const profileDoc = await getDoc(profileDocRef);
 
         if (profileDoc.exists()) {
             state.userProfile = profileDoc.data();
         } else {
-            // Create empty default profile
-            state.userProfile = {
-                username: null,
-                firstName: null,
-                lastName: null,
-                state: null,
-                school: null,
-                totalPoints: 0,
-                questionsAnswered: 0,
-                currentStreak: 0,
-                bestStreak: 0,
-                createdAt: Date.now()
-            };
+            state.userProfile = getDefaultProfile();
+            await setDoc(profileDocRef, state.userProfile, { merge: true });
         }
 
         // Update UI with profile info
         updateProfileUI();
     } catch (error) {
         console.error('Error loading profile:', error);
+        showToast('Could not load your profile. XP earned now may not be saved - try reloading.', 'error', 8000);
     }
 }
 
 export function updateProfileUI() {
-    const accountSettings = document.getElementById('accountSettings');
     const pointsDisplay = document.getElementById('pointsDisplay');
     const pointsText = document.getElementById('pointsText');
 
@@ -55,7 +71,6 @@ export function updateProfileUI() {
     const headerDisplayName = document.getElementById('headerDisplayName');
 
     if (state.userProfile) {
-        if (accountSettings) accountSettings.style.display = 'block';
         if (pointsDisplay) pointsDisplay.style.display = 'block';
         if (pointsText) pointsText.textContent = state.userProfile.totalPoints || 0;
 
@@ -84,32 +99,16 @@ export function updateProfileUI() {
             rankDisplay.innerHTML = renderLevelBadge(xp, true);
         }
     } else {
-        if (accountSettings) accountSettings.style.display = 'none';
         if (pointsDisplay) pointsDisplay.style.display = 'none';
         if (headerLevelBadge) {
             headerLevelBadge.style.display = 'none';
         }
+        const xpDisplayContainer = document.getElementById('xpDisplayContainer');
+        if (xpDisplayContainer) xpDisplayContainer.replaceChildren();
     }
 
     // Check if we should show profile warning
     checkAndShowProfileWarning();
-}
-
-export async function promptForUsername() {
-    const username = prompt('Welcome! Please choose a username for the leaderboard (3-20 characters, alphanumeric and underscores only):');
-
-    if (!username) {
-        setTimeout(promptForUsername, 2000);
-        return;
-    }
-
-    if (!isValidUsername(username)) {
-        alert('Invalid username. Please use 3-20 characters, alphanumeric and underscores only.');
-        setTimeout(promptForUsername, 1000);
-        return;
-    }
-
-    await saveUsername(username);
 }
 
 export function isValidUsername(username) {
@@ -123,16 +122,20 @@ export async function saveUsername(username) {
         const { doc, setDoc } = window.firebaseDbFunctions;
         const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
 
-        state.userProfile = {
+        // Write only identity fields. Counters (totalPoints, questionsAnswered,
+        // streaks) are updated via increment() elsewhere; spreading the whole
+        // in-memory profile here would clobber XP earned in another tab/device.
+        const profileUpdate = {
             username: username,
-            firstName: null,
-            lastName: null,
-            totalPoints: 0,
-            questionsAnswered: 0,
-            createdAt: Date.now()
+            createdAt: state.userProfile?.createdAt || Date.now()
         };
 
-        await setDoc(profileDocRef, state.userProfile);
+        state.userProfile = {
+            ...(state.userProfile || getDefaultProfile()),
+            ...profileUpdate
+        };
+
+        await setDoc(profileDocRef, profileUpdate, { merge: true });
         updateProfileUI();
         alert('Username saved successfully!');
     } catch (error) {
@@ -163,90 +166,80 @@ export async function changeUsername() {
 export async function updatePointsAndLeaderboard(difficulty, isCorrect) {
     if (!state.currentUser || !state.currentUser.emailVerified || !state.userProfile) return;
 
-    // Track streak regardless of correct/incorrect
     const previousLevel = getLevelFromXP(state.userProfile.totalPoints || 0);
 
+    // Track streak regardless of correct/incorrect
     if (isCorrect) {
-        // Increment streak
         state.userProfile.currentStreak = (state.userProfile.currentStreak || 0) + 1;
         state.userProfile.bestStreak = Math.max(state.userProfile.bestStreak || 0, state.userProfile.currentStreak);
     } else {
-        // Reset streak on incorrect/skip
         state.userProfile.currentStreak = 0;
     }
 
-    if (!isCorrect) {
-        // Update streak in database even for incorrect answers
-        try {
-            const { doc, updateDoc } = window.firebaseDbFunctions;
-            const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
-            await updateDoc(profileDocRef, {
-                currentStreak: state.userProfile.currentStreak,
-                bestStreak: state.userProfile.bestStreak
-            });
-        } catch (error) {
-            console.error('Error updating streak:', error);
-        }
-        updateProfileUI();
-        return;
-    }
-
-    // Calculate XP with streak multiplier (only if tolerance >= 80%)
+    // XP is only earned at >= 80% answer tolerance
     const currentTolerance = parseInt(localStorage.getItem('answerTolerance') || '80');
-    if (currentTolerance < 80) {
-        // No XP earned when tolerance is below 80%
-        updateProfileUI();
-        return;
-    }
-
-    const xpEarned = calculatePoints(difficulty);
-    if (xpEarned === 0) return;
+    const xpEarned = (isCorrect && currentTolerance >= 80) ? calculatePoints(difficulty) : 0;
 
     try {
         const { doc, setDoc, updateDoc, increment } = window.firebaseDbFunctions;
 
-        // Update user profile
+        // Persist streaks on every answer; add XP counters when earned
         const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
-        await updateDoc(profileDocRef, {
-            totalPoints: increment(xpEarned),
-            questionsAnswered: increment(1)
-        });
+        const profileUpdate = {
+            currentStreak: state.userProfile.currentStreak,
+            bestStreak: state.userProfile.bestStreak
+        };
+        if (xpEarned > 0) {
+            profileUpdate.totalPoints = increment(xpEarned);
+            profileUpdate.questionsAnswered = increment(1);
+        }
+        await updateDoc(profileDocRef, profileUpdate);
 
-        // Update state.userProfile in memory
-        state.userProfile.totalPoints = (state.userProfile.totalPoints || 0) + xpEarned;
-        state.userProfile.questionsAnswered = (state.userProfile.questionsAnswered || 0) + 1;
+        if (xpEarned > 0) {
+            state.userProfile.totalPoints = (state.userProfile.totalPoints || 0) + xpEarned;
+            state.userProfile.questionsAnswered = (state.userProfile.questionsAnswered || 0) + 1;
 
-        // Check for level up
-        const newLevel = getLevelFromXP(state.userProfile.totalPoints);
-        if (newLevel > previousLevel) {
-            showLevelUpNotification(newLevel);
+            const newLevel = getLevelFromXP(state.userProfile.totalPoints);
+            if (newLevel > previousLevel) {
+                showLevelUpNotification(newLevel);
+            }
+            showXPGain(xpEarned);
         }
 
-        // Update UI
         updateProfileUI();
 
-        // Only update leaderboards if user has a username
-        if (state.userProfile.username) {
+        // Only update leaderboards if user has a username and earned XP
+        if (xpEarned > 0 && state.userProfile.username) {
             const levelInfo = calculateLevelProgress(state.userProfile.totalPoints);
+            const commonFields = {
+                username: state.userProfile.username,
+                level: levelInfo.level,
+                tier: levelInfo.tier.name,
+                lastUpdated: Date.now()
+            };
 
-            // Update all leaderboards
-            const periods = ['allTime', 'monthly', 'weekly', 'daily'];
-            for (const period of periods) {
+            // All-time board holds lifetime totals
+            const allTimeRef = doc(window.firebaseDb, 'leaderboards', getLeaderboardPath('allTime'), 'rankings', state.currentUser.uid);
+            await setDoc(allTimeRef, {
+                ...commonFields,
+                points: state.userProfile.totalPoints,
+                questionsAnswered: state.userProfile.questionsAnswered
+            }, { merge: true });
+
+            // Period boards accumulate only XP earned within the period
+            for (const period of ['monthly', 'weekly', 'daily']) {
                 const path = getLeaderboardPath(period);
                 const leaderboardDocRef = doc(window.firebaseDb, 'leaderboards', path, 'rankings', state.currentUser.uid);
-
                 await setDoc(leaderboardDocRef, {
-                    username: state.userProfile.username,
-                    points: state.userProfile.totalPoints,
-                    questionsAnswered: state.userProfile.questionsAnswered,
-                    level: levelInfo.level,
-                    tier: levelInfo.tier.name,
-                    lastUpdated: Date.now()
+                    ...commonFields,
+                    points: increment(xpEarned),
+                    questionsAnswered: increment(1)
                 }, { merge: true });
             }
         }
     } catch (error) {
         console.error('Error updating points:', error);
+        showToast('Could not save your XP - check your connection.', 'error');
     }
 }
 
@@ -357,10 +350,11 @@ export async function deleteAccount() {
     }
 
     try {
-        const { doc, deleteDoc, updateDoc } = window.firebaseDbFunctions;
+        const { doc, deleteDoc, setDoc } = window.firebaseDbFunctions;
         const { deleteUser } = window.firebaseAuthFunctions;
         const userId = state.currentUser.uid;
         const userEmail = state.currentUser.email;
+        const recoveryDocId = getRecoveryDocumentId(userEmail);
 
         // Show loading state
         const deleteBtn = document.querySelector('.btn-danger');
@@ -371,23 +365,24 @@ export async function deleteAccount() {
 
         // 1. Mark profile as orphaned (account deleted) but preserve data
         const profileDocRef = doc(window.firebaseDb, 'users', userId, 'profile', 'data');
-        await updateDoc(profileDocRef, {
+        await setDoc(profileDocRef, {
             accountDeleted: true,
             deletedAt: Date.now(),
-            recoveryEmail: userEmail.toLowerCase()
+            recoveryEmail: userEmail,
+            recoveryEmailNormalized: userEmail.toLowerCase()
+        }, { merge: true });
+
+        const recoveryDocRef = doc(window.firebaseDb, 'accountRecovery', recoveryDocId);
+        await setDoc(recoveryDocRef, {
+            oldUserId: userId,
+            recoveryEmail: userEmail,
+            recoveryEmailNormalized: userEmail.toLowerCase(),
+            createdAt: Date.now()
         });
 
-        // 2. Delete leaderboard entries (all periods)
-        const leaderboardPeriods = ['allTime'];
-
-        // Add current monthly, weekly, daily periods
-        const now = new Date();
-        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        const week = Math.ceil((now.getDate() + 6 - now.getDay()) / 7);
-        const weekKey = `${now.getFullYear()}-W${String(week).padStart(2, '0')}`;
-        const dayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-        leaderboardPeriods.push(`monthly-${monthKey}`, `weekly-${weekKey}`, `daily-${dayKey}`);
+        // 2. Delete leaderboard entries (all current periods)
+        const leaderboardPeriods = ['allTime', 'monthly', 'weekly', 'daily']
+            .map(period => getLeaderboardPath(period));
 
         for (const period of leaderboardPeriods) {
             try {
@@ -438,29 +433,34 @@ export async function checkForRecoverableAccount(email) {
     if (!email) return null;
 
     try {
-        const { collection, query, where, getDocs } = window.firebaseDbFunctions;
+        const { doc, getDoc } = window.firebaseDbFunctions;
+        let recoveryDoc = await getDoc(doc(window.firebaseDb, 'accountRecovery', getRecoveryDocumentId(email)));
 
-        // Search for orphaned profiles with matching recovery email
-        const usersRef = collection(window.firebaseDb, 'users');
-        const usersSnapshot = await getDocs(usersRef);
-
-        for (const userDoc of usersSnapshot.docs) {
-            const profileRef = collection(window.firebaseDb, 'users', userDoc.id, 'profile');
-            const profileSnapshot = await getDocs(profileRef);
-
-            for (const profileDoc of profileSnapshot.docs) {
-                const profileData = profileDoc.data();
-                if (profileData.accountDeleted &&
-                    profileData.recoveryEmail === email.toLowerCase()) {
-                    return {
-                        oldUserId: userDoc.id,
-                        profileData: profileData
-                    };
-                }
-            }
+        // Fall back to the legacy URI-encoded document ID
+        if (!recoveryDoc.exists()) {
+            recoveryDoc = await getDoc(doc(window.firebaseDb, 'accountRecovery', getLegacyRecoveryDocumentId(email)));
         }
 
-        return null;
+        if (!recoveryDoc.exists()) {
+            return null;
+        }
+
+        const recoveryData = recoveryDoc.data();
+        const oldUserId = recoveryData.oldUserId;
+        if (!oldUserId) {
+            return null;
+        }
+
+        const profileRef = doc(window.firebaseDb, 'users', oldUserId, 'profile', 'data');
+        const profileDoc = await getDoc(profileRef);
+        if (!profileDoc.exists()) {
+            return null;
+        }
+
+        return {
+            oldUserId,
+            profileData: profileDoc.data()
+        };
     } catch (error) {
         console.error('Error checking for recoverable account:', error);
         return null;
@@ -471,6 +471,8 @@ export async function checkForRecoverableAccount(email) {
 export async function recoverAccountData(oldUserId, newUserId) {
     try {
         const { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } = window.firebaseDbFunctions;
+        const recoveryDocRef = doc(window.firebaseDb, 'accountRecovery', getRecoveryDocumentId(state.currentUser.email));
+        const legacyRecoveryDocRef = doc(window.firebaseDb, 'accountRecovery', getLegacyRecoveryDocumentId(state.currentUser.email));
 
         // 1. Get old profile data
         const oldProfileRef = doc(window.firebaseDb, 'users', oldUserId, 'profile', 'data');
@@ -498,25 +500,45 @@ export async function recoverAccountData(oldUserId, newUserId) {
         const historySnapshot = await getDocs(oldHistoryRef);
 
         if (!historySnapshot.empty) {
-            const batch = writeBatch(window.firebaseDb);
-
-            historySnapshot.forEach((historyDoc) => {
+            let copyBatch = writeBatch(window.firebaseDb);
+            let copyCount = 0;
+            for (const historyDoc of historySnapshot.docs) {
                 const newHistoryDocRef = doc(window.firebaseDb, 'users', newUserId, 'history', historyDoc.id);
-                batch.set(newHistoryDocRef, historyDoc.data());
-            });
+                copyBatch.set(newHistoryDocRef, historyDoc.data());
+                copyCount++;
 
-            await batch.commit();
+                if (copyCount === 450) {
+                    await copyBatch.commit();
+                    copyBatch = writeBatch(window.firebaseDb);
+                    copyCount = 0;
+                }
+            }
+            if (copyCount > 0) {
+                await copyBatch.commit();
+            }
 
             // Delete old history documents
-            const deleteBatch = writeBatch(window.firebaseDb);
-            historySnapshot.forEach((historyDoc) => {
+            let deleteBatch = writeBatch(window.firebaseDb);
+            let deleteCount = 0;
+            for (const historyDoc of historySnapshot.docs) {
                 deleteBatch.delete(historyDoc.ref);
-            });
-            await deleteBatch.commit();
+                deleteCount++;
+
+                if (deleteCount === 450) {
+                    await deleteBatch.commit();
+                    deleteBatch = writeBatch(window.firebaseDb);
+                    deleteCount = 0;
+                }
+            }
+            if (deleteCount > 0) {
+                await deleteBatch.commit();
+            }
         }
 
-        // 4. Delete old profile
+        // 4. Delete old profile and recovery markers (legacy ID may not exist)
         await deleteDoc(oldProfileRef);
+        await deleteDoc(recoveryDocRef).catch(() => {});
+        await deleteDoc(legacyRecoveryDocRef).catch(() => {});
 
         // 5. Update state with recovered profile
         state.userProfile = newProfileData;
@@ -550,21 +572,24 @@ export async function saveProfile() {
         const { doc, setDoc } = window.firebaseDbFunctions;
         const profileDocRef = doc(window.firebaseDb, 'users', state.currentUser.uid, 'profile', 'data');
 
-        // Update state.userProfile object
-        state.userProfile = {
+        // Write only the identity fields. Counters (totalPoints etc.) are
+        // updated via increment() elsewhere; writing them from memory here
+        // would clobber XP earned from another tab or device.
+        const profileUpdate = {
             username: username || null,
             firstName: firstName || null,
             lastName: lastName || null,
             state: profileState || null,
             school: school || null,
-            totalPoints: state.userProfile?.totalPoints || 0,
-            questionsAnswered: state.userProfile?.questionsAnswered || 0,
-            currentStreak: state.userProfile?.currentStreak || 0,
-            bestStreak: state.userProfile?.bestStreak || 0,
             createdAt: state.userProfile?.createdAt || Date.now()
         };
 
-        await setDoc(profileDocRef, state.userProfile);
+        state.userProfile = {
+            ...(state.userProfile || getDefaultProfile()),
+            ...profileUpdate
+        };
+
+        await setDoc(profileDocRef, profileUpdate, { merge: true });
         updateProfileUI();
         alert('Profile saved successfully!');
     } catch (error) {

@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <!-- Caching is controlled via hosting headers (firebase.json):
+         HTML no-cache, JS/CSS 1h, question assets 24h -->
     <title>HBReader</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
@@ -14,6 +13,7 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, where, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyADQMMGw1DXiUiNPBqnMcJh6iNdSrOZpTE",
@@ -30,13 +30,15 @@
         window.firebaseDb = getFirestore(app);
         window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser };
         window.firebaseDbFunctions = { doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, where, limit };
+        window.firebaseFunctions = getFunctions(app);
+        window.firebaseFunctionsFunctions = { httpsCallable };
     </script>
 
     <link rel="stylesheet" href="src/styles/main.css">
 </head>
 <body>
     <!-- Header -->
-    <div class="header">
+    <header class="header">
         <div class="header-content">
             <div style="display: flex; align-items: center; gap: 30px;">
                 <div class="site-title" onclick="navigateTo('practice')" style="cursor: pointer;"><span style="color: var(--primary-blue);">HB</span>Reader</div>
@@ -52,15 +54,18 @@
                 <button class="btn-login" onclick="showAuthModal()">Login / Sign Up</button>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- Email Verification Banner -->
     <div id="verificationBanner" class="verification-banner">
         <strong>Email not verified.</strong> Please check your inbox and click the verification link.
         <button onclick="resendVerificationEmail()">Resend Email</button>
-        <button onclick="checkVerificationStatus()">Close</button>
+        <button onclick="checkVerificationStatus()">I've Verified</button>
+        <button onclick="handleLogout()">Log Out</button>
+        <button onclick="dismissVerificationBanner()" aria-label="Dismiss">✕</button>
     </div>
 
+    <main>
     <!-- Practice Page Container -->
     <div id="practiceContainer" class="practice-container active">
     <!-- Profile Warning Banner -->
@@ -78,9 +83,15 @@
         <!-- Play Area (Left Side) -->
         <div class="play-area">
             <!-- Difficulty Indicator -->
-            <div class="difficulty-indicator" id="difficultyIndicator">
-                <span class="difficulty-label">Difficulty:</span>
-                <span class="difficulty-value" id="difficultyValue"></span>
+            <div class="play-area-status">
+                <div class="difficulty-indicator" id="difficultyIndicator">
+                    <span class="difficulty-label">Difficulty:</span>
+                    <span class="difficulty-value" id="difficultyValue"></span>
+                </div>
+                <div class="session-stats" id="stats"></div>
+                <div class="points-display" id="pointsDisplay" style="display: none;">
+                    <span id="pointsText">0</span> XP
+                </div>
             </div>
 
             <!-- Selected Region Display -->
@@ -110,8 +121,8 @@
                     TAP TO BUZZ IN
                 </button>
 
-                <!-- Answer (displayed below question) -->
-                <div class="answer-text" id="answerText"></div>
+                <!-- Answer (displayed below question; announced to screen readers) -->
+                <div class="answer-text" id="answerText" aria-live="polite"></div>
             </div>
 
             <!-- Action Buttons -->
@@ -127,7 +138,13 @@
 
         <!-- Settings Panel (Right Side) -->
         <div class="settings-panel" id="settingsPanel">
-            <div class="settings-title">Settings</div>
+            <div class="settings-title">
+                Settings
+                <button class="settings-close" id="settingsCloseButton" aria-label="Close settings">✕</button>
+            </div>
+
+            <!-- XP / rank display (filled by xpSystem.updateXPDisplay when logged in) -->
+            <div class="setting-group xp-display" id="xpDisplayContainer"></div>
 
             <!-- Question Set -->
             <div class="setting-group">
@@ -142,10 +159,11 @@
             <div class="setting-group">
                 <label for="category">Difficulty Level</label>
                 <select id="category">
-                    <option value="preliminary">Preliminary (3,573)</option>
-                    <option value="quarterfinals">Quarterfinals (196)</option>
-                    <option value="semifinals">Semifinals (365)</option>
-                    <option value="finals">Finals (1,854)</option>
+                    <!-- Counts are appended from the loaded question data -->
+                    <option value="preliminary">Preliminary</option>
+                    <option value="quarterfinals">Quarterfinals</option>
+                    <option value="semifinals">Semifinals</option>
+                    <option value="finals">Finals</option>
                 </select>
             </div>
 
@@ -174,7 +192,7 @@
                 <div class="speed-display">
                     <span id="toleranceValue">80</span>% (forgives minor typos)
                 </div>
-                <div id="toleranceWarning" style="color: #e74c3c; font-size: 0.85em; margin-top: 5px; display: none;">
+                <div id="toleranceWarning" style="color: var(--error-red); font-size: 0.85em; margin-top: 5px; display: none;">
                     ⚠️ No XP earned below 80%
                 </div>
             </div>
@@ -185,7 +203,7 @@
 
                 <!-- Region Filter -->
                 <div id="regionFilterSection" class="filter-section">
-                    <label>Region</label>
+                    <label for="regionFilter">Region</label>
                     <select id="regionFilter" class="filter-select">
                         <option value="all">All Regions</option>
                         <option value="United States">United States</option>
@@ -201,7 +219,7 @@
 
                 <!-- Time Period Filter -->
                 <div id="timeFilterSection" class="filter-section">
-                    <label>Time Period</label>
+                    <label for="timeFilter">Time Period</label>
                     <select id="timeFilter" class="filter-select">
                         <option value="all">All Time Periods</option>
                         <option value="Ancient World (pre-500 CE)">Ancient World (pre-500 CE)</option>
@@ -216,7 +234,7 @@
 
                 <!-- Answer Type Filter -->
                 <div class="filter-section">
-                    <label>Question Type</label>
+                    <label for="answerTypeFilter">Question Type</label>
                     <select id="answerTypeFilter" class="filter-select">
                         <option value="all">All Types</option>
                         <option value="People & Biography">People & Biography</option>
@@ -379,20 +397,20 @@
 
         <div class="history-table-container">
             <div class="history-controls">
-                <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID...">
-                <select class="history-filter" id="historyQuestionSetFilter">
+                <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID..." aria-label="Search history by question ID">
+                <select class="history-filter" id="historyQuestionSetFilter" aria-label="Filter by question set">
                     <option value="all">All Question Sets</option>
                     <option value="nat_hist_bee">National History Bee</option>
                     <option value="us_hist_bee">US History Bee</option>
                 </select>
-                <select class="history-filter" id="difficultyFilter">
+                <select class="history-filter" id="difficultyFilter" aria-label="Filter by difficulty">
                     <option value="all">All Difficulties</option>
                     <option value="P">Preliminary</option>
                     <option value="Q">Quarterfinals</option>
                     <option value="S">Semifinals</option>
                     <option value="F">Finals</option>
                 </select>
-                <select class="history-filter" id="statusFilter">
+                <select class="history-filter" id="statusFilter" aria-label="Filter by status">
                     <option value="all">All Status</option>
                     <option value="correct">Correct</option>
                     <option value="incorrect">Incorrect</option>
@@ -589,21 +607,13 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal for feedback -->
-    <div id="feedbackModal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Result</h2>
-            <p id="modalMessage"></p>
-            <div class="modal-buttons" id="modalButtons"></div>
-        </div>
-    </div>
+    </main>
 
     <!-- Authentication Modal -->
-    <div id="authModal" class="auth-modal">
+    <div id="authModal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
         <div class="auth-modal-content">
             <div class="auth-modal-header">
-                <h2 class="auth-modal-title">Welcome to HBReader</h2>
+                <h2 class="auth-modal-title" id="authModalTitle">Welcome to HBReader</h2>
                 <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             </div>
 

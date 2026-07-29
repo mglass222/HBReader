@@ -2,6 +2,9 @@
 import { state, DIFFICULTY_NAMES } from './state.js';
 import { updateStats } from './questions.js';
 import { refreshDashboard } from './dashboard.js';
+import { escapeHtml, sanitizeToHtml } from './rendering.js';
+import { getQuestionMeta } from './filters.js';
+import { showToast } from './ui.js';
 
 // Forward declarations for cross-module dependencies
 export const deps = {
@@ -17,7 +20,10 @@ export function renderHistoryPageTable(data) {
     const isMobile = window.innerWidth <= 480;
 
     if (data.length === 0) {
-        wrapper.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">No questions match your filters.</p>';
+        const message = state.questionHistory.length === 0
+            ? 'You haven\'t practiced any questions yet. Head to the Practice tab to get started!'
+            : 'No questions match your filters.';
+        wrapper.innerHTML = `<p style="text-align: center; color: var(--text-secondary); padding: 40px;">${message}</p>`;
         return;
     }
 
@@ -53,29 +59,33 @@ export function renderHistoryPageTable(data) {
             : getDifficultyName(entry.id.charAt(0));
         const statusIcon = entry.status === 'correct' ? '✓' : (entry.status === 'incorrect' ? '✗' : '—');
 
-        // Get category information from metadata
-        const meta = state.questionMetadata[entry.id];
-        const region = meta ? (meta.regions[0] || 'N/A') : 'N/A';
-        const timePeriod = meta ? (meta.time_periods[0] || 'N/A') : 'N/A';
-        const answerType = meta ? (meta.answer_type || 'N/A') : 'N/A';
+        // Get category information from set-qualified metadata
+        const meta = getQuestionMeta(entry);
+        const region = meta?.regions?.[0] ?? 'N/A';
+        const timePeriod = meta?.time_periods?.[0] ?? 'N/A';
+        const answerType = meta?.answer_type || 'N/A';
+        const status = ['correct', 'incorrect', 'skipped'].includes(entry.status) ? entry.status : 'skipped';
 
         tableHTML += `
-            <tr class="${entry.status}" onclick="openQuestionDetail('${entry.id}')">
-                <td style="white-space: nowrap;">${entry.id}</td>
+            <tr class="${status}" data-entry-key="${escapeHtml(`${entry.id}_${entry.timestamp}`)}">
+                <td style="white-space: nowrap;">${escapeHtml(entry.id)}</td>
                 <td>
-                    <span class="status-badge ${entry.status}">${statusIcon}</span>
+                    <span class="status-badge ${status}">${statusIcon}</span>
                 </td>
-                <td>${difficulty}</td>
-                <td>${abbreviate(region, 7)}</td>
-                <td>${abbreviate(timePeriod, 7)}</td>
-                <td>${abbreviate(answerType, 4)}</td>
-                <td>${date}</td>
+                <td>${escapeHtml(difficulty)}</td>
+                <td>${escapeHtml(abbreviate(region, 7))}</td>
+                <td>${escapeHtml(abbreviate(timePeriod, 7))}</td>
+                <td>${escapeHtml(abbreviate(answerType, 4))}</td>
+                <td>${escapeHtml(date)}</td>
             </tr>
         `;
     });
 
     tableHTML += '</tbody></table>';
     wrapper.innerHTML = tableHTML;
+    wrapper.querySelectorAll('[data-entry-key]').forEach(row => {
+        row.addEventListener('click', () => openQuestionDetail(row.dataset.entryKey));
+    });
 
     // Initialize column resizing after table is rendered
     initColumnResizing();
@@ -128,23 +138,37 @@ export function initColumnResizing() {
     }
 }
 
-export function openQuestionDetail(questionId) {
-    const entry = state.questionHistory.find(e => e.id === questionId);
+// Accepts an "id_timestamp" key (exact attempt) or a bare question ID (first match)
+export function openQuestionDetail(entryKey) {
+    let entry = null;
+    const separator = String(entryKey).lastIndexOf('_');
+    if (separator > 0) {
+        const id = entryKey.slice(0, separator);
+        const timestamp = Number(entryKey.slice(separator + 1));
+        entry = state.questionHistory.find(e => e.id === id && e.timestamp === timestamp);
+    }
+    if (!entry) {
+        entry = state.questionHistory.find(e => e.id === entryKey);
+    }
     if (!entry) return;
 
-    // Get category information
-    const meta = state.questionMetadata[questionId];
-    const region = meta ? meta.regions.join(', ') : 'N/A';
-    const timePeriod = meta ? meta.time_periods.join(', ') : 'N/A';
-    const answerType = meta ? meta.answer_type : 'N/A';
-    const themes = meta ? meta.subject_themes.join(', ') : 'N/A';
+    const questionId = entry.id;
+
+    // Get category information from set-qualified metadata
+    const meta = getQuestionMeta(entry);
+    const region = meta?.regions?.join(', ') || 'N/A';
+    const timePeriod = meta?.time_periods?.join(', ') || 'N/A';
+    const answerType = meta?.answer_type || 'N/A';
+    const themes = meta?.subject_themes?.join(', ') || 'N/A';
 
     const newWindow = window.open('', '_blank');
+    if (!newWindow) return;
+
     newWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Question ${questionId}</title>
+            <title>Question ${escapeHtml(questionId)}</title>
             <style>
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -163,17 +187,17 @@ export function openQuestionDetail(questionId) {
             </style>
         </head>
         <body>
-            <h1>Question ${questionId}</h1>
+            <h1>Question ${escapeHtml(questionId)}</h1>
             <div class="label">Question:</div>
-            <div class="question">${entry.question}</div>
+            <div class="question">${sanitizeToHtml(entry.question)}</div>
             <div class="label">Answer:</div>
-            <div class="answer">${entry.answer}</div>
+            <div class="answer">${sanitizeToHtml(entry.answer)}</div>
             <div class="label">Categories:</div>
             <div class="categories">
-                <div class="category-item"><span class="category-label">Region:</span> ${region}</div>
-                <div class="category-item"><span class="category-label">Time Period:</span> ${timePeriod}</div>
-                <div class="category-item"><span class="category-label">Answer Type:</span> ${answerType}</div>
-                <div class="category-item"><span class="category-label">Themes:</span> ${themes}</div>
+                <div class="category-item"><span class="category-label">Region:</span> ${escapeHtml(region)}</div>
+                <div class="category-item"><span class="category-label">Time Period:</span> ${escapeHtml(timePeriod)}</div>
+                <div class="category-item"><span class="category-label">Answer Type:</span> ${escapeHtml(answerType)}</div>
+                <div class="category-item"><span class="category-label">Themes:</span> ${escapeHtml(themes)}</div>
             </div>
         </body>
         </html>
@@ -215,11 +239,11 @@ export function exportHistoryPage() {
         const question = entry.question.replace(/"/g, '""').replace(/<[^>]*>/g, '');
         const answer = entry.answer.replace(/"/g, '""').replace(/<[^>]*>/g, '');
 
-        // Get category information
-        const meta = state.questionMetadata[entry.id];
-        const region = meta ? (meta.regions.join('; ') || 'N/A') : 'N/A';
-        const timePeriod = meta ? (meta.time_periods.join('; ') || 'N/A') : 'N/A';
-        const answerType = meta ? (meta.answer_type || 'N/A') : 'N/A';
+        // Get category information from set-qualified metadata
+        const meta = getQuestionMeta(entry);
+        const region = meta?.regions?.join('; ') || 'N/A';
+        const timePeriod = meta?.time_periods?.join('; ') || 'N/A';
+        const answerType = meta?.answer_type || 'N/A';
 
         csv += `"${entry.id}","${entry.status}","${difficulty}","${region}","${timePeriod}","${answerType}","${date}","${question}","${answer}"\n`;
     });
@@ -239,18 +263,11 @@ export async function clearHistoryPage() {
         return;
     }
 
-    state.questionHistory = [];
-    state.sessionHistory = [];
-    if (deps.updateHistoryDisplay) {
-        deps.updateHistoryDisplay();
-    }
-    state.questionsPracticed = 0;
-    updateStats();
-
-    // Clear from Firestore if logged in
-    if (state.currentUser) {
+    // Delete from Firestore first so a failed remote delete leaves the
+    // local view consistent with what is actually stored.
+    if (state.currentUser && state.currentUser.emailVerified) {
         try {
-            const { collection, getDocs, deleteDoc, doc } = window.firebaseDbFunctions;
+            const { collection, getDocs, deleteDoc } = window.firebaseDbFunctions;
             const historyCollectionRef = collection(
                 window.firebaseDb,
                 'users',
@@ -265,18 +282,24 @@ export async function clearHistoryPage() {
             });
 
             await Promise.all(deletePromises);
-            alert('History cleared successfully!');
-            refreshDashboard();
-            renderHistoryPageTable(state.questionHistory);
         } catch (error) {
             console.error('Error clearing history:', error);
-            alert('Error clearing history from cloud. Please try again.');
+            showToast('Could not clear history from the cloud. Your history is unchanged.', 'error');
+            return;
         }
-    } else {
-        alert('History cleared!');
-        refreshDashboard();
-        renderHistoryPageTable(state.questionHistory);
     }
+
+    state.questionHistory = [];
+    state.sessionHistory = [];
+    if (deps.updateHistoryDisplay) {
+        deps.updateHistoryDisplay();
+    }
+    state.questionsPracticed = 0;
+    updateStats();
+
+    showToast('History cleared.', 'success');
+    refreshDashboard();
+    renderHistoryPageTable(state.questionHistory);
 }
 
 export function restoreHistoryPageStructure() {
@@ -289,20 +312,20 @@ export function restoreHistoryPageStructure() {
 
         <div class="history-table-container">
             <div class="history-controls">
-                <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID...">
-                <select class="history-filter" id="historyQuestionSetFilter">
+                <input type="text" class="history-search" id="historySearch" placeholder="Search by Question ID..." aria-label="Search history by question ID">
+                <select class="history-filter" id="historyQuestionSetFilter" aria-label="Filter by question set">
                     <option value="all">All Question Sets</option>
                     <option value="nat_hist_bee">National History Bee</option>
                     <option value="us_hist_bee">US History Bee</option>
                 </select>
-                <select class="history-filter" id="difficultyFilter">
+                <select class="history-filter" id="difficultyFilter" aria-label="Filter by difficulty">
                     <option value="all">All Difficulties</option>
                     <option value="P">Preliminary</option>
                     <option value="Q">Quarterfinals</option>
                     <option value="S">Semifinals</option>
                     <option value="F">Finals</option>
                 </select>
-                <select class="history-filter" id="statusFilter">
+                <select class="history-filter" id="statusFilter" aria-label="Filter by status">
                     <option value="all">All Status</option>
                     <option value="correct">Correct</option>
                     <option value="incorrect">Incorrect</option>

@@ -32,11 +32,12 @@ import * as xpSystem from './xpSystem.js';
 auth.deps.updateHistoryDisplay = history.updateHistoryDisplay;
 auth.deps.updateStats = questions.updateStats;
 auth.deps.loadUserProfile = profile.loadUserProfile;
+auth.deps.updateProfileUI = profile.updateProfileUI;
 auth.deps.loadUserHistory = history.loadUserHistory;
 auth.deps.refreshDashboard = dashboard.refreshDashboard;
 auth.deps.loadProfile = profile.loadProfile;
-auth.deps.restoreHistoryStructure = history.restoreHistoryStructure;
-auth.deps.renderHistoryTable = history.renderHistoryTable;
+auth.deps.restoreHistoryStructure = historyPage.restoreHistoryPageStructure;
+auth.deps.renderHistoryTable = historyPage.renderHistoryPageTable;
 auth.deps.navigateTo = router.navigateTo;
 auth.deps.saveHistoryItem = history.saveHistoryItem;
 auth.deps.checkForRecoverableAccount = profile.checkForRecoverableAccount;
@@ -58,6 +59,9 @@ router.deps.loadUserHistory = history.loadUserHistory;
 // History Page dependencies
 historyPage.deps.updateHistoryDisplay = history.updateHistoryDisplay;
 
+// Leaderboard dependencies
+leaderboard.deps.updateProfileUI = profile.updateProfileUI;
+
 // Make functions globally available for HTML onclick handlers
 
 // Auth
@@ -71,6 +75,7 @@ window.handleGoogleLogin = auth.handleGoogleLogin;
 window.handleLogout = auth.handleLogout;
 window.resendVerificationEmail = auth.resendVerificationEmail;
 window.checkVerificationStatus = auth.checkVerificationStatus;
+window.dismissVerificationBanner = auth.dismissVerificationBanner;
 
 // Settings
 window.toggleTheme = settings.toggleTheme;
@@ -89,13 +94,6 @@ window.handlePauseResume = game.handlePauseResume;
 window.showAnswerInput = game.showAnswerInput;
 window.checkAnswer = game.checkAnswer;
 window.revealAnswer = game.revealAnswer;
-window.closeModal = game.closeModal;
-window.nextQuestionFromModal = game.nextQuestionFromModal;
-
-// History (session sidebar)
-window.filterHistory = history.filterHistory;
-window.exportHistory = history.exportHistory;
-window.clearHistory = history.clearHistory;
 
 // Router
 window.navigateTo = router.navigateTo;
@@ -162,9 +160,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize difficulty display
     questions.updateDifficultyDisplay();
 
-    // Load questions
+    // Load questions in the background - the Start button shows a loading
+    // state, and non-practice routes don't need to wait for ~6MB of JSON.
     const questionSet = document.getElementById('questionSet').value;
-    await questions.loadQuestions(questionSet);
+    questions.loadQuestions(questionSet);
 
     // Initialize region filter state
     filters.updateRegionFilterState();

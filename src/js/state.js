@@ -23,6 +23,7 @@ export const state = {
     questionsPracticed: 0,
     questionHistory: [],
     sessionHistory: [],
+    historyLoaded: false,
 
     // User state
     currentUser: null,

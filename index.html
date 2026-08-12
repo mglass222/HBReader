@@ -11,6 +11,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { initializeAppCheck, ReCaptchaV3Provider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, getDocs, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, where, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
@@ -25,7 +26,17 @@
             measurementId: "G-0QDCTRN7CL"
         };
 
+        // Set this to your reCAPTCHA v3 site key from Firebase Console → App Check,
+        // then turn on enforcement for Firestore / Functions.
+        const RECAPTCHA_V3_SITE_KEY = '';
+
         const app = initializeApp(firebaseConfig);
+        if (RECAPTCHA_V3_SITE_KEY) {
+            initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider(RECAPTCHA_V3_SITE_KEY),
+                isTokenAutoRefreshEnabled: true
+            });
+        }
         window.firebaseAuth = getAuth(app);
         window.firebaseDb = getFirestore(app);
         window.firebaseAuthFunctions = { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, deleteUser };

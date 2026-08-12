@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// HBReader does not currently use Cloud Storage for user content.
+// Default deny keeps the bucket locked if it is ever enabled by mistake.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

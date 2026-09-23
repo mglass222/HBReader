@@ -10,6 +10,7 @@ import {
     updateXPDisplay
 } from './xpSystem.js';
 import { calculatePoints, getLeaderboardPath } from './leaderboard.js';
+import { getAnswerTolerance, XP_MIN_TOLERANCE } from './storage.js';
 import { showToast, showXPGain } from './ui.js';
 
 function getDefaultProfile() {
@@ -177,8 +178,7 @@ export async function updatePointsAndLeaderboard(difficulty, isCorrect) {
     }
 
     // XP is only earned at >= 80% answer tolerance
-    const currentTolerance = parseInt(localStorage.getItem('answerTolerance') || '80');
-    const xpEarned = (isCorrect && currentTolerance >= 80) ? calculatePoints(difficulty) : 0;
+    const xpEarned = (isCorrect && getAnswerTolerance() >= XP_MIN_TOLERANCE) ? calculatePoints(difficulty) : 0;
 
     try {
         const { doc, setDoc, updateDoc, increment } = window.firebaseDbFunctions;

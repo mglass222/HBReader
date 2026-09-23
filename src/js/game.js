@@ -5,6 +5,7 @@ import { updateStats, updateDifficultyDisplay } from './questions.js';
 import { updateBuzzerVisibility } from './settings.js';
 import { appendSanitizedHtml } from './rendering.js';
 import { isAnswerCorrect } from './answerChecker.js';
+import { getAnswerTolerance } from './storage.js';
 
 // Forward declarations
 export const deps = {
@@ -220,7 +221,7 @@ export function checkAnswer() {
     }
 
     const correctAnswer = state.currentQuestion.answer;
-    const tolerance = parseInt(localStorage.getItem('answerTolerance') || '80') / 100;
+    const tolerance = getAnswerTolerance() / 100;
     const isCorrect = isAnswerCorrect(userAnswer, correctAnswer, tolerance);
 
     if (deps.addToHistory) {

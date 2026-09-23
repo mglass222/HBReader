@@ -13,6 +13,8 @@ or related cleanup scripts.
 - Unknown region, time period, answer type, or subject theme.
 - Blank `answer_type` values, reported as warnings by default and errors with `--strict`.
 - Disallowed HTML tags or attributes in question/answer text.
+- PDF page-header residue at the end of an answer (`Bee Final Round`, `Round 3`).
+- Bracket markup from source packets (`[a]`, `[a/]`, `[i]…[i]`).
 
 ## Known Current Warnings
 
@@ -73,3 +75,35 @@ python scripts/fix_ocr_artifacts.py --dry-run # report only
 
 Power-mark counts are verified before write; the script aborts if `(+)` / `(*)`
 counts would change.
+
+## Header Residue In Answers (Fix With `scripts/strip_header_residue.py`)
+
+Found 2026-09-23. Page-header text was extracted onto the end of the answer line.
+The answer checker treated the unbolded answer text as acceptable, so a guess of
+`bee` or `round` was graded correct on these questions.
+
+| Pattern | Count | Example (broken → fixed) |
+|---|---|---|
+| National finals header | 244 | `<strong>Indonesia</strong> Bee Final Round` → `<strong>Indonesia</strong>` |
+| Finals header with level | (incl.) | `<strong>Fronde</strong> Bee Final Round - Varsity` → `<strong>Fronde</strong>` |
+| US packet round number | 123 | `<strong>Lincoln Memorial</strong> Round 1` → `<strong>Lincoln Memorial</strong>` |
+
+```bash
+python3 scripts/strip_header_residue.py --dry-run  # report only
+python3 scripts/strip_header_residue.py            # fix (backs up to backup/ first)
+```
+
+## Bracket Markup From Source Packets (Fixed By Hand)
+
+Found 2026-09-23. Google Docs comment anchors and BBCode-style italics survived
+extraction. In US F27 the `[a]` anchors also left the `<strong>` tag spanning into
+the parenthesised alternate, so the PATRIOT Act answer could not be parsed.
+
+| Question | Broken | Fixed |
+|---|---|---|
+| US F27 | `<strong>PATRIOT[a] Act (or United … by [a]Providing … Terrorism</strong>)` | `<strong>PATRIOT Act</strong> (or <strong>United … Terrorism</strong>)` |
+| Nat (Spanish-American War) | `Guerra [a]hispano-americana` | `Guerra hispano-americana` |
+| Nat (Nazi Party) | `<strong>Nazi[a/] Germany; accept [a]Third Reich</strong>` | `<strong>Nazi</strong> Germany; accept <strong>Third Reich</strong>` |
+| Nat F1682 (question) | `[i]The Green Book[i]` | `<em>The Green Book</em>` |
+| US P450 | `accept [i]Santa Clara County v. …` (unclosed) | `accept Santa Clara County v. …` |
+

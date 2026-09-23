@@ -5,6 +5,7 @@ import { state } from './state.js';
 import { updateStats } from './questions.js';
 import { setSanitizedHtml } from './rendering.js';
 import { showToast } from './ui.js';
+import { getAnswerTolerance, XP_MIN_TOLERANCE } from './storage.js';
 
 // Forward declarations
 export const deps = {
@@ -23,10 +24,9 @@ export async function addToHistory(question, status) {
     };
 
     // Record XP eligibility on the entry: the >= 80% tolerance gate lives only
-    // in localStorage, and the server scoring function (functions/index.js)
+    // in browser storage, and the server scoring function (functions/index.js)
     // honors this flag when awarding XP.
-    const currentTolerance = parseInt(localStorage.getItem('answerTolerance') || '80');
-    historyEntry.xpEligible = status === 'correct' && currentTolerance >= 80;
+    historyEntry.xpEligible = status === 'correct' && getAnswerTolerance() >= XP_MIN_TOLERANCE;
 
     state.questionHistory.push(historyEntry);
     state.sessionHistory.push(historyEntry);

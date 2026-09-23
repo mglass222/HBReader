@@ -61,15 +61,81 @@ test('isAnswerCorrect rejects single characters and tiny substrings', () => {
     assert.equal(isAnswerCorrect('sov', SOVIET_ANSWER, 0.8), false);
 });
 
-test('isAnswerCorrect accepts a whole-word part of the answer (surname rule)', () => {
-    const fdr = '<strong>Franklin Delano Roosevelt</strong> (accept FDR)';
+test('isAnswerCorrect accepts the bolded surname alone or with the full name', () => {
+    const fdr = 'Franklin Delano <strong>Roosevelt</strong> (accept FDR)';
     assert.equal(isAnswerCorrect('Roosevelt', fdr, 0.8), true);
+    assert.equal(isAnswerCorrect('Franklin Roosevelt', fdr, 0.8), true);
+    assert.equal(isAnswerCorrect('Franklin Delano Roosevelt', fdr, 0.8), true);
     assert.equal(isAnswerCorrect('FDR', fdr, 0.8), true);
 });
 
 test('isAnswerCorrect rejects partial words even when they appear in the answer', () => {
-    const fdr = '<strong>Franklin Delano Roosevelt</strong> (accept FDR)';
+    const fdr = 'Franklin Delano <strong>Roosevelt</strong> (accept FDR)';
     assert.equal(isAnswerCorrect('roose', fdr, 0.8), false);
+});
+
+test('isAnswerCorrect requires all of a fully bolded answer', () => {
+    const fdr = '<strong>Franklin Delano Roosevelt</strong>';
+    assert.equal(isAnswerCorrect('Franklin Delano Roosevelt', fdr, 0.8), true);
+    assert.equal(isAnswerCorrect('Roosevelt', fdr, 0.8), false);
+    assert.equal(isAnswerCorrect('Franklin', fdr, 0.8), false);
+
+    const teddy = '<strong>Theodore</strong> (or <strong>Teddy</strong>) <strong>Roosevelt</strong>';
+    assert.equal(isAnswerCorrect('Theodore Roosevelt', teddy, 0.8), true);
+    assert.equal(isAnswerCorrect('Theodore', teddy, 0.8), false);
+});
+
+test('isAnswerCorrect rejects unbolded words from the answer line', () => {
+    const hastings = 'Battle of <strong>Hastings</strong>';
+    assert.equal(isAnswerCorrect('battle', hastings, 0.8), false);
+    assert.equal(isAnswerCorrect('Hastings', hastings, 0.8), true);
+    assert.equal(isAnswerCorrect('the Battle of Hastings', hastings, 0.8), true);
+
+    const frost = 'Robert (Lee) <strong>Frost</strong>';
+    assert.equal(isAnswerCorrect('Robert', frost, 0.8), false);
+    assert.equal(isAnswerCorrect('Robert Frost', frost, 0.8), true);
+});
+
+test('isAnswerCorrect rejects a list of guesses', () => {
+    const hastings = 'Battle of <strong>Hastings</strong>';
+    assert.equal(isAnswerCorrect('lincoln washington hastings napoleon', hastings, 0.8), false);
+    // One extra word of context is still fine
+    assert.equal(isAnswerCorrect('President Lincoln', 'Abraham <strong>Lincoln</strong>', 0.8), true);
+});
+
+test('isAnswerCorrect does not accept reader instructions as answers', () => {
+    const answer = '<strong>death penalty</strong> (accept <strong>capital punishment</strong> and other equivalents)';
+    assert.equal(isAnswerCorrect('equivalents', answer, 0.8), false);
+    assert.equal(isAnswerCorrect('capital punishment', answer, 0.8), true);
+    assert.equal(isAnswerCorrect('descriptive answers', 'Arab Spring (accept descriptive answers)', 0.8), false);
+});
+
+test('isAnswerCorrect accepts a bolded stem or the whole word', () => {
+    const doughboys = 'American <strong>doughboy</strong>s (prompt on soldiers)';
+    assert.equal(isAnswerCorrect('doughboy', doughboys, 0.8), true);
+    assert.equal(isAnswerCorrect('doughboys', doughboys, 0.8), true);
+    assert.equal(isAnswerCorrect('soldiers', doughboys, 0.8), false);
+
+    const wmd = '<strong>Weapon</strong>s of <strong>Mass Destruction</strong>';
+    assert.equal(isAnswerCorrect('weapons of mass destruction', wmd, 0.8), true);
+    assert.equal(isAnswerCorrect('weapon', wmd, 0.8), false);
+});
+
+test('isAnswerCorrect splits "or" alternatives and accept-clause lists', () => {
+    const answer = '<strong>child</strong>ren (accept word forms and equivalents like <strong>kids</strong>, <strong>babies</strong>)';
+    assert.equal(isAnswerCorrect('kids', answer, 0.8), true);
+    assert.equal(isAnswerCorrect('babies', answer, 0.8), true);
+    assert.equal(isAnswerCorrect('word forms', answer, 0.8), false);
+
+    const charles = '<strong>Charles V</strong>, Holy Roman Emperor (or <strong>Charles I of Spain</strong>)';
+    assert.equal(isAnswerCorrect('Charles V, Holy Roman Emperor', charles, 0.8), true);
+    assert.equal(isAnswerCorrect('Charles I of Spain', charles, 0.8), true);
+    assert.equal(isAnswerCorrect('Holy Roman Emperor', charles, 0.8), false);
+});
+
+test('isAnswerCorrect handles answers made only of stopwords', () => {
+    assert.equal(isAnswerCorrect('a', '<strong>a</strong>', 0.8), true);
+    assert.equal(isAnswerCorrect('b', '<strong>a</strong>', 0.8), false);
 });
 
 test('isAnswerCorrect forgives minor typos at the configured tolerance', () => {

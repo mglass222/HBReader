@@ -103,6 +103,19 @@ def normalize_question(text):
     return " ".join(text.lower().split())
 
 
+# PDF page-header text left at the end of an answer line. The answer checker
+# would otherwise accept "bee" or "round" as correct. Fix with
+# scripts/strip_header_residue.py.
+HEADER_RESIDUE = re.compile(
+    r"(?:\bBee\s+Finals?\s+Round\b|\s+Round\s+\d+\s*$)", re.I
+)
+
+
+# Bracket markup copied from source packets: Google Docs comment anchors
+# ("[a]", "[a/]") and BBCode-style italics ("[i]The Green Book[i]").
+COMMENT_MARKER = re.compile(r"\[[a-z]/?\]")
+
+
 def validate_html(value):
     parser = QuestionHtmlParser()
     parser.feed(value or "")
@@ -140,6 +153,18 @@ def validate_pair(questions_path, metadata_path, strict=False):
                 errors.append(f"{questions_path}: {qid} has an empty question")
             if not question.get("answer"):
                 errors.append(f"{questions_path}: {qid} has an empty answer")
+            elif HEADER_RESIDUE.search(question["answer"]):
+                errors.append(
+                    f"{questions_path}: {qid} answer has PDF header residue "
+                    f"(run scripts/strip_header_residue.py)"
+                )
+
+            for field in ("question", "answer"):
+                if COMMENT_MARKER.search(question.get(field, "")):
+                    errors.append(
+                        f"{questions_path}: {qid} {field} has a source-document bracket "
+                        f"marker like [a] or [i] (remove it or convert to <em>, then re-check bold tags)"
+                    )
 
             normalized_questions[normalize_question(question.get("question"))].append(qid)
 

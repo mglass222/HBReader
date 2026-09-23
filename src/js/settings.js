@@ -1,5 +1,6 @@
 // Settings module - Theme, Font Size, Device Detection
 import { state } from './state.js';
+import { readSetting, writeSetting } from './storage.js';
 
 // Forward declaration for showAnswerInput
 export const deps = {
@@ -7,13 +8,13 @@ export const deps = {
 };
 
 export function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = readSetting('theme', 'light');
     setTheme(savedTheme);
 }
 
 export function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    writeSetting('theme', theme);
 
     const themeIcon = document.getElementById('themeIcon');
     const themeLabel = document.getElementById('themeLabel');
@@ -37,12 +38,12 @@ export function toggleTheme() {
 }
 
 export function initFontSize() {
-    const savedFontSize = localStorage.getItem('fontSize') || '18';
+    const savedFontSize = readSetting('fontSize', '18');
     setFontSize(parseInt(savedFontSize));
 }
 
 export function setFontSize(size) {
-    localStorage.setItem('fontSize', size);
+    writeSetting('fontSize', size);
     document.getElementById('fontSize').value = size;
     document.getElementById('fontSizeValue').textContent = size;
 
@@ -81,7 +82,7 @@ export function initSliders() {
 }
 
 export function initAnswerTolerance() {
-    const savedTolerance = localStorage.getItem('answerTolerance') || '80';
+    const savedTolerance = readSetting('answerTolerance', '80');
     document.getElementById('answerTolerance').value = savedTolerance;
     document.getElementById('toleranceValue').textContent = savedTolerance;
     document.getElementById('toleranceWarning').style.display = parseInt(savedTolerance) < 80 ? 'block' : 'none';
@@ -146,7 +147,7 @@ export function initSettingsEventListeners() {
     document.getElementById('answerTolerance').addEventListener('input', (e) => {
         const tolerance = parseInt(e.target.value);
         document.getElementById('toleranceValue').textContent = tolerance;
-        localStorage.setItem('answerTolerance', tolerance);
+        writeSetting('answerTolerance', tolerance);
         document.getElementById('toleranceWarning').style.display = tolerance < 80 ? 'block' : 'none';
     });
 
